@@ -114,6 +114,11 @@
             background: #1e3a21;
         }
         
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
         .success-message {
             display: none;
             text-align: center;
@@ -126,11 +131,47 @@
         .success-message h2 {
             margin-bottom: 10px;
         }
+        
+        .error-message {
+            display: none;
+            padding: 15px;
+            background: #f8d7da;
+            border-radius: 10px;
+            color: #721c24;
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2C5530;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>احجز جلستك</h1>
+        
+        <div id="errorMessage" class="error-message"></div>
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>جاري إرسال طلبك...</p>
+        </div>
         
         <form id="bookingForm">
             <div class="form-group">
@@ -175,16 +216,29 @@
                 <textarea id="message" name="message" placeholder="أخبرنا عن التحدي الذي تواجهه..."></textarea>
             </div>
             
-            <button type="submit" class="submit-btn">أرسل طلب الحجز</button>
+            <button type="submit" class="submit-btn" id="submitBtn">أرسل طلب الحجز</button>
         </form>
         
         <div id="successMessage" class="success-message">
             <h2>✅ تم إرسال طلبك بنجاح!</h2>
             <p>سنتواصل معك خلال 24 ساعة</p>
+            <p style="margin-top: 20px;">
+                <a href="index.html" style="color: #2C5530;">العودة للصفحة الرئيسية</a>
+            </p>
         </div>
     </div>
 
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+    
     <script>
+        // Initialize Firestore
+        const db = firebase.firestore();
+        
         let selectedProgram = '';
         
         function selectProgram(element, program) {
@@ -205,6 +259,18 @@
         document.getElementById('bookingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            // Hide any error messages
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Validate program selection
+            if (!selectedProgram) {
+                showError('من فضلك اختر البرنامج');
+                return;
+            }
+            
+            // Show loading
+            showLoading(true);
+            
             // Get form data
             const formData = {
                 name: document.getElementById('name').value || 'غير محدد',
@@ -212,31 +278,39 @@
                 phone: document.getElementById('phone').value,
                 program: selectedProgram,
                 message: document.getElementById('message').value,
-                timestamp: new Date().toISOString()
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'pending'
             };
             
-            // Validate program selection
-            if (!selectedProgram) {
-                alert('من فضلك اختر البرنامج');
-                return;
-            }
-            
-            // Show success message
-            document.getElementById('bookingForm').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'block';
-            
-            // Send WhatsApp message (غيّر الرقم لرقمك)
-            const whatsappMessage = `حجز جديد!%0A` +
-                `الاسم: ${formData.name}%0A` +
-                `البريد: ${formData.email}%0A` +
-                `الهاتف: ${formData.phone}%0A` +
-                `البرنامج: ${getProgramName(selectedProgram)}%0A` +
-                `الرسالة: ${formData.message || 'لا توجد'}`;
+            try {
+                // Save to Firestore
+                const docRef = await db.collection('bookings').add(formData);
+                console.log('Document written with ID: ', docRef.id);
                 
-            // افتح واتساب برسالة جاهزة
-            setTimeout(() => {
-                window.open(`https://wa.me/201224938330?text=${whatsappMessage}`, '_blank');
-            }, 1000);
+                // Hide loading
+                showLoading(false);
+                
+                // Show success message
+                document.getElementById('bookingForm').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+                
+                // Send WhatsApp notification
+                const whatsappMessage = `حجز جديد من الموقع!
+الاسم: ${formData.name}
+البريد: ${formData.email}
+الهاتف: ${formData.phone}
+البرنامج: ${getProgramName(selectedProgram)}
+الرسالة: ${formData.message || 'لا توجد'}`;
+                
+                // Open WhatsApp with the message
+                const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(whatsappMessage)}`;
+                window.open(whatsappUrl, '_blank');
+                
+            } catch (error) {
+                console.error('Error adding document: ', error);
+                showLoading(false);
+                showError('حدث خطأ في إرسال الطلب. من فضلك حاول مرة أخرى أو تواصل معنا مباشرة على الواتساب.');
+            }
         });
         
         function getProgramName(program) {
@@ -246,6 +320,17 @@
                 transformation: 'رحلة التحول'
             };
             return names[program] || program;
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('submitBtn').disabled = show;
         }
     </script>
 </body>
