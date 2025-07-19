@@ -284,6 +284,10 @@
             
             try {
                 // Save to Firestore
+                // Test Firebase connection
+console.log('Firebase initialized:', firebase.apps.length > 0);
+console.log('Firestore db:', db);
+console.log('Attempting to save:', formData);
                 const docRef = await db.collection('bookings').add(formData);
                 console.log('Document written with ID: ', docRef.id);
                 
