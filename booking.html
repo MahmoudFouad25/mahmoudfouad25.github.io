@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>احجز جلستك - محمود فؤاد</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: #F5F2E8;
+            color: #1A1A1A;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2C5530;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2C5530;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2C5530;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .program-options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .program-card {
+            border: 2px solid #eee;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .program-card:hover {
+            border-color: #8B9467;
+        }
+        
+        .program-card.selected {
+            border-color: #2C5530;
+            background: #F5F2E8;
+        }
+        
+        .program-card h3 {
+            color: #2C5530;
+            margin-bottom: 5px;
+        }
+        
+        .program-card p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: #2C5530;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background: #1e3a21;
+        }
+        
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: #d4edda;
+            border-radius: 10px;
+            color: #155724;
+        }
+        
+        .success-message h2 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>احجز جلستك</h1>
+        
+        <form id="bookingForm">
+            <div class="form-group">
+                <label for="name">الاسم</label>
+                <input type="text" id="name" name="name" placeholder="يمكنك استخدام اسم مستعار">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني *</label>
+                <input type="email" id="email" name="email" required placeholder="example@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">رقم الواتساب *</label>
+                <input type="tel" id="phone" name="phone" required placeholder="01234567890">
+            </div>
+            
+            <div class="form-group">
+                <label>اختر البرنامج المناسب *</label>
+                <div class="program-options">
+                    <div class="program-card" onclick="selectProgram(this, 'clarity')">
+                        <h3>جلسة الوضوح</h3>
+                        <p>90 دقيقة - للتحديات المحددة</p>
+                        <p><strong>400 جنيه</strong></p>
+                    </div>
+                    <div class="program-card" onclick="selectProgram(this, 'discovery')">
+                        <h3>رحلة الاكتشاف</h3>
+                        <p>3 جلسات - لفهم أعمق</p>
+                        <p><strong>1500 جنيه</strong></p>
+                    </div>
+                    <div class="program-card" onclick="selectProgram(this, 'transformation')">
+                        <h3>رحلة التحول</h3>
+                        <p>6 جلسات - للتغيير الشامل</p>
+                        <p><strong>3000 جنيه</strong></p>
+                    </div>
+                </div>
+                <input type="hidden" id="program" name="program" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">رسالتك (اختياري)</label>
+                <textarea id="message" name="message" placeholder="أخبرنا عن التحدي الذي تواجهه..."></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">أرسل طلب الحجز</button>
+        </form>
+        
+        <div id="successMessage" class="success-message">
+            <h2>✅ تم إرسال طلبك بنجاح!</h2>
+            <p>سنتواصل معك خلال 24 ساعة</p>
+        </div>
+    </div>
+
+    <script>
+        let selectedProgram = '';
+        
+        function selectProgram(element, program) {
+            // Remove selected class from all cards
+            document.querySelectorAll('.program-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked card
+            element.classList.add('selected');
+            
+            // Set the program value
+            selectedProgram = program;
+            document.getElementById('program').value = program;
+        }
+        
+        // Handle form submission
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value || 'غير محدد',
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                program: selectedProgram,
+                message: document.getElementById('message').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Validate program selection
+            if (!selectedProgram) {
+                alert('من فضلك اختر البرنامج');
+                return;
+            }
+            
+            // Show success message
+            document.getElementById('bookingForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            
+            // Send WhatsApp message (غيّر الرقم لرقمك)
+            const whatsappMessage = `حجز جديد!%0A` +
+                `الاسم: ${formData.name}%0A` +
+                `البريد: ${formData.email}%0A` +
+                `الهاتف: ${formData.phone}%0A` +
+                `البرنامج: ${getProgramName(selectedProgram)}%0A` +
+                `الرسالة: ${formData.message || 'لا توجد'}`;
+                
+            // افتح واتساب برسالة جاهزة
+            setTimeout(() => {
+                window.open(`https://wa.me/201024584537?text=${whatsappMessage}`, '_blank');
+            }, 1000);
+        });
+        
+        function getProgramName(program) {
+            const names = {
+                clarity: 'جلسة الوضوح',
+                discovery: 'رحلة الاكتشاف',
+                transformation: 'رحلة التحول'
+            };
+            return names[program] || program;
+        }
+    </script>
+</body>
+</html>
