@@ -1180,41 +1180,19 @@ try {
 // إصلاح رسائل WhatsApp - استبدل الكود القديم بهذا
 
 // رسالة للأدمن فقط
-let adminMessage = `🎉 حجز جديد من الموقع!
+// رسالة واحدة بس للأدمن على رقمك
+const adminMessage = `🎉 حجز جديد!
 
-📋 رقم الحجز: ${bookingNumber}
-👤 الاسم: ${formData.name}
-📧 البريد: ${formData.email}
-📱 الهاتف: ${formData.phone}
-📚 البرنامج: ${getProgramName(formData.program)}
-💬 الرسالة: ${formData.message}
-⏰ الأوقات المفضلة: ${formData.preferredTimes || 'لم يحدد'}
-🔗 المصدر: ${formData.referralSource || 'مباشر'}`;
+العميل: ${formData.name}
+الهاتف: ${formData.phone}
+البرنامج: ${getProgramName(formData.program)}
 
-// معلومات الحساب للأدمن فقط
-if (temporaryPassword) {
-    adminMessage += `
+${temporaryPassword ? `كلمة مرور مؤقتة تم إنشاؤها: ${temporaryPassword}` : 'العميل لديه حساب بالفعل'}`;
 
-✅ تم إنشاء حساب جديد بنجاح:
-📧 البريد: ${formData.email}
-🔐 كلمة المرور المؤقتة: ${temporaryPassword}
+// ارسل للأدمن فقط (أنت)
+window.open(`https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`, '_blank');
 
-⚠️ مهم: أرسل كلمة المرور للعميل`;
-} else {
-    adminMessage += `
-
-⚠️ ملاحظة: لم يتم إنشاء حساب جديد
-السبب: المستخدم لديه حساب بالفعل في النظام`;
-}
-
-// رابط لوحة التحكم للأدمن فقط
-adminMessage += `
-
-🔗 لوحة التحكم: https://mahmoudfouad25.github.io/admin.html`;
-
-// إرسال للأدمن على رقمه الخاص
-const adminPhone = '201224938330'; // رقمك أنت كأدمن
-window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(adminMessage)}`, '_blank');
+// خلاص كده - مفيش رسائل تانية
 
 // رسالة منفصلة تماماً للعميل
 if (temporaryPassword && formData.phone) {
