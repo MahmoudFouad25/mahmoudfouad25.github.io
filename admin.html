@@ -499,12 +499,21 @@
             
             if (status === 'pending') {
                 html += `<button class="btn btn-primary" onclick="showAppointments('${booking.id}')">إرسال مواعيد</button>`;
+                
+                // إذا تم إرسال مواعيد مقترحة، أظهر زر تأكيد الموعد
+                if (booking.proposedSlots && booking.proposedSlots.length > 0) {
+                    html += `<button class="btn btn-success" onclick="showConfirmModal('${booking.id}')">تأكيد موعد</button>`;
+                }
+                
                 html += `<button class="btn btn-danger" onclick="cancelBooking('${booking.id}')">إلغاء</button>`;
             } else if (status === 'confirmed') {
                 html += `<button class="btn btn-success" onclick="markComplete('${booking.id}')">مكتمل</button>`;
+                html += `<button class="btn btn-warning" onclick="showConfirmModal('${booking.id}')">تعديل موعد</button>`;
                 html += `<button class="btn btn-danger" onclick="cancelBooking('${booking.id}')">إلغاء</button>`;
             } else if (status === 'completed') {
                 html += `<button class="btn btn-info" onclick="requestFeedback('${booking.id}')">طلب تقييم</button>`;
+            } else if (status === 'cancelled') {
+                html += `<button class="btn btn-success" onclick="reactivateBooking('${booking.id}')">إعادة تفعيل</button>`;
             }
             
             return html;
@@ -561,9 +570,8 @@
             const fullPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
             window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
             
-            // Update status
+            // DON'T change status to confirmed yet - wait for client confirmation
             await db.collection('bookings').doc(currentBookingId).update({
-                status: 'confirmed',
                 proposedSlots: selected
             });
             
@@ -781,32 +789,88 @@
             document.getElementById('weekModal').style.display = 'block';
         }
         
-        // Export to Excel
+        // Reactivate booking
+        async function reactivateBooking(bookingId) {
+            if (confirm('هل تريد إعادة تفعيل هذا الحجز؟')) {
+                await db.collection('bookings').doc(bookingId).update({
+                    status: 'pending',
+                    cancelReason: null
+                });
+                loadBookings();
+            }
+        }
+        
+        // Export to Excel - PROPER FORMAT
         function exportToExcel() {
+            // Create CSV content with semicolon separator for Excel
             let csv = '\ufeff'; // UTF-8 BOM
-            csv += 'التاريخ\tالاسم\tالهاتف\tالبرنامج\tالموعد\tالحالة\tالملاحظات\tسبب الإلغاء\n';
             
-            allBookings.forEach(b => {
-                const date = b.createdAt ? 
-                    new Date(b.createdAt.toDate()).toLocaleDateString('ar-EG') : '';
+            // Headers
+            const headers = ['التاريخ', 'الاسم', 'البريد الإلكتروني', 'الهاتف', 'البرنامج', 'موعد الجلسة', 'الحالة', 'الرسالة', 'الملاحظات', 'سبب الإلغاء'];
+            csv += headers.join(';') + '\n';
+            
+            // Data rows
+            allBookings.forEach(booking => {
+                const row = [];
                 
-                let appointment = '';
-                if (b.appointmentDate) {
-                    const apptDate = b.appointmentDate.toDate ? 
-                        b.appointmentDate.toDate() : new Date(b.appointmentDate);
+                // التاريخ
+                row.push(booking.createdAt ? new Date(booking.createdAt.toDate()).toLocaleDateString('ar-EG') : '');
+                
+                // الاسم
+                row.push(booking.name || '');
+                
+                // البريد
+                row.push(booking.email || '');
+                
+                // الهاتف
+                row.push(booking.phone || '');
+                
+                // البرنامج
+                row.push(getProgramName(booking.program));
+                
+                // موعد الجلسة
+                let appointment = 'لم يحدد';
+                if (booking.appointmentDate) {
+                    const apptDate = booking.appointmentDate.toDate ? 
+                        booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
                     appointment = apptDate.toLocaleDateString('ar-EG');
-                    if (b.appointmentTime) appointment += ' ' + b.appointmentTime;
+                    if (booking.appointmentTime) {
+                        appointment += ' - ' + booking.appointmentTime;
+                    }
                 }
+                row.push(appointment);
                 
-                csv += `${date}\t${b.name}\t${b.phone}\t${getProgramName(b.program)}\t${appointment}\t${getStatusName(b.status)}\t${b.notes || ''}\t${b.cancelReason || ''}\n`;
+                // الحالة
+                row.push(getStatusName(booking.status));
+                
+                // الرسالة
+                row.push((booking.message || '').replace(/\n/g, ' ').replace(/;/g, ','));
+                
+                // الملاحظات
+                row.push((booking.notes || '').replace(/\n/g, ' ').replace(/;/g, ','));
+                
+                // سبب الإلغاء
+                row.push((booking.cancelReason || '').replace(/\n/g, ' ').replace(/;/g, ','));
+                
+                // Add row to CSV
+                csv += row.join(';') + '\n';
             });
             
-            // Download
-            const blob = new Blob([csv], { type: 'text/tab-separated-values;charset=utf-8;' });
+            // Create blob and download
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `حجوزات_${new Date().toLocaleDateString('ar-EG')}.xls`;
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `حجوزات_${new Date().toLocaleDateString('ar-EG').replace(/\//g, '-')}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+            
+            // Show instructions
+            alert('تم تحميل الملف. لفتحه في Excel:\n1. افتح Excel\n2. اختر File > Open\n3. اختر الملف المحمل\n4. في نافذة Import، اختر "Delimited" ثم "Semicolon"');
         }
         
         // Filter bookings
