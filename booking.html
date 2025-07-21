@@ -989,18 +989,17 @@ googleProvider.setCustomParameters({
 
 // ← ثم يستمر باقي الكود كما هو ←
 // Form state
-let currentStep = 1;
-let selectedProgram = '';
+window.currentStep = window.currentStep || 1;
+window.selectedProgram = window.selectedProgram || '';
+
 // ... باقي الكود
     
 // Form state
-let currentStep = 1;
-let selectedProgram = '';
-let formData = {};
-let accountType = 'auto';
-let googleUser = null;
-
-
+window.currentStep = window.currentStep || 1;
+window.selectedProgram = window.selectedProgram || '';
+window.formData = window.formData || {};
+window.accountType = window.accountType || 'auto';
+window.googleUser = window.googleUser || null;
 
 // Show notification
 function showNotification(message, type = 'success') {
