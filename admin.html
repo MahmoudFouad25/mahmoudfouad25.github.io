@@ -440,49 +440,28 @@
         </div>
     </div>
 
-    <!-- Week Schedule Modal -->
-    <div id="weekScheduleModal" class="modal">
-        <div class="modal-content" style="max-width: 90%;">
-            <span class="close" onclick="closeModal('weekScheduleModal')">&times;</span>
-            <h2>جدول الأسبوع</h2>
-            
-            <div id="weekScheduleContent">
-                <!-- سيتم ملؤها ديناميكياً -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Confirm Appointment Modal -->
-    <div id="confirmAppointmentModal" class="modal">
+    <!-- Notes Modal -->
+    <div id="notesModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('confirmAppointmentModal')">&times;</span>
-            <h2>تأكيد الموعد</h2>
+            <span class="close" onclick="closeModal('notesModal')">&times;</span>
+            <h2>ملاحظات العميل</h2>
             
             <div class="form-group">
-                <label>العميل: <span id="confirmClientName"></span></label>
-                <input type="hidden" id="confirmBookingId">
+                <label>اسم العميل: <span id="notesClientName"></span></label>
+                <input type="hidden" id="notesBookingId">
+            </div>
+            
+            <div id="cancelReasonDiv" class="form-group" style="display: none; background: #f8d7da; padding: 10px; border-radius: 5px;">
+                <label style="color: #721c24;">سبب الإلغاء:</label>
+                <p id="cancelReasonText" style="margin: 5px 0;"></p>
             </div>
             
             <div class="form-group">
-                <label>المواعيد المقترحة:</label>
-                <div id="proposedSlotsDiv">
-                    <!-- سيتم ملؤها ديناميكياً -->
-                </div>
+                <label>الملاحظات:</label>
+                <textarea id="bookingNotes" rows="5"></textarea>
             </div>
             
-            <div class="form-group">
-                <label>الموعد الذي اختاره العميل:</label>
-                <select id="selectedSlotIndex">
-                    <!-- سيتم ملؤها ديناميكياً -->
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>أو أدخل موعد مخصص:</label>
-                <input type="datetime-local" id="customDateTime">
-            </div>
-            
-            <button class="btn btn-success" onclick="confirmSelectedAppointment()">تأكيد الموعد</button>
+            <button class="btn btn-primary" onclick="saveNotes()">حفظ الملاحظات</button>
         </div>
     </div>
 
@@ -558,7 +537,7 @@
                     <td>${booking.email}</td>
                     <td>${booking.phone}</td>
                     <td>${getProgramName(booking.program)}</td>
-                    <td>${booking.message || 'لا توجد'}</td>
+                    <td title="${booking.message || ''}">${(booking.message || 'لا توجد').substring(0, 30)}${booking.message && booking.message.length > 30 ? '...' : ''}</td>
                     <td>${appointmentInfo}</td>
                     <td><span class="status status-${booking.status}">${getStatusName(booking.status)}</span></td>
                     <td class="actions">${generateActions(booking)}</td>
@@ -769,7 +748,7 @@
             document.getElementById('confirmAppointmentModal').style.display = 'block';
         }
         
-        // Confirm selected appointment
+        // Confirm selected appointment (Fixed date parsing)
         async function confirmSelectedAppointment() {
             const bookingId = document.getElementById('confirmBookingId').value;
             const selectedIndex = document.getElementById('selectedSlotIndex').value;
@@ -778,21 +757,30 @@
             let appointmentDate, appointmentTime;
             
             if (customDateTime) {
+                // Custom datetime selected
                 appointmentDate = new Date(customDateTime);
-                appointmentTime = appointmentDate.toLocaleTimeString('ar-EG', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
+                const hours = appointmentDate.getHours();
+                const minutes = appointmentDate.getMinutes();
+                const ampm = hours >= 12 ? 'م' : 'ص';
+                const hour12 = hours % 12 || 12;
+                appointmentTime = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
             } else if (selectedIndex !== '') {
+                // Selected from proposed slots
                 const booking = allBookings.find(b => b.id === bookingId);
                 const selectedSlot = booking.proposedSlots[selectedIndex];
                 
-                // Parse the slot string
+                // Parse the Arabic date string
                 const parts = selectedSlot.split(' - ');
                 appointmentTime = parts[parts.length - 1];
                 
-                // For simplicity, use today's date. In production, parse the full date
-                appointmentDate = new Date();
+                // Extract date from the slot string
+                // This is complex with Arabic dates, so we'll need a more robust solution
+                // For now, let's ask the user to confirm the date
+                const dateStr = prompt('أدخل التاريخ بصيغة YYYY-MM-DD (مثال: 2025-07-22):');
+                if (!dateStr) return;
+                
+                const [year, month, day] = dateStr.split('-');
+                appointmentDate = new Date(year, month - 1, day);
             } else {
                 alert('من فضلك اختر موعد أو أدخل موعد مخصص');
                 return;
@@ -817,8 +805,11 @@
                     `⏰ ${appointmentTime}\n\n` +
                     `سأرسل لك رابط الجلسة قبلها بساعة.\n` +
                     `للاستفسار: 01224938330`;
+                
+                const cleanPhone = booking.phone.replace(/\D/g, '');
+                const formattedPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
                     
-                window.open(`https://wa.me/2${booking.phone}?text=${encodeURIComponent(confirmMessage)}`, '_blank');
+                window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(confirmMessage)}`, '_blank');
                 
             } catch (error) {
                 console.error('Error confirming appointment:', error);
@@ -853,17 +844,20 @@
             });
         }
         
-        // Add new slot
+        // Add new slot (Fixed date issue)
         function addNewSlot() {
-            const date = document.getElementById('newSlotDate').value;
-            const time = document.getElementById('newSlotTime').value;
+            const dateInput = document.getElementById('newSlotDate').value;
+            const timeInput = document.getElementById('newSlotTime').value;
             
-            if (!date || !time) {
+            if (!dateInput || !timeInput) {
                 alert('من فضلك أدخل التاريخ والوقت');
                 return;
             }
             
-            const dateObj = new Date(date);
+            // Parse the date correctly
+            const [year, month, day] = dateInput.split('-');
+            const dateObj = new Date(year, month - 1, day); // month is 0-indexed
+            
             const formattedDate = dateObj.toLocaleDateString('ar-EG', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -871,7 +865,14 @@
                 day: 'numeric' 
             });
             
-            const slot = `${formattedDate} - ${time}`;
+            // Convert 24h to 12h format
+            const [hours, minutes] = timeInput.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'م' : 'ص';
+            const hour12 = hour % 12 || 12;
+            const formattedTime = `${hour12}:${minutes} ${ampm}`;
+            
+            const slot = `${formattedDate} - ${formattedTime}`;
             availableSlots.push(slot);
             
             // Clear inputs
@@ -1079,37 +1080,50 @@
             alert(schedule);
         }
         
-        // Export to Excel (Fixed)
+        // Export to Excel (Fixed formatting)
         function exportToExcel() {
-            let csv = '\ufeff'; // UTF-8 BOM for Arabic support
+            // Create array for Excel data
+            const data = [
+                ['التاريخ', 'الاسم', 'البريد الإلكتروني', 'رقم الهاتف', 'البرنامج', 'موعد الجلسة', 'الحالة', 'الرسالة', 'الملاحظات', 'سبب الإلغاء']
+            ];
             
-            // Headers
-            csv += 'التاريخ,الاسم,البريد الإلكتروني,رقم الهاتف,البرنامج,موعد الجلسة,الحالة,الرسالة,الملاحظات\n';
-            
-            // Data
+            // Add data rows
             allBookings.forEach(booking => {
                 const createdDate = booking.createdAt ? 
                     new Date(booking.createdAt.toDate()).toLocaleDateString('ar-EG') : '';
                     
-                const appointmentDateTime = booking.appointmentDate ? 
-                    `${new Date(booking.appointmentDate.toDate()).toLocaleDateString('ar-EG')} ${booking.appointmentTime || ''}` : 
-                    'لم يحدد';
+                let appointmentDateTime = 'لم يحدد';
+                if (booking.appointmentDate) {
+                    const date = booking.appointmentDate.toDate ? booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
+                    appointmentDateTime = `${date.toLocaleDateString('ar-EG')} ${booking.appointmentTime || ''}`;
+                }
                 
-                // Escape quotes and handle commas in text
-                const escapeCSV = (text) => {
-                    if (!text) return '';
-                    return `"${String(text).replace(/"/g, '""')}"`;
-                };
-                
-                csv += `${createdDate},`;
-                csv += `${escapeCSV(booking.name)},`;
-                csv += `${escapeCSV(booking.email)},`;
-                csv += `${booking.phone},`;
-                csv += `${getProgramName(booking.program)},`;
-                csv += `${appointmentDateTime},`;
-                csv += `${getStatusName(booking.status)},`;
-                csv += `${escapeCSV(booking.message)},`;
-                csv += `${escapeCSV(booking.notes)}\n`;
+                data.push([
+                    createdDate,
+                    booking.name || '',
+                    booking.email || '',
+                    booking.phone || '',
+                    getProgramName(booking.program),
+                    appointmentDateTime,
+                    getStatusName(booking.status),
+                    booking.message || '',
+                    booking.notes || '',
+                    booking.cancelReason || ''
+                ]);
+            });
+            
+            // Convert to CSV with proper formatting
+            let csv = '\ufeff'; // UTF-8 BOM
+            
+            data.forEach(row => {
+                const processedRow = row.map(cell => {
+                    // Handle cells that contain commas or quotes
+                    if (cell.toString().includes(',') || cell.toString().includes('"') || cell.toString().includes('\n')) {
+                        return `"${cell.toString().replace(/"/g, '""')}"`;
+                    }
+                    return cell;
+                });
+                csv += processedRow.join(',') + '\n';
             });
             
             // Create and download file
