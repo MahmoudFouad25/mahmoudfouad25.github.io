@@ -909,463 +909,531 @@
     <script src="firebase-config.js"></script>
     
     <script>
-        // Initialize Auth & Firestore
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        
-        // Configure Google Provider
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-        googleProvider.setCustomParameters({
-            prompt: 'select_account'
-        });
-        
-        // Form state
-        let currentStep = 1;
-        let selectedProgram = '';
-        let formData = {};
-        let accountType = 'auto';
-        let googleUser = null;
-        
-        // Show notification
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            notification.onclick = () => notification.remove();
+// Initialize Auth & Firestore
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Configure Google Provider
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+googleProvider.setCustomParameters({
+    prompt: 'select_account'
+});
+
+// Form state
+let currentStep = 1;
+let selectedProgram = '';
+let formData = {};
+let accountType = 'auto';
+let googleUser = null;
+
+// Make functions globally accessible
+window.nextStep = nextStep;
+window.previousStep = previousStep;
+window.selectProgram = selectProgram;
+window.selectAccountType = selectAccountType;
+window.togglePassword = togglePassword;
+window.signInWithGoogle = signInWithGoogle;
+window.analyzeAndProceed = analyzeAndProceed;
+window.continueAsGuest = continueAsGuest;
+
+// Show notification
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notification.onclick = () => notification.remove();
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Show alert
+function showAlert(message, type = 'error') {
+    const alertBox = document.getElementById('alertBox');
+    alertBox.textContent = message;
+    alertBox.className = `alert alert-${type}`;
+    alertBox.style.display = 'block';
+    
+    setTimeout(() => {
+        alertBox.style.display = 'none';
+    }, 5000);
+}
+
+// Validation functions
+function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validatePhone(phone) {
+    const cleaned = phone.replace(/\D/g, '');
+    return cleaned.length >= 10 && cleaned.length <= 11;
+}
+
+// Clear error
+function clearError(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.classList.remove('error');
+        const errorElement = document.getElementById(fieldId + 'Error');
+        if (errorElement) {
+            errorElement.style.display = 'none';
+            errorElement.textContent = '';
+        }
+    }
+}
+
+// Show error
+function showError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.classList.add('error');
+        const errorElement = document.getElementById(fieldId + 'Error');
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+}
+
+// Validate step
+function validateStep(step) {
+    let isValid = true;
+    
+    switch(step) {
+        case 1:
+            clearError('email');
+            clearError('phone');
             
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 5000);
-        }
-        
-        // Show alert
-        function showAlert(message, type = 'error') {
-            const alertBox = document.getElementById('alertBox');
-            alertBox.textContent = message;
-            alertBox.className = `alert alert-${type}`;
-            alertBox.style.display = 'block';
-            
-            setTimeout(() => {
-                alertBox.style.display = 'none';
-            }, 5000);
-        }
-        
-        // Validation functions
-        function validateEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        }
-        
-        function validatePhone(phone) {
-            const cleaned = phone.replace(/\D/g, '');
-            return cleaned.length >= 10 && cleaned.length <= 11;
-        }
-        
-        // Clear error
-        function clearError(fieldId) {
-            document.getElementById(fieldId).classList.remove('error');
-            const errorElement = document.getElementById(fieldId + 'Error');
-            if (errorElement) {
-                errorElement.style.display = 'none';
-                errorElement.textContent = '';
-            }
-        }
-        
-        // Show error
-        function showError(fieldId, message) {
-            document.getElementById(fieldId).classList.add('error');
-            const errorElement = document.getElementById(fieldId + 'Error');
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.style.display = 'block';
-            }
-        }
-        
-        // Validate step
-        function validateStep(step) {
-            let isValid = true;
-            
-            switch(step) {
-                case 1:
-                    clearError('email');
-                    clearError('phone');
-                    
-                    const email = document.getElementById('email').value;
-                    if (!email) {
-                        showError('email', 'البريد الإلكتروني مطلوب');
-                        isValid = false;
-                    } else if (!validateEmail(email)) {
-                        showError('email', 'البريد الإلكتروني غير صحيح');
-                        isValid = false;
-                    }
-                    
-                    const phone = document.getElementById('phone').value;
-                    if (!phone) {
-                        showError('phone', 'رقم الواتساب مطلوب');
-                        isValid = false;
-                    } else if (!validatePhone(phone)) {
-                        showError('phone', 'رقم الواتساب غير صحيح (10-11 رقم)');
-                        isValid = false;
-                    }
-                    break;
-                    
-                case 2:
-                    clearError('message');
-                    const message = document.getElementById('message').value;
-                    if (!message || message.length < 10) {
-                        showError('message', 'من فضلك اكتب رسالة أطول قليلاً');
-                        isValid = false;
-                    }
-                    break;
-                    
-                case 3:
-                    clearError('program');
-                    if (!selectedProgram) {
-                        showError('program', 'من فضلك اختر البرنامج');
-                        showAlert('من فضلك اختر البرنامج المناسب');
-                        isValid = false;
-                    }
-                    break;
-                    
-                case 4:
-                    if (accountType === 'create' && !googleUser) {
-                        clearError('password');
-                        clearError('confirmPassword');
-                        
-                        const password = document.getElementById('password').value;
-                        const confirmPassword = document.getElementById('confirmPassword').value;
-                        
-                        if (!password || password.length < 6) {
-                            showError('password', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
-                            isValid = false;
-                        }
-                        
-                        if (password !== confirmPassword) {
-                            showError('confirmPassword', 'كلمتا المرور غير متطابقتين');
-                            isValid = false;
-                        }
-                    }
-                    break;
-                    
-                case 5:
-                    const terms = document.getElementById('terms').checked;
-                    if (!terms) {
-                        showAlert('من فضلك وافق على الشروط والأحكام');
-                        isValid = false;
-                    }
-                    break;
+            const email = document.getElementById('email').value;
+            if (!email) {
+                showError('email', 'البريد الإلكتروني مطلوب');
+                isValid = false;
+            } else if (!validateEmail(email)) {
+                showError('email', 'البريد الإلكتروني غير صحيح');
+                isValid = false;
             }
             
-            return isValid;
-        }
-        
-        // Save step data
-        function saveStepData(step) {
-            switch(step) {
-                case 1:
-                    formData.name = document.getElementById('name').value || 'غير محدد';
-                    formData.email = document.getElementById('email').value;
-                    formData.phone = document.getElementById('phone').value;
-                    formData.contactMethod = document.getElementById('contactMethod').value;
-                    formData.previousCoaching = document.querySelector('input[name="previousCoaching"]:checked').value;
-                    break;
-                    
-                case 2:
-                    formData.message = document.getElementById('message').value;
-                    formData.issues = Array.from(document.querySelectorAll('input[name="issues"]:checked'))
-                        .map(el => el.value);
-                    formData.duration = document.getElementById('duration').value;
-                    formData.goal = document.getElementById('goal').value;
-                    break;
-                    
-                case 3:
-                    formData.program = selectedProgram;
-                    formData.preferredTimes = document.getElementById('preferredTimes').value;
-                    formData.referralSource = document.getElementById('referralSource').value;
-                    break;
-                    
-                case 4:
-                    formData.accountType = accountType;
-                    if (accountType === 'create' && !googleUser) {
-                        formData.password = document.getElementById('password').value;
-                    }
-                    break;
+            const phone = document.getElementById('phone').value;
+            if (!phone) {
+                showError('phone', 'رقم الواتساب مطلوب');
+                isValid = false;
+            } else if (!validatePhone(phone)) {
+                showError('phone', 'رقم الواتساب غير صحيح (10-11 رقم)');
+                isValid = false;
             }
-        }
-        
-        // Update progress
-        function updateProgress() {
-            document.querySelectorAll('.step').forEach((step, index) => {
-                if (index < currentStep - 1) {
-                    step.classList.add('completed');
-                    step.classList.remove('active');
-                } else if (index === currentStep - 1) {
-                    step.classList.add('active');
-                    step.classList.remove('completed');
-                } else {
-                    step.classList.remove('active', 'completed');
-                }
-            });
-        }
-        
-        // Show step
-        function showStep(step) {
-            document.querySelectorAll('.form-step').forEach(s => {
-                s.classList.remove('active');
-            });
+            break;
             
-            document.querySelector(`.form-step[data-step="${step}"]`).classList.add('active');
-            updateProgress();
-            
-            // Show email in account step
-            if (step === 4) {
-                document.getElementById('userEmail').textContent = formData.email;
-                document.getElementById('accountInfo').style.display = 'block';
+        case 2:
+            clearError('message');
+            const message = document.getElementById('message').value;
+            if (!message || message.length < 10) {
+                showError('message', 'من فضلك اكتب رسالة أطول قليلاً');
+                isValid = false;
             }
+            break;
             
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        
-        // Next step
-        function nextStep() {
-            if (validateStep(currentStep)) {
-                saveStepData(currentStep);
-                currentStep++;
-                showStep(currentStep);
-                
-                // Show summary on last step
-                if (currentStep === 5) {
-                    showSummary();
-                }
-            }
-        }
-        
-        // Previous step
-        function previousStep() {
-            currentStep--;
-            showStep(currentStep);
-        }
-        
-        // Select program
-        function selectProgram(element, program) {
-            // Remove selected class from all
-            document.querySelectorAll('.program-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
-            // Add selected class
-            element.classList.add('selected');
-            selectedProgram = program;
-            document.getElementById('program').value = program;
+        case 3:
             clearError('program');
-        }
-        
-        // Select account type
-        function selectAccountType(type) {
-            accountType = type;
-            document.getElementById('accountType').value = type;
-            
-            // Update UI
-            document.querySelectorAll('.account-type-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            event.target.closest('.account-type-card').classList.add('selected');
-            
-            // Show/hide password section
-            if (type === 'create' && !googleUser) {
-                document.getElementById('passwordSection').style.display = 'block';
-            } else {
-                document.getElementById('passwordSection').style.display = 'none';
+            if (!selectedProgram) {
+                showError('program', 'من فضلك اختر البرنامج');
+                showAlert('من فضلك اختر البرنامج المناسب');
+                isValid = false;
             }
-        }
-        
-        // Toggle password visibility
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const toggleIcon = document.querySelector('.toggle-password');
+            break;
             
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.textContent = '🙈';
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.textContent = '👁';
-            }
-        }
-        
-        // Sign in with Google
-        async function signInWithGoogle() {
-            try {
-                const result = await auth.signInWithPopup(googleProvider);
-                googleUser = result.user;
+        case 4:
+            if (accountType === 'create' && !googleUser) {
+                clearError('password');
+                clearError('confirmPassword');
                 
-                // Update form data with Google info
-                if (googleUser.displayName) {
-                    document.getElementById('name').value = googleUser.displayName;
-                    formData.name = googleUser.displayName;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (!password || password.length < 6) {
+                    showError('password', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+                    isValid = false;
                 }
                 
-                if (googleUser.email) {
-                    document.getElementById('email').value = googleUser.email;
-                    formData.email = googleUser.email;
+                if (password !== confirmPassword) {
+                    showError('confirmPassword', 'كلمتا المرور غير متطابقتين');
+                    isValid = false;
                 }
-                
-                // Hide password section
-                document.getElementById('passwordSection').style.display = 'none';
-                accountType = 'google';
-                
-                showNotification('تم التسجيل بنجاح باستخدام Google', 'success');
-                
-                // Update account info
-                document.getElementById('accountInfo').innerHTML = `
-                    <p><strong>تم التسجيل باستخدام Google</strong></p>
-                    <p>البريد: ${googleUser.email}</p>
-                    <p>سيتم استخدام حساب Google الخاص بك لتسجيل الدخول</p>
-                `;
-                
-            } catch (error) {
-                console.error('Google sign in error:', error);
-                showAlert('حدث خطأ في التسجيل باستخدام Google', 'error');
             }
+            break;
+            
+        case 5:
+            const terms = document.getElementById('terms').checked;
+            if (!terms) {
+                showAlert('من فضلك وافق على الشروط والأحكام');
+                isValid = false;
+            }
+            break;
+    }
+    
+    return isValid;
+}
+
+// Save step data
+function saveStepData(step) {
+    switch(step) {
+        case 1:
+            formData.name = document.getElementById('name').value || 'غير محدد';
+            formData.email = document.getElementById('email').value;
+            formData.phone = document.getElementById('phone').value;
+            formData.contactMethod = document.getElementById('contactMethod').value;
+            formData.previousCoaching = document.querySelector('input[name="previousCoaching"]:checked')?.value || 'no';
+            break;
+            
+        case 2:
+            formData.message = document.getElementById('message').value;
+            formData.issues = Array.from(document.querySelectorAll('input[name="issues"]:checked'))
+                .map(el => el.value);
+            formData.duration = document.getElementById('duration').value;
+            formData.goal = document.getElementById('goal').value;
+            break;
+            
+        case 3:
+            formData.program = selectedProgram;
+            formData.preferredTimes = document.getElementById('preferredTimes').value;
+            formData.referralSource = document.getElementById('referralSource').value;
+            break;
+            
+        case 4:
+            formData.accountType = accountType;
+            if (accountType === 'create' && !googleUser) {
+                formData.password = document.getElementById('password').value;
+            }
+            break;
+    }
+}
+
+// Update progress
+function updateProgress() {
+    document.querySelectorAll('.step').forEach((step, index) => {
+        if (index < currentStep - 1) {
+            step.classList.add('completed');
+            step.classList.remove('active');
+        } else if (index === currentStep - 1) {
+            step.classList.add('active');
+            step.classList.remove('completed');
+        } else {
+            step.classList.remove('active', 'completed');
+        }
+    });
+}
+
+// Show step
+function showStep(step) {
+    document.querySelectorAll('.form-step').forEach(s => {
+        s.classList.remove('active');
+    });
+    
+    const targetStep = document.querySelector(`.form-step[data-step="${step}"]`);
+    if (targetStep) {
+        targetStep.classList.add('active');
+    }
+    
+    updateProgress();
+    
+    // Show email in account step
+    if (step === 4 && formData.email) {
+        const userEmailElement = document.getElementById('userEmail');
+        if (userEmailElement) {
+            userEmailElement.textContent = formData.email;
+        }
+        const accountInfo = document.getElementById('accountInfo');
+        if (accountInfo) {
+            accountInfo.style.display = 'block';
+        }
+    }
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Next step
+function nextStep() {
+    if (validateStep(currentStep)) {
+        saveStepData(currentStep);
+        currentStep++;
+        showStep(currentStep);
+        
+        // Show summary on last step
+        if (currentStep === 5) {
+            showSummary();
+        }
+    }
+}
+
+// Previous step
+function previousStep() {
+    currentStep--;
+    showStep(currentStep);
+}
+
+// Select program
+function selectProgram(element, program) {
+    // Remove selected class from all
+    document.querySelectorAll('.program-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Add selected class
+    element.classList.add('selected');
+    selectedProgram = program;
+    const programInput = document.getElementById('program');
+    if (programInput) {
+        programInput.value = program;
+    }
+    clearError('program');
+}
+
+// Select account type
+function selectAccountType(type) {
+    accountType = type;
+    const accountTypeInput = document.getElementById('accountType');
+    if (accountTypeInput) {
+        accountTypeInput.value = type;
+    }
+    
+    // Update UI
+    document.querySelectorAll('.account-type-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    if (event && event.target) {
+        const card = event.target.closest('.account-type-card');
+        if (card) {
+            card.classList.add('selected');
+        }
+    }
+    
+    // Show/hide password section
+    const passwordSection = document.getElementById('passwordSection');
+    if (passwordSection) {
+        if (type === 'create' && !googleUser) {
+            passwordSection.style.display = 'block';
+        } else {
+            passwordSection.style.display = 'none';
+        }
+    }
+}
+
+// Toggle password visibility
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.querySelector('.toggle-password');
+    
+    if (passwordInput && toggleIcon) {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.textContent = '👁';
+        }
+    }
+}
+
+// Sign in with Google
+async function signInWithGoogle() {
+    try {
+        const result = await auth.signInWithPopup(googleProvider);
+        googleUser = result.user;
+        
+        // Update form data with Google info
+        if (googleUser.displayName) {
+            const nameInput = document.getElementById('name');
+            if (nameInput) {
+                nameInput.value = googleUser.displayName;
+            }
+            formData.name = googleUser.displayName;
         }
         
-        // Analyze and proceed
-        function analyzeAndProceed() {
-            if (!validateStep(2)) return;
-            
-            saveStepData(2);
-            
-            // Analyze needs and recommend
-            const { duration, goal, issues } = formData;
-            let recommendedProgram = '';
-            let recommendationText = '';
-            
-            if (goal === 'quick' && duration === 'new') {
-                recommendedProgram = 'clarity';
-                recommendationText = 'بناءً على احتياجك، نوصي بـ <strong>جلسة الوضوح</strong> للحصول على حل سريع وفعال للتحدي الذي تواجهه.';
-            } else if (goal === 'transform' || duration === 'long') {
-                recommendedProgram = 'transformation';
-                recommendationText = 'بناءً على رغبتك في التغيير الشامل، نوصي بـ <strong>رحلة التحول</strong> لتحقيق النقلة التي تبحث عنها.';
-            } else {
-                recommendedProgram = 'discovery';
-                recommendationText = 'بناءً على احتياجك، نوصي بـ <strong>رحلة الاكتشاف</strong> لفهم أعمق وبناء أساس قوي للتغيير.';
+        if (googleUser.email) {
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.value = googleUser.email;
             }
-            
-            // Show recommendation
-            document.getElementById('recommendation').style.display = 'block';
-            document.getElementById('recommendationText').innerHTML = recommendationText;
-            
-            // Pre-select recommended program
-            const recommendedCard = document.querySelector(`.program-card[onclick*="${recommendedProgram}"]`);
-            if (recommendedCard) {
-                selectProgram(recommendedCard, recommendedProgram);
-            }
-            
-            nextStep();
+            formData.email = googleUser.email;
         }
         
-        // Show summary
-        function showSummary() {
-            const summary = document.getElementById('bookingSummary');
-            
-            let summaryHTML = `
-                <h3>ملخص طلبك</h3>
-                <p><strong>الاسم:</strong> ${formData.name}</p>
-                <p><strong>البريد الإلكتروني:</strong> ${formData.email}</p>
-                <p><strong>رقم الواتساب:</strong> ${formData.phone}</p>
-                <p><strong>البرنامج المختار:</strong> ${getProgramName(formData.program)}</p>
-                <p><strong>السعر:</strong> ${getProgramPrice(formData.program)} جنيه</p>
-                <p><strong>نوع الحساب:</strong> ${
-                    googleUser ? 'حساب Google' : 
-                    accountType === 'create' ? 'سأقوم بإنشاء كلمة المرور' : 
-                    'إنشاء تلقائي'
-                }</p>
+        // Hide password section
+        const passwordSection = document.getElementById('passwordSection');
+        if (passwordSection) {
+            passwordSection.style.display = 'none';
+        }
+        accountType = 'google';
+        
+        showNotification('تم التسجيل بنجاح باستخدام Google', 'success');
+        
+        // Update account info
+        const accountInfo = document.getElementById('accountInfo');
+        if (accountInfo) {
+            accountInfo.innerHTML = `
+                <p><strong>تم التسجيل باستخدام Google</strong></p>
+                <p>البريد: ${googleUser.email}</p>
+                <p>سيتم استخدام حساب Google الخاص بك لتسجيل الدخول</p>
             `;
-            
-            if (formData.preferredTimes) {
-                summaryHTML += `<p><strong>الأوقات المفضلة:</strong> ${formData.preferredTimes}</p>`;
-            }
-            
-            summary.innerHTML = summaryHTML;
         }
         
-        // Get program name
-        function getProgramName(program) {
-            const names = {
-                clarity: 'جلسة الوضوح',
-                discovery: 'رحلة الاكتشاف',
-                transformation: 'رحلة التحول'
-            };
-            return names[program] || program;
+    } catch (error) {
+        console.error('Google sign in error:', error);
+        showAlert('حدث خطأ في التسجيل باستخدام Google', 'error');
+    }
+}
+
+// Analyze and proceed
+function analyzeAndProceed() {
+    if (!validateStep(2)) return;
+    
+    saveStepData(2);
+    
+    // Analyze needs and recommend
+    const { duration, goal, issues } = formData;
+    let recommendedProgram = '';
+    let recommendationText = '';
+    
+    if (goal === 'quick' && duration === 'new') {
+        recommendedProgram = 'clarity';
+        recommendationText = 'بناءً على احتياجك، نوصي بـ <strong>جلسة الوضوح</strong> للحصول على حل سريع وفعال للتحدي الذي تواجهه.';
+    } else if (goal === 'transform' || duration === 'long') {
+        recommendedProgram = 'transformation';
+        recommendationText = 'بناءً على رغبتك في التغيير الشامل، نوصي بـ <strong>رحلة التحول</strong> لتحقيق النقلة التي تبحث عنها.';
+    } else {
+        recommendedProgram = 'discovery';
+        recommendationText = 'بناءً على احتياجك، نوصي بـ <strong>رحلة الاكتشاف</strong> لفهم أعمق وبناء أساس قوي للتغيير.';
+    }
+    
+    // Show recommendation
+    const recommendationDiv = document.getElementById('recommendation');
+    const recommendationTextElement = document.getElementById('recommendationText');
+    
+    if (recommendationDiv && recommendationTextElement) {
+        recommendationDiv.style.display = 'block';
+        recommendationTextElement.innerHTML = recommendationText;
+    }
+    
+    // Pre-select recommended program
+    const recommendedCard = document.querySelector(`.program-card[onclick*="${recommendedProgram}"]`);
+    if (recommendedCard) {
+        selectProgram(recommendedCard, recommendedProgram);
+    }
+    
+    nextStep();
+}
+
+// Show summary
+function showSummary() {
+    const summary = document.getElementById('bookingSummary');
+    if (!summary) return;
+    
+    let summaryHTML = `
+        <h3>ملخص طلبك</h3>
+        <p><strong>الاسم:</strong> ${formData.name}</p>
+        <p><strong>البريد الإلكتروني:</strong> ${formData.email}</p>
+        <p><strong>رقم الواتساب:</strong> ${formData.phone}</p>
+        <p><strong>البرنامج المختار:</strong> ${getProgramName(formData.program)}</p>
+        <p><strong>السعر:</strong> ${getProgramPrice(formData.program)} جنيه</p>
+        <p><strong>نوع الحساب:</strong> ${
+            googleUser ? 'حساب Google' : 
+            accountType === 'create' ? 'سأقوم بإنشاء كلمة المرور' : 
+            'إنشاء تلقائي'
+        }</p>
+    `;
+    
+    if (formData.preferredTimes) {
+        summaryHTML += `<p><strong>الأوقات المفضلة:</strong> ${formData.preferredTimes}</p>`;
+    }
+    
+    summary.innerHTML = summaryHTML;
+}
+
+// Get program name
+function getProgramName(program) {
+    const names = {
+        clarity: 'جلسة الوضوح',
+        discovery: 'رحلة الاكتشاف',
+        transformation: 'رحلة التحول'
+    };
+    return names[program] || program;
+}
+
+// Get program price
+function getProgramPrice(program) {
+    const prices = {
+        clarity: 400,
+        discovery: 1500,
+        transformation: 3000
+    };
+    return prices[program] || 0;
+}
+
+// Show loading
+function showLoading(show) {
+    const loading = document.getElementById('loading');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (loading) {
+        loading.style.display = show ? 'block' : 'none';
+    }
+    if (submitBtn) {
+        submitBtn.disabled = show;
+    }
+}
+
+// Generate random password
+function generatePassword() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%';
+    let password = '';
+    for (let i = 0; i < 8; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+}
+
+// Check for existing user
+async function checkExistingUser(email) {
+    try {
+        // Try dummy sign in to check if user exists
+        await auth.signInWithEmailAndPassword(email, 'dummy-password-check');
+        return true; // Won't reach here
+    } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+            return false; // User doesn't exist
+        } else if (error.code === 'auth/wrong-password') {
+            return true; // User exists
         }
+        return false;
+    }
+}
+
+// Continue as guest
+async function continueAsGuest() {
+    showLoading(true);
+    
+    try {
+        const bookingNumber = 'BK' + Date.now().toString().slice(-8);
         
-        // Get program price
-        function getProgramPrice(program) {
-            const prices = {
-                clarity: 400,
-                discovery: 1500,
-                transformation: 3000
-            };
-            return prices[program] || 0;
-        }
+        // Save booking without creating account
+        const bookingData = {
+            ...formData,
+            bookingNumber: bookingNumber,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'pending',
+            source: 'website',
+            existingClient: true,
+            accountCreated: false
+        };
         
-        // Show loading
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
-            document.getElementById('submitBtn').disabled = show;
-        }
+        const docRef = await db.collection('bookings').add(bookingData);
         
-        // Generate random password
-        function generatePassword() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%';
-            let password = '';
-            for (let i = 0; i < 8; i++) {
-                password += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return password;
-        }
+        // Send to admin
+        const adminMessage = `حجز جديد رقم ${bookingNumber}
         
-        // Check for existing user
-        async function checkExistingUser(email) {
-            try {
-                // Try dummy sign in to check if user exists
-                await auth.signInWithEmailAndPassword(email, 'dummy-password-check');
-                return true; // Won't reach here
-            } catch (error) {
-                if (error.code === 'auth/user-not-found') {
-                    return false; // User doesn't exist
-                } else if (error.code === 'auth/wrong-password') {
-                    return true; // User exists
-                }
-                return false;
-            }
-        }
-        
-        // Continue as guest
-        async function continueAsGuest() {
-            showLoading(true);
-            
-            try {
-                const bookingNumber = 'BK' + Date.now().toString().slice(-8);
-                
-                // Save booking without creating account
-                const bookingData = {
-                    ...formData,
-                    bookingNumber: bookingNumber,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'pending',
-                    source: 'website',
-                    existingClient: true,
-                    accountCreated: false
-                };
-                
-                const docRef = await db.collection('bookings').add(bookingData);
-                
-                // Send to admin
-                const adminMessage = `حجز جديد رقم ${bookingNumber}
-                
 العميل: ${formData.name}
 البريد: ${formData.email}
 الهاتف: ${formData.phone}
@@ -1374,111 +1442,123 @@
 ⚠️ عميل قديم - له حساب بالفعل
 
 رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
-                
-                window.open(`https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`, '_blank');
-                
-                // Show success
-                showLoading(false);
-                document.getElementById('formContainer').style.display = 'none';
-                document.getElementById('successMessage').style.display = 'block';
-                document.getElementById('bookingNumber').textContent = bookingNumber;
-                
-                // Custom message for existing clients
-                document.getElementById('accountDetails').innerHTML = `
-                    <h3 style="color: #2C5530;">أنت عميل مميز!</h3>
-                    <p>لديك حساب بالفعل. يمكنك تسجيل الدخول لمتابعة رحلتك</p>
-                    <a href="login.html" class="btn btn-primary" style="margin-top: 10px;">
-                        تسجيل الدخول لمساحتك
-                    </a>
-                `;
-                
-            } catch (error) {
-                console.error('خطأ:', error);
-                showLoading(false);
-                showAlert('حدث خطأ، من فضلك حاول مرة أخرى', 'error');
-            }
+        
+        window.open(`https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`, '_blank');
+        
+        // Show success
+        showLoading(false);
+        
+        const formContainer = document.getElementById('formContainer');
+        const successMessage = document.getElementById('successMessage');
+        
+        if (formContainer) formContainer.style.display = 'none';
+        if (successMessage) successMessage.style.display = 'block';
+        
+        const bookingNumberElement = document.getElementById('bookingNumber');
+        if (bookingNumberElement) {
+            bookingNumberElement.textContent = bookingNumber;
         }
         
-        // Process new booking
-        async function processNewBooking() {
-            // في بداية processNewBooking function، أضف:
-console.log('Starting processNewBooking...');
-console.log('Form data:', formData);
-console.log('Account type:', accountType);
-console.log('Google user:', googleUser);
+        // Custom message for existing clients
+        const accountDetails = document.getElementById('accountDetails');
+        if (accountDetails) {
+            accountDetails.innerHTML = `
+                <h3 style="color: #2C5530;">أنت عميل مميز!</h3>
+                <p>لديك حساب بالفعل. يمكنك تسجيل الدخول لمتابعة رحلتك</p>
+                <a href="login.html" class="btn btn-primary" style="margin-top: 10px;">
+                    تسجيل الدخول لمساحتك
+                </a>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('خطأ:', error);
+        showLoading(false);
+        showAlert('حدث خطأ، من فضلك حاول مرة أخرى', 'error');
+    }
+}
 
-// قبل السطر: const userCredential = await auth.createUserWithEmailAndPassword
-console.log('Attempting to create user with:', formData.email);
-            const bookingNumber = 'BK' + Date.now().toString().slice(-8);
+// Process new booking
+async function processNewBooking() {
+    console.log('Starting processNewBooking...');
+    console.log('Form data:', formData);
+    console.log('Account type:', accountType);
+    console.log('Google user:', googleUser);
+    
+    const bookingNumber = 'BK' + Date.now().toString().slice(-8);
+    
+    let userId = null;
+    let userPassword = '';
+    
+    try {
+        if (googleUser) {
+            // Google user already authenticated
+            userId = googleUser.uid;
             
-            let userId = null;
-            let userPassword = '';
-            
-            if (googleUser) {
-                // Google user already authenticated
-                userId = googleUser.uid;
-                
-                // Check if user document exists
-                const userDoc = await db.collection('users').doc(userId).get();
-                if (!userDoc.exists) {
-                    // Create user document
-                    await db.collection('users').doc(userId).set({
-                        email: googleUser.email,
-                        name: googleUser.displayName || formData.name,
-                        phone: formData.phone,
-                        program: formData.program,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                        authProvider: 'google'
-                    });
-                }
-            } else {
-                // Email/Password authentication
-                if (accountType === 'create') {
-                    userPassword = formData.password;
-                } else {
-                    userPassword = generatePassword();
-                }
-                
-                // Create new user
-                const userCredential = await auth.createUserWithEmailAndPassword(formData.email, userPassword);
-                userId = userCredential.user.uid;
-                
-                // Update display name
-                await userCredential.user.updateProfile({
-                    displayName: formData.name || 'مستخدم جديد'
-                });
-                
+            // Check if user document exists
+            const userDoc = await db.collection('users').doc(userId).get();
+            if (!userDoc.exists) {
                 // Create user document
                 await db.collection('users').doc(userId).set({
-                    email: formData.email,
-                    name: formData.name || 'غير محدد',
+                    email: googleUser.email,
+                    name: googleUser.displayName || formData.name,
                     phone: formData.phone,
                     program: formData.program,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    authProvider: 'email'
+                    authProvider: 'google'
                 });
             }
+        } else {
+            // Email/Password authentication
+            if (accountType === 'create') {
+                userPassword = formData.password;
+            } else {
+                userPassword = generatePassword();
+            }
             
-            // Save booking
-            const bookingData = {
-                ...formData,
-                userId: userId,
-                bookingNumber: bookingNumber,
+            console.log('Attempting to create user with:', formData.email);
+            
+            // Create new user
+            const userCredential = await auth.createUserWithEmailAndPassword(formData.email, userPassword);
+            userId = userCredential.user.uid;
+            
+            // Update display name
+            await userCredential.user.updateProfile({
+                displayName: formData.name || 'مستخدم جديد'
+            });
+            
+            // Create user document
+            await db.collection('users').doc(userId).set({
+                email: formData.email,
+                name: formData.name || 'غير محدد',
+                phone: formData.phone,
+                program: formData.program,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                status: 'pending',
-                source: 'website',
-                accountCreated: true,
-                authProvider: googleUser ? 'google' : 'email',
-                temporaryPassword: (accountType === 'auto' && !googleUser) ? userPassword : null
-            };
-            
-            const docRef = await db.collection('bookings').add(bookingData);
-            
-            // Send to admin
-            const adminMessage = `حجز جديد رقم ${bookingNumber}
-            
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                authProvider: 'email'
+            });
+        }
+        
+        // Save booking
+        const bookingData = {
+            ...formData,
+            userId: userId,
+            bookingNumber: bookingNumber,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'pending',
+            source: 'website',
+            accountCreated: true,
+            authProvider: googleUser ? 'google' : 'email',
+            temporaryPassword: (accountType === 'auto' && !googleUser) ? userPassword : null
+        };
+        
+        const docRef = await db.collection('bookings').add(bookingData);
+        console.log('Booking saved:', docRef.id);
+        
+        // Send to admin
+        const adminMessage = `حجز جديد رقم ${bookingNumber}
+        
 العميل: ${formData.name}
 البريد: ${formData.email}
 الهاتف: ${formData.phone}
@@ -1489,242 +1569,231 @@ ${googleUser ? '🔵 باستخدام Google' : '📧 باستخدام البر�
 ${(accountType === 'auto' && !googleUser) ? `🔑 كلمة المرور المؤقتة: ${userPassword}` : ''}
 
 رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
-            
-            window.open(`https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`, '_blank');
-            
-            // Show success
-            showLoading(false);
-            document.getElementById('formContainer').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'block';
-            document.getElementById('bookingNumber').textContent = bookingNumber;
-            document.getElementById('accountEmail').textContent = formData.email;
-            
+        
+        window.open(`https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`, '_blank');
+        
+        // Show success
+        showLoading(false);
+        
+        const formContainer = document.getElementById('formContainer');
+        const successMessage = document.getElementById('successMessage');
+        
+        if (formContainer) formContainer.style.display = 'none';
+        if (successMessage) successMessage.style.display = 'block';
+        
+        const bookingNumberElement = document.getElementById('bookingNumber');
+        if (bookingNumberElement) {
+            bookingNumberElement.textContent = bookingNumber;
+        }
+        
+        const accountEmailElement = document.getElementById('accountEmail');
+        if (accountEmailElement) {
+            accountEmailElement.textContent = formData.email;
+        }
+        
+        const accountPasswordInfo = document.getElementById('accountPasswordInfo');
+        if (accountPasswordInfo) {
             if (googleUser) {
-                document.getElementById('accountPasswordInfo').innerHTML = 
+                accountPasswordInfo.innerHTML = 
                     `<strong>تم التسجيل باستخدام:</strong> Google<br>
                     <small style="color: #666;">يمكنك تسجيل الدخول مباشرة باستخدام حساب Google</small>`;
             } else if (accountType === 'auto') {
-                document.getElementById('accountPasswordInfo').innerHTML = 
+                accountPasswordInfo.innerHTML = 
                     `<strong>كلمة المرور المؤقتة:</strong> ${userPassword}<br>
                     <small style="color: #666;">احتفظ بكلمة المرور هذه أو قم بتغييرها بعد تسجيل الدخول</small>`;
             } else {
-                document.getElementById('accountPasswordInfo').innerHTML = 
+                accountPasswordInfo.innerHTML = 
                     `<strong>كلمة المرور:</strong> التي قمت بإنشائها<br>
                     <small style="color: #666;">يمكنك تغييرها من مساحتك الخاصة</small>`;
             }
         }
         
-        // Handle form submission
-        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // Validate final step
-            if (!validateStep(5)) return;
-            
-            // Show loading
-            showLoading(true);
-            
-            try {
-                // Check for existing user
-                const hasAccount = await checkExistingUser(formData.email);
-                
-                if (hasAccount && !googleUser) {
-                    // User has account but not using Google
-                    showLoading(false);
-                    
-                    // Show custom message
-                    document.getElementById('alertBox').innerHTML = `
-                        <strong>مرحباً مرة أخرى!</strong><br>
-                        يبدو أن لديك حساب بالفعل. لديك خياران:<br><br>
-                        <button class="btn btn-primary" onclick="window.location.href='login.html'">
-                            تسجيل الدخول لحجز جلسة جديدة
-                        </button>
-                        <button class="btn btn-secondary" onclick="continueAsGuest()">
-                            المتابعة بدون تسجيل دخول
-                        </button>
-                    `;
-                    document.getElementById('alertBox').className = 'alert alert-info';
-                    document.getElementById('alertBox').style.display = 'block';
-                    return;
-                }
-                
-                // Process new booking
-                await processNewBooking();
-                
-            } // في دالة processNewBooking()، بعد try {
-} catch (error) {
-    console.error('خطأ في الحجز:', error);
-    showLoading(false);
-    
-    let errorMessage = 'حدث خطأ، من فضلك حاول مرة أخرى';
-    
-    if (error.code === 'auth/email-already-in-use') {
-        // البريد مسجل بالفعل
-        errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل.';
-        
-        // نعرض خيارات للمستخدم
-        document.getElementById('alertBox').innerHTML = `
-            <strong>هذا البريد مسجل بالفعل!</strong><br>
-            لديك الخيارات التالية:<br><br>
-            <button class="btn btn-primary" onclick="window.location.href='login.html'">
-                تسجيل الدخول بحسابك الموجود
-            </button>
-            <button class="btn btn-secondary" onclick="useNewEmail()">
-                استخدام بريد إلكتروني آخر
-            </button>
-            <button class="btn btn-warning" onclick="resetPasswordAndContinue()">
-                نسيت كلمة المرور
-            </button>
-        `;
-        document.getElementById('alertBox').className = 'alert alert-warning';
-        document.getElementById('alertBox').style.display = 'block';
-        return;
-    } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'البريد الإلكتروني غير صحيح';
-    } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'كلمة المرور ضعيفة. استخدم 6 أحرف على الأقل';
+    } catch (error) {
+        console.error('Error in processNewBooking:', error);
+        throw error;
     }
-    
-    showAlert(errorMessage, 'error');
-}
-        // وظيفة لاستخدام بريد جديد
-function useNewEmail() {
-    document.getElementById('email').value = '';
-    document.getElementById('email').focus();
-    document.getElementById('alertBox').style.display = 'none';
-    currentStep = 1;
-    showStep(1);
 }
 
-// وظيفة لإعادة تعيين كلمة المرور
-async function resetPasswordAndContinue() {
-    const email = formData.email;
+// Handle form submission
+document.getElementById('bookingForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Validate final step
+    if (!validateStep(5)) return;
+    
+    // Show loading
+    showLoading(true);
+    
     try {
-        await auth.sendPasswordResetEmail(email);
-        alert(`تم إرسال رابط إعادة تعيين كلمة المرور إلى ${email}\n\nبعد تغيير كلمة المرور، يمكنك تسجيل الدخول من صفحة تسجيل الدخول`);
-        window.location.href = 'login.html';
+        // Check for existing user
+        const hasAccount = await checkExistingUser(formData.email);
+        
+        if (hasAccount && !googleUser) {
+            // User has account but not using Google
+            showLoading(false);
+            
+            // Show custom message
+            const alertBox = document.getElementById('alertBox');
+            if (alertBox) {
+                alertBox.innerHTML = `
+                    <strong>مرحباً مرة أخرى!</strong><br>
+                    يبدو أن لديك حساب بالفعل. لديك خياران:<br><br>
+                    <button class="btn btn-primary" onclick="window.location.href='login.html'">
+                        تسجيل الدخول لحجز جلسة جديدة
+                    </button>
+                    <button class="btn btn-secondary" onclick="continueAsGuest()">
+                        المتابعة بدون تسجيل دخول
+                    </button>
+                `;
+                alertBox.className = 'alert alert-info';
+                alertBox.style.display = 'block';
+            }
+            return;
+        }
+        
+        // Process new booking
+        await processNewBooking();
+        
     } catch (error) {
-        showAlert('خطأ في إرسال رابط إعادة التعيين', 'error');
-    }
-}
+        console.error('خطأ في الحجز:', error);
+        showLoading(false);
+        
+        let errorMessage = 'حدث خطأ، من فضلك حاول مرة أخرى';
+        
+        if (error.code === 'auth/email-already-in-use') {
+            errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل.';
+            
+            const alertBox = document.getElementById('alertBox');
+            if (alertBox) {
+                alertBox.innerHTML = `
+                    <strong>هذا البريد مسجل بالفعل!</strong><br>
+                    لديك الخيارات التالية:<br><br>
+                    <button class="btn btn-primary" onclick="window.location.href='login.html'">
+                        تسجيل الدخول بحسابك الموجود
+                    </button>
+                    <button class="btn btn-secondary" onclick="location.reload()">
+                        استخدام بريد إلكتروني آخر
+                    </button>
+                `;
+                alertBox.className = 'alert alert-warning';
+                alertBox.style.display = 'block';
+            }
+            return;
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = 'البريد الإلكتروني غير صحيح';
+        } else if (error.code === 'auth/weak-password') {
+            errorMessage = 'كلمة المرور ضعيفة. استخدم 6 أحرف على الأقل';
+        }
+        
+        showAlert(errorMessage, 'error');
+        
+        // Fallback WhatsApp
+        setTimeout(() => {
+            if (confirm('هل تريد التواصل معنا عبر واتساب؟')) {
+                const message = `مرحباً، واجهت مشكلة في الحجز على الموقع
                 
-                // Fallback WhatsApp
-                setTimeout(() => {
-                    if (confirm('هل تريد التواصل معنا عبر واتساب؟')) {
-                        const message = `مرحباً، واجهت مشكلة في الحجز على الموقع
-                        
 الاسم: ${formData.name}
 الهاتف: ${formData.phone}
 البرنامج: ${getProgramName(formData.program)}`;
-                        
-                        window.open(`https://wa.me/201224938330?text=${encodeURIComponent(message)}`, '_blank');
-                    }
-                }, 2000);
+                
+                window.open(`https://wa.me/201224938330?text=${encodeURIComponent(message)}`, '_blank');
             }
-        });
-        
-        // Clear form on page load
-        window.onload = function() {
-            document.getElementById('bookingForm').reset();
-            currentStep = 1;
-            selectedProgram = '';
-            formData = {};
-            googleUser = null;
-            showStep(1);
-            
-            // Check for URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const ref = urlParams.get('ref');
-            
-            if (ref) {
-                document.getElementById('referralSource').value = ref;
-            }
-            
-           // Sign out any existing user to start fresh
-            auth.signOut();
-        };
-        
-        // Save form data on change
-        document.getElementById('bookingForm').addEventListener('change', () => {
-            saveStepData(currentStep);
-            sessionStorage.setItem('bookingFormData', JSON.stringify(formData));
-        });
-        
-        // Input formatting for phone
-        document.getElementById('phone').addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) {
-                value = value.slice(0, 11);
-            }
-            e.target.value = value;
-        });
-        
-        // Real-time validation
-        document.getElementById('email').addEventListener('blur', () => {
-            const email = document.getElementById('email').value;
-            if (email && !validateEmail(email)) {
-                showError('email', 'البريد الإلكتروني غير صحيح');
-            } else {
-                clearError('email');
-            }
-        });
-        
-        document.getElementById('phone').addEventListener('blur', () => {
-            const phone = document.getElementById('phone').value;
-            if (phone && !validatePhone(phone)) {
-                showError('phone', 'رقم الواتساب غير صحيح (10-11 رقم)');
-            } else {
-                clearError('phone');
-            }
-        });
-        
-        // Message character counter
-        document.getElementById('message').addEventListener('input', (e) => {
-            const length = e.target.value.length;
-            if (length < 10 && length > 0) {
-                showError('message', `اكتب ${10 - length} حروف إضافية على الأقل`);
-            } else {
-                clearError('message');
-            }
-        });
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey && e.target.tagName !== 'TEXTAREA') {
-                e.preventDefault();
-                const activeStep = document.querySelector('.form-step.active');
-                const nextBtn = activeStep.querySelector('.btn-primary');
-                if (nextBtn && !nextBtn.disabled) {
-                    nextBtn.click();
-                }
-            }
-        });
-        // كود تشخيصي مؤقت - احذفه بعد حل المشكلة
-console.log('Firebase initialized:', firebase.apps.length > 0);
-console.log('Auth object:', auth);
-console.log('Firestore object:', db);
-
-// اختبار إنشاء حساب وهمي
-async function testCreateAccount() {
-    const testEmail = `test${Date.now()}@example.com`;
-    const testPassword = 'test123456';
-    
-    console.log('Testing with:', testEmail);
-    
-    try {
-        const result = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
-        console.log('Success! User created:', result.user.uid);
-        
-        // حذف الحساب التجريبي
-        await result.user.delete();
-        console.log('Test user deleted');
-    } catch (error) {
-        console.error('Test failed:', error.code, error.message);
+        }, 2000);
     }
-}
+});
 
-// جرب هذا الاختبار
-window.testAuth = testCreateAccount;
+// Clear form on page load
+window.onload = function() {
+    console.log('Page loaded, initializing...');
+    console.log('Firebase initialized:', firebase.apps.length > 0);
+    console.log('Auth:', auth);
+    console.log('Firestore:', db);
+    
+    const bookingForm = document.getElementById('bookingForm');
+    if (bookingForm) {
+        bookingForm.reset();
+    }
+    
+    currentStep = 1;
+    selectedProgram = '';
+    formData = {};
+    googleUser = null;
+    showStep(1);
+    
+    // Check for URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref');
+    
+    if (ref) {
+        const referralSource = document.getElementById('referralSource');
+        if (referralSource) {
+            referralSource.value = ref;
+        }
+    }
+    
+    // Sign out any existing user to start fresh
+    auth.signOut().catch(error => {
+        console.log('Sign out error (ignored):', error);
+    });
+};
+
+// Save form data on change
+document.getElementById('bookingForm')?.addEventListener('change', () => {
+    saveStepData(currentStep);
+    sessionStorage.setItem('bookingFormData', JSON.stringify(formData));
+});
+
+// Input formatting for phone
+document.getElementById('phone')?.addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) {
+        value = value.slice(0, 11);
+    }
+    e.target.value = value;
+});
+
+// Real-time validation
+document.getElementById('email')?.addEventListener('blur', () => {
+    const email = document.getElementById('email').value;
+    if (email && !validateEmail(email)) {
+        showError('email', 'البريد الإلكتروني غير صحيح');
+    } else {
+        clearError('email');
+    }
+});
+
+document.getElementById('phone')?.addEventListener('blur', () => {
+    const phone = document.getElementById('phone').value;
+    if (phone && !validatePhone(phone)) {
+        showError('phone', 'رقم الواتساب غير صحيح (10-11 رقم)');
+    } else {
+        clearError('phone');
+    }
+});
+
+// Message character counter
+document.getElementById('message')?.addEventListener('input', (e) => {
+    const length = e.target.value.length;
+    if (length < 10 && length > 0) {
+        showError('message', `اكتب ${10 - length} حروف إضافية على الأقل`);
+    } else {
+        clearError('message');
+    }
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        const activeStep = document.querySelector('.form-step.active');
+        if (activeStep) {
+            const nextBtn = activeStep.querySelector('.btn-primary');
+            if (nextBtn && !nextBtn.disabled) {
+                nextBtn.click();
+            }
+        }
+    }
+});
     </script>
 </body>
 </html>
