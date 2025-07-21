@@ -1148,12 +1148,11 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
         // Save booking to Firestore
         const docRef = await db.collection('bookings').add(finalData);
         console.log('Booking saved with ID:', docRef.id);
-        
-        // Prepare WhatsApp message
-// استبدل كود WhatsApp message بهذا الكود
+       
+// إصلاح رسائل WhatsApp - استبدل الكود القديم بهذا
 
-// Prepare WhatsApp message للأدمن فقط
-let adminWhatsappMessage = `🎉 حجز جديد من الموقع!
+// رسالة للأدمن فقط
+let adminMessage = `🎉 حجز جديد من الموقع!
 
 📋 رقم الحجز: ${bookingNumber}
 👤 الاسم: ${formData.name}
@@ -1164,62 +1163,89 @@ let adminWhatsappMessage = `🎉 حجز جديد من الموقع!
 ⏰ الأوقات المفضلة: ${formData.preferredTimes || 'لم يحدد'}
 🔗 المصدر: ${formData.referralSource || 'مباشر'}`;
 
-// إضافة معلومات كلمة المرور للأدمن فقط
+// معلومات الحساب للأدمن فقط
 if (temporaryPassword) {
-    adminWhatsappMessage += `
+    adminMessage += `
 
-🔐 تم إنشاء حساب جديد:
-البريد: ${formData.email}
-كلمة المرور المؤقتة: ${temporaryPassword}
+✅ تم إنشاء حساب جديد بنجاح:
+📧 البريد: ${formData.email}
+🔐 كلمة المرور المؤقتة: ${temporaryPassword}
 
-⚠️ مهم: أرسل كلمة المرور للعميل عبر رسالة منفصلة`;
+⚠️ مهم: أرسل كلمة المرور للعميل`;
 } else {
-    adminWhatsappMessage += `
+    adminMessage += `
 
-⚠️ لم يتم إنشاء حساب (المستخدم موجود بالفعل)`;
+⚠️ ملاحظة: لم يتم إنشاء حساب جديد
+السبب: المستخدم لديه حساب بالفعل في النظام`;
 }
 
-// رابط الأدمن للأدمن فقط
-adminWhatsappMessage += `
+// رابط لوحة التحكم للأدمن فقط
+adminMessage += `
 
 🔗 لوحة التحكم: https://mahmoudfouad25.github.io/admin.html`;
 
-// فتح WhatsApp للأدمن
-const adminPhone = '201224938330'; // رقمك أنت
-const adminWhatsappUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(adminWhatsappMessage)}`;
-window.open(adminWhatsappUrl, '_blank');
+// إرسال للأدمن على رقمه الخاص
+const adminPhone = '201224938330'; // رقمك أنت كأدمن
+window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(adminMessage)}`, '_blank');
 
-// رسالة منفصلة للعميل (اختياري)
+// رسالة منفصلة تماماً للعميل
 if (temporaryPassword && formData.phone) {
+    // انتظر ثانيتين ثم اسأل
     setTimeout(() => {
-        const clientMessage = `مرحباً ${formData.name} 👋
+        if (confirm('تم إنشاء حساب للعميل. هل تريد إرسال بيانات الدخول له؟')) {
+            const clientMessage = `مرحباً ${formData.name} 🌟
 
-تم تأكيد حجزك بنجاح!
-رقم الحجز: ${bookingNumber}
+تم استلام حجزك بنجاح!
+رقم حجزك: ${bookingNumber}
 
-تم إنشاء حساب خاص بك:
+✨ تم إنشاء حساب خاص بك:
 📧 البريد: ${formData.email}
 🔐 كلمة المرور: ${temporaryPassword}
 
-يمكنك الدخول من هنا:
+📱 رابط الدخول:
 https://mahmoudfouad25.github.io/login.html
 
-نصيحة: قم بتغيير كلمة المرور عند أول دخول
+💡 نصيحة: احفظ هذه الرسالة وقم بتغيير كلمة المرور عند أول دخول
 
-أي استفسار؟ نحن هنا للمساعدة 🌟`;
-        
-        if (confirm('هل تريد إرسال بيانات الدخول للعميل على واتساب؟')) {
-            const clientPhone = formData.phone.replace(/\D/g, '');
-            const clientWhatsappUrl = `https://wa.me/${clientPhone}?text=${encodeURIComponent(clientMessage)}`;
-            window.open(clientWhatsappUrl, '_blank');
+سنتواصل معك قريباً لتحديد موعد الجلسة 📅
+
+أي استفسار؟ نحن هنا 💚`;
+            
+            // تنظيف رقم العميل
+            let clientPhone = formData.phone.replace(/\D/g, '');
+            if (!clientPhone.startsWith('2')) {
+                clientPhone = '2' + clientPhone;
+            }
+            
+            // فتح واتساب للعميل
+            window.open(`https://wa.me/${clientPhone}?text=${encodeURIComponent(clientMessage)}`, '_blank');
         }
     }, 2000);
-}
+} else if (!temporaryPassword) {
+    // لو المستخدم موجود بالفعل
+    setTimeout(() => {
+        const existingUserMessage = `مرحباً ${formData.name} 👋
+
+تم استلام حجزك بنجاح!
+رقم حجزك: ${bookingNumber}
+
+📌 ملاحظة: لديك حساب بالفعل على المنصة
+يمكنك الدخول ببياناتك السابقة من:
+https://mahmoudfouad25.github.io/login.html
+
+إذا نسيت كلمة المرور، استخدم خيار "نسيت كلمة المرور"
+
+سنتواصل معك قريباً لتحديد موعد الجلسة 📅`;
         
-        // Open WhatsApp
-        const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(whatsappMessage)}`;
-        window.open(whatsappUrl, '_blank');
-        
+        if (confirm('العميل لديه حساب بالفعل. هل تريد إرسال رسالة تأكيد له؟')) {
+            let clientPhone = formData.phone.replace(/\D/g, '');
+            if (!clientPhone.startsWith('2')) {
+                clientPhone = '2' + clientPhone;
+            }
+            window.open(`https://wa.me/${clientPhone}?text=${encodeURIComponent(existingUserMessage)}`, '_blank');
+        }
+    }, 2000);
+}        
         // Save to localStorage for backup
         const bookingBackup = {
             ...finalData,
