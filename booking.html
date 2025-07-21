@@ -1148,8 +1148,11 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
         console.log('Booking saved with ID:', docRef.id);
         
         // Prepare WhatsApp message
-        let whatsappMessage = `🎉 حجز جديد من الموقع!
-        
+// استبدل كود WhatsApp message بهذا الكود
+
+// Prepare WhatsApp message للأدمن فقط
+let adminWhatsappMessage = `🎉 حجز جديد من الموقع!
+
 📋 رقم الحجز: ${bookingNumber}
 👤 الاسم: ${formData.name}
 📧 البريد: ${formData.email}
@@ -1159,19 +1162,57 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
 ⏰ الأوقات المفضلة: ${formData.preferredTimes || 'لم يحدد'}
 🔗 المصدر: ${formData.referralSource || 'مباشر'}`;
 
-        // Add password info if new account was created
-        if (temporaryPassword) {
-            whatsappMessage += `
+// إضافة معلومات كلمة المرور للأدمن فقط
+if (temporaryPassword) {
+    adminWhatsappMessage += `
 
 🔐 تم إنشاء حساب جديد:
 البريد: ${formData.email}
 كلمة المرور المؤقتة: ${temporaryPassword}
-(أرسلها للعميل وأطلب منه تغييرها)`;
+
+⚠️ مهم: أرسل كلمة المرور للعميل عبر رسالة منفصلة`;
+} else {
+    adminWhatsappMessage += `
+
+⚠️ لم يتم إنشاء حساب (المستخدم موجود بالفعل)`;
+}
+
+// رابط الأدمن للأدمن فقط
+adminWhatsappMessage += `
+
+🔗 لوحة التحكم: https://mahmoudfouad25.github.io/admin.html`;
+
+// فتح WhatsApp للأدمن
+const adminPhone = '201224938330'; // رقمك أنت
+const adminWhatsappUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(adminWhatsappMessage)}`;
+window.open(adminWhatsappUrl, '_blank');
+
+// رسالة منفصلة للعميل (اختياري)
+if (temporaryPassword && formData.phone) {
+    setTimeout(() => {
+        const clientMessage = `مرحباً ${formData.name} 👋
+
+تم تأكيد حجزك بنجاح!
+رقم الحجز: ${bookingNumber}
+
+تم إنشاء حساب خاص بك:
+📧 البريد: ${formData.email}
+🔐 كلمة المرور: ${temporaryPassword}
+
+يمكنك الدخول من هنا:
+https://mahmoudfouad25.github.io/login.html
+
+نصيحة: قم بتغيير كلمة المرور عند أول دخول
+
+أي استفسار؟ نحن هنا للمساعدة 🌟`;
+        
+        if (confirm('هل تريد إرسال بيانات الدخول للعميل على واتساب؟')) {
+            const clientPhone = formData.phone.replace(/\D/g, '');
+            const clientWhatsappUrl = `https://wa.me/${clientPhone}?text=${encodeURIComponent(clientMessage)}`;
+            window.open(clientWhatsappUrl, '_blank');
         }
-
-        whatsappMessage += `
-
-🔗 رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
+    }, 2000);
+}
         
         // Open WhatsApp
         const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(whatsappMessage)}`;
