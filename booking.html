@@ -1,117 +1,1305 @@
-// أضف هذا الكود في booking.html بعد حفظ البيانات في Firestore
-
-// بعد السطر:
-const docRef = await db.collection('bookings').add(finalData);
-
-// أضف هذا الكود:
-// إنشاء حساب للعميل إذا لم يكن موجوداً
-try {
-    // توليد كلمة مرور عشوائية
-    const temporaryPassword = generatePassword();
-    
-    // محاولة إنشاء حساب جديد
-    const userCredential = await auth.createUserWithEmailAndPassword(
-        formData.email, 
-        temporaryPassword
-    );
-    
-    // حفظ بيانات المستخدم في Firestore
-    await db.collection('users').doc(userCredential.user.uid).set({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        program: formData.program,
-        bookingId: docRef.id,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        firstLogin: false,
-        temporaryPassword: true // علامة أن كلمة المرور مؤقتة
-    });
-    
-    // إرسال كلمة المرور للعميل عبر الإيميل
-    // يمكنك استخدام EmailJS أو Cloud Functions
-    sendPasswordEmail(formData.email, formData.name, temporaryPassword);
-    
-    console.log('تم إنشاء حساب جديد للعميل');
-    
-} catch (error) {
-    if (error.code === 'auth/email-already-in-use') {
-        // العميل له حساب بالفعل - لا مشكلة
-        console.log('العميل له حساب موجود');
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>احجز جلستك - محمود فؤاد</title>
+    <meta name="description" content="احجز جلستك مع محمود فؤاد - كوتش متخصص في التطوير الشخصي والحياة الطيبة">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        // تحديث بيانات المستخدم بالحجز الجديد
-        const existingUser = await auth.getUserByEmail(formData.email);
-        if (existingUser) {
-            await db.collection('users').doc(existingUser.uid).update({
-                lastBooking: docRef.id,
-                lastBookingDate: firebase.firestore.FieldValue.serverTimestamp()
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: #F5F2E8;
+            color: #1A1A1A;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #ddd;
+            z-index: -1;
+        }
+        
+        .step:last-child::after {
+            display: none;
+        }
+        
+        .step.active::after {
+            background: #2C5530;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ddd;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .step.active .step-circle {
+            background: #2C5530;
+            transform: scale(1.1);
+        }
+        
+        .step.completed .step-circle {
+            background: #28a745;
+        }
+        
+        .step-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .step.active .step-label {
+            color: #2C5530;
+            font-weight: bold;
+        }
+        
+        /* Form Container */
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2C5530;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        /* Form Steps */
+        .form-step {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .form-step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2C5530;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2C5530;
+            background: #fafafa;
+        }
+        
+        input.error, select.error, textarea.error {
+            border-color: #dc3545;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        /* Program Options */
+        .program-options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .program-card {
+            border: 2px solid #eee;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .program-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(44, 85, 48, 0.1), transparent);
+            transition: right 0.5s;
+        }
+        
+        .program-card:hover::after {
+            right: 100%;
+        }
+        
+        .program-card:hover {
+            border-color: #8B9467;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .program-card.selected {
+            border-color: #2C5530;
+            background: #F5F2E8;
+        }
+        
+        .program-card.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            background: #2C5530;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .program-card h3 {
+            color: #2C5530;
+            margin-bottom: 10px;
+        }
+        
+        .program-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .program-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #D4AF37;
+        }
+        
+        /* Radio and Checkbox */
+        .radio-group, .checkbox-group {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .radio-option:hover, .checkbox-option:hover {
+            background: #e8e8e8;
+        }
+        
+        .radio-option input, .checkbox-option input {
+            width: auto;
+            margin-left: 10px;
+        }
+        
+        /* Buttons */
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #2C5530;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1e3a21;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 85, 48, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #2C5530;
+            border: 2px solid #2C5530;
+        }
+        
+        .btn-secondary:hover {
+            background: #2C5530;
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Success Message */
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 60px 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        }
+        
+        .success-icon {
+            font-size: 80px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        
+        .success-message h2 {
+            color: #2C5530;
+            margin-bottom: 15px;
+        }
+        
+        .success-message p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .success-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2C5530;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Error Alert */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 5px;
+            animation: slideIn 0.3s;
+            cursor: pointer;
+            max-width: 300px;
+            z-index: 1000;
+        }
+        
+        .notification.success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .notification.error {
+            background: #dc3545;
+            color: white;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Recommendation Box */
+        .recommendation {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(139, 148, 103, 0.1) 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #D4AF37;
+        }
+        
+        .recommendation h3 {
+            color: #2C5530;
+            margin-bottom: 10px;
+        }
+        
+        .recommendation p {
+            color: #666;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 20px;
+            }
+            
+            .progress-steps {
+                padding: 0;
+            }
+            
+            .step-label {
+                font-size: 12px;
+            }
+            
+            .form-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .success-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-label">معلوماتك</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-label">احتياجك</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-label">البرنامج</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <div class="step-label">التأكيد</div>
+            </div>
+        </div>
+        
+        <!-- Form Container -->
+        <div class="form-container" id="formContainer">
+            <h1>احجز جلستك</h1>
+            <p class="subtitle">رحلة التحول تبدأ بخطوة</p>
+            
+            <!-- Alert -->
+            <div id="alertBox" class="alert alert-error"></div>
+            
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>جاري إرسال طلبك...</p>
+            </div>
+            
+            <form id="bookingForm">
+                <!-- Step 1: Basic Info -->
+                <div class="form-step active" data-step="1">
+                    <h2>معلوماتك الأساسية</h2>
+                    
+                    <div class="form-group">
+                        <label for="name">الاسم</label>
+                        <input type="text" id="name" name="name" placeholder="يمكنك استخدام اسم مستعار">
+                        <div class="error-message" id="nameError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">البريد الإلكتروني *</label>
+                        <input type="email" id="email" name="email" required placeholder="example@email.com">
+                        <div class="error-message" id="emailError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">رقم الواتساب *</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="01234567890">
+                        <div class="error-message" id="phoneError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contactMethod">طريقة التواصل المفضلة</label>
+                        <select id="contactMethod" name="contactMethod">
+                            <option value="zoom">Zoom (مكالمة فيديو)</option>
+                            <option value="phone">مكالمة صوتية</option>
+                            <option value="whatsapp">واتساب</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>هل حضرت جلسات كوتشينج من قبل؟</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="previousCoaching" id="coachingYes" value="yes">
+                                <label for="coachingYes">نعم</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="previousCoaching" id="coachingNo" value="no" checked>
+                                <label for="coachingNo">لا</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <span></span>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Needs Assessment -->
+                <div class="form-step" data-step="2">
+                    <h2>ساعدنا نفهم احتياجك</h2>
+                    
+                    <div class="form-group">
+                        <label for="message">ما الذي دفعك لطلب هذه الجلسة؟ *</label>
+                        <textarea id="message" name="message" required placeholder="شاركني قصتك بحرية... كل ما تكتبه سيبقى في سرية تامة"></textarea>
+                        <div class="error-message" id="messageError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>إيه أكتر حاجة بتشغلك دلوقتي؟</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="issue1" name="issues" value="specific">
+                                <label for="issue1">موقف أو مشكلة محددة</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="issue2" name="issues" value="general">
+                                <label for="issue2">شعور عام بعدم الرضا</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="issue3" name="issues" value="development">
+                                <label for="issue3">رغبة في تطوير نفسي</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="issue4" name="issues" value="purpose">
+                                <label for="issue4">البحث عن هدف أكبر</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="duration">المشكلة دي من إمتى؟</label>
+                        <select id="duration" name="duration">
+                            <option value="new">حاجة جديدة (أيام/أسابيع)</option>
+                            <option value="medium">فترة متوسطة (شهور)</option>
+                            <option value="long">فترة طويلة (سنين)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="goal">إيه النتيجة اللي نفسك توصلها؟</label>
+                        <select id="goal" name="goal">
+                            <option value="quick">حل سريع لمشكلة محددة</option>
+                            <option value="understand">فهم أعمق لنفسي</option>
+                            <option value="transform">تغيير شامل في حياتي</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
+                        <button type="button" class="btn btn-primary" onclick="analyzeAndProceed()">التالي</button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Program Selection -->
+                <div class="form-step" data-step="3">
+                    <h2>اختر البرنامج المناسب</h2>
+                    
+                    <div id="recommendation" class="recommendation" style="display: none;">
+                        <h3>✨ توصيتنا لك</h3>
+                        <p id="recommendationText"></p>
+                    </div>
+                    
+                    <div class="program-options">
+                        <div class="program-card" onclick="selectProgram(this, 'clarity')">
+                            <h3>جلسة الوضوح</h3>
+                            <p>90 دقيقة مكثفة للتحديات المحددة</p>
+                            <p>✓ خطة عمل واضحة</p>
+                            <p>✓ متابعة لمدة أسبوع</p>
+                            <p class="program-price">400 جنيه</p>
+                        </div>
+                        
+                        <div class="program-card" onclick="selectProgram(this, 'discovery')">
+                            <h3>رحلة الاكتشاف</h3>
+                            <p>3 جلسات متدرجة لفهم أعمق</p>
+                            <p>✓ اكتشاف الأنماط</p>
+                            <p>✓ بناء عادات جديدة</p>
+                            <p>✓ متابعة شهر كامل</p>
+                            <p class="program-price">1,500 جنيه</p>
+                        </div>
+                        
+                        <div class="program-card" onclick="selectProgram(this, 'transformation')">
+                            <h3>رحلة التحول</h3>
+                            <p>6 جلسات شاملة للتغيير الجذري</p>
+                            <p>✓ إعادة اكتشاف الهدف</p>
+                            <p>✓ خطة تحول متكاملة</p>
+                            <p>✓ متابعة 3 شهور</p>
+                            <p class="program-price">3,000 جنيه</p>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" id="program" name="program" required>
+                    <div class="error-message" id="programError"></div>
+                    
+                    <div class="form-group">
+                        <label for="preferredTimes">الأوقات المناسبة لك</label>
+                        <textarea id="preferredTimes" name="preferredTimes" placeholder="مثال: أيام السبت والأحد مساءً، أو أي يوم بعد الساعة 6"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="referralSource">كيف عرفت عنا؟</label>
+                        <select id="referralSource" name="referralSource">
+                            <option value="">اختر...</option>
+                            <option value="facebook">فيسبوك</option>
+                            <option value="instagram">انستجرام</option>
+                            <option value="google">بحث جوجل</option>
+                            <option value="friend">صديق</option>
+                            <option value="other">آخر</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Confirmation -->
+                <div class="form-step" data-step="4">
+                    <h2>تأكيد الحجز</h2>
+                    
+                    <div id="bookingSummary" style="background: #f8f8f8; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <!-- سيتم ملؤه بـ JavaScript -->
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center;">
+                            <input type="checkbox" id="terms" required style="width: auto; margin-left: 10px;">
+                            أوافق على سياسة الخصوصية وأفهم أن:
+                        </label>
+                        <ul style="margin-top: 10px; padding-right: 30px; color: #666;">
+                            <li>جميع المعلومات ستبقى سرية تامة</li>
+                            <li>سيتم التواصل معي خلال 24 ساعة</li>
+                            <li>يمكنني إلغاء أو تأجيل الجلسة قبل 24 ساعة</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">تأكيد الحجز</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message">
+            <div class="success-icon">✅</div>
+            <h2>تم إرسال طلبك بنجاح!</h2>
+            <p>شكراً لك على الثقة</p>
+            <p>سنتواصل معك خلال 24 ساعة لتحديد موعد الجلسة</p>
+            <p style="margin-top: 20px; color: #2C5530;">رقم الحجز: <strong id="bookingNumber"></strong></p>
+            
+            <div class="success-actions">
+                <a href="index.html" class="btn btn-secondary">الصفحة الرئيسية</a>
+                <button onclick="window.location.href='https://wa.me/201224938330'" class="btn btn-primary">تواصل معنا</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        // Initialize Firestore
+        const db = firebase.firestore();
+        
+        // Form state
+        let currentStep = 1;
+        let selectedProgram = '';
+        let formData = {};
+        
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.onclick = () => notification.remove();
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        // Show alert
+        function showAlert(message, type = 'error') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Validation functions
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+        
+        function validatePhone(phone) {
+            const cleaned = phone.replace(/\D/g, '');
+            return cleaned.length >= 10 && cleaned.length <= 11;
+        }
+        
+        // Clear error
+        function clearError(fieldId) {
+            document.getElementById(fieldId).classList.remove('error');
+            const errorElement = document.getElementById(fieldId + 'Error');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+                errorElement.textContent = '';
+            }
+        }
+        
+        // Show error
+        function showError(fieldId, message) {
+            document.getElementById(fieldId).classList.add('error');
+            const errorElement = document.getElementById(fieldId + 'Error');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+        
+        // Validate step
+        function validateStep(step) {
+            let isValid = true;
+            
+            switch(step) {
+                case 1:
+                    // Clear previous errors
+                    clearError('email');
+                    clearError('phone');
+                    
+                    // Validate email
+                    const email = document.getElementById('email').value;
+                    if (!email) {
+                        showError('email', 'البريد الإلكتروني مطلوب');
+                        isValid = false;
+                    } else if (!validateEmail(email)) {
+                        showError('email', 'البريد الإلكتروني غير صحيح');
+                        isValid = false;
+                    }
+                    
+                    // Validate phone
+                    const phone = document.getElementById('phone').value;
+                    if (!phone) {
+                        showError('phone', 'رقم الواتساب مطلوب');
+                        isValid = false;
+                    } else if (!validatePhone(phone)) {
+                        showError('phone', 'رقم الواتساب غير صحيح (10-11 رقم)');
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 2:
+                    clearError('message');
+                    const message = document.getElementById('message').value;
+                    if (!message || message.length < 10) {
+                        showError('message', 'من فضلك اكتب رسالة أطول قليلاً');
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 3:
+                    clearError('program');
+                    if (!selectedProgram) {
+                        showError('program', 'من فضلك اختر البرنامج');
+                        showAlert('من فضلك اختر البرنامج المناسب');
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 4:
+                    const terms = document.getElementById('terms').checked;
+                    if (!terms) {
+                        showAlert('من فضلك وافق على الشروط والأحكام');
+                        isValid = false;
+                    }
+                    break;
+            }
+            
+            return isValid;
+        }
+        
+        // Save step data
+        function saveStepData(step) {
+            switch(step) {
+                case 1:
+                    formData.name = document.getElementById('name').value || 'غير محدد';
+                    formData.email = document.getElementById('email').value;
+                    formData.phone = document.getElementById('phone').value;
+                    formData.contactMethod = document.getElementById('contactMethod').value;
+                    formData.previousCoaching = document.querySelector('input[name="previousCoaching"]:checked').value;
+                    break;
+                    
+                case 2:
+                    formData.message = document.getElementById('message').value;
+                    formData.issues = Array.from(document.querySelectorAll('input[name="issues"]:checked'))
+                        .map(el => el.value);
+                    formData.duration = document.getElementById('duration').value;
+                    formData.goal = document.getElementById('goal').value;
+                    break;
+                    
+                case 3:
+                    formData.program = selectedProgram;
+                    formData.preferredTimes = document.getElementById('preferredTimes').value;
+                    formData.referralSource = document.getElementById('referralSource').value;
+                    break;
+            }
+        }
+        
+        // Update progress
+        function updateProgress() {
+            document.querySelectorAll('.step').forEach((step, index) => {
+                if (index < currentStep - 1) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (index === currentStep - 1) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
             });
         }
-    } else {
-        console.error('خطأ في إنشاء الحساب:', error);
-        // لا نوقف عملية الحجز - فقط نسجل الخطأ
-    }
-}
+        
+        // Show step
+        function showStep(step) {
+            document.querySelectorAll('.form-step').forEach(s => {
+                s.classList.remove('active');
+            });
+            
+            document.querySelector(`.form-step[data-step="${step}"]`).classList.add('active');
+            updateProgress();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Next step
+        function nextStep() {
+            if (validateStep(currentStep)) {
+                saveStepData(currentStep);
+                currentStep++;
+                showStep(currentStep);
+                
+                // Show summary on last step
+                if (currentStep === 4) {
+                    showSummary();
+                }
+            }
+        }
+        
+        // Previous step
+        function previousStep() {
+            currentStep--;
+            showStep(currentStep);
+        }
+        
+        // Select program
+        function selectProgram(element, program) {
+            // Remove selected class from all
+            document.querySelectorAll('.program-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class
+            element.classList.add('selected');
+            selectedProgram = program;
+            document.getElementById('program').value = program;
+            clearError('program');
+        }
+        
+        // Analyze and proceed
+        function analyzeAndProceed() {
+            if (!validateStep(2)) return;
+            
+            saveStepData(2);
+            
+            // Analyze needs and recommend
+            const { duration, goal, issues } = formData;
+            let recommendedProgram = '';
+            let recommendationText = '';
+            
+            if (goal === 'quick' && duration === 'new') {
+                recommendedProgram = 'clarity';
+                recommendationText = 'بناءً على احتياجك، نوصي بـ <strong>جلسة الوضوح</strong> للحصول على حل سريع وفعال للتحدي الذي تواجهه.';
+            } else if (goal === 'transform' || duration === 'long') {
+                recommendedProgram = 'transformation';
+                recommendationText = 'بناءً على رغبتك في التغيير الشامل، نوصي بـ <strong>رحلة التحول</strong> لتحقيق النقلة التي تبحث عنها.';
+            } else {
+                recommendedProgram = 'discovery';
+                recommendationText = 'بناءً على احتياجك، نوصي بـ <strong>رحلة الاكتشاف</strong> لفهم أعمق وبناء أساس قوي للتغيير.';
+            }
+            
+            // Show recommendation
+            document.getElementById('recommendation').style.display = 'block';
+            document.getElementById('recommendationText').innerHTML = recommendationText;
+            
+            // Pre-select recommended program
+            const recommendedCard = document.querySelector(`.program-card[onclick*="${recommendedProgram}"]`);
+            if (recommendedCard) {
+                selectProgram(recommendedCard, recommendedProgram);
+            }
+            
+            nextStep();
+        }
+        
+        // Show summary
+        function showSummary() {
+            const summary = document.getElementById('bookingSummary');
+            
+            let summaryHTML = `
+                <h3>ملخص طلبك</h3>
+                <p><strong>الاسم:</strong> ${formData.name}</p>
+                <p><strong>البريد الإلكتروني:</strong> ${formData.email}</p>
+                <p><strong>رقم الواتساب:</strong> ${formData.phone}</p>
+                <p><strong>البرنامج المختار:</strong> ${getProgramName(formData.program)}</p>
+                <p><strong>السعر:</strong> ${getProgramPrice(formData.program)} جنيه</p>
+            `;
+            
+            if (formData.preferredTimes) {
+                summaryHTML += `<p><strong>الأوقات المفضلة:</strong> ${formData.preferredTimes}</p>`;
+            }
+            
+            summary.innerHTML = summaryHTML;
+        }
+        
+        // Get program name
+        function getProgramName(program) {
+            const names = {
+                clarity: 'جلسة الوضوح',
+                discovery: 'رحلة الاكتشاف',
+                transformation: 'رحلة التحول'
+            };
+            return names[program] || program;
+        }
+        
+        // Get program price
+        function getProgramPrice(program) {
+            const prices = {
+                clarity: 400,
+                discovery: 1500,
+                transformation: 3000
+            };
+            return prices[program] || 0;
+        }
+        
+        // Show loading
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('submitBtn').disabled = show;
+        }
+        
+        // Check for existing booking
+        async function checkExistingBooking(email, phone) {
+            try {
+                const emailQuery = await db.collection('bookings')
+                    .where('email', '==', email)
+                    .where('status', 'in', ['pending', 'confirmed'])
+                    .get();
+                
+                const phoneQuery = await db.collection('bookings')
+                    .where('phone', '==', phone)
+                    .where('status', 'in', ['pending', 'confirmed'])
+                    .get();
+                
+                return !emailQuery.empty || !phoneQuery.empty;
+            } catch (error) {
+                console.error('Error checking existing booking:', error);
+                return false;
+            }
+        }
+        
+        // Handle form submission
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Validate final step
+            if (!validateStep(4)) return;
+            
+            // Show loading
+            showLoading(true);
+            
+            try {
+                // Check for existing booking
+                const hasExisting = await checkExistingBooking(formData.email, formData.phone);
+                
+                if (hasExisting) {
+                    showLoading(false);
+                    showAlert('يبدو أن لديك حجز قائم بالفعل. سنتواصل معك قريباً. إذا كانت هذه مشكلة، تواصل معنا مباشرة.', 'warning');
+                    
+                    // Still allow them to contact via WhatsApp
+                    setTimeout(() => {
+                        if (confirm('هل تريد التواصل معنا مباشرة عبر واتساب؟')) {
+                            window.open('https://wa.me/201224938330', '_blank');
+                        }
+                    }, 2000);
+                    return;
+                }
+                
+                // Generate booking number
+                const bookingNumber = 'BK' + Date.now().toString().slice(-8);
+                
+                // Prepare final data
+                const finalData = {
+                    ...formData,
+                    bookingNumber: bookingNumber,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'pending',
+                    source: 'website',
+                    userAgent: navigator.userAgent,
+                    referrer: document.referrer || 'direct'
+                };
+                
+                // Save to Firestore
+                const docRef = await db.collection('bookings').add(finalData);
+                console.log('Booking saved with ID:', docRef.id);
+                
+                // Send WhatsApp notification
+                const whatsappMessage = `🎉 حجز جديد من الموقع!
+                
+📋 رقم الحجز: ${bookingNumber}
+👤 الاسم: ${formData.name}
+📧 البريد: ${formData.email}
+📱 الهاتف: ${formData.phone}
+📚 البرنامج: ${getProgramName(formData.program)}
+💬 الرسالة: ${formData.message}
+⏰ الأوقات المفضلة: ${formData.preferredTimes || 'لم يحدد'}
+🔗 المصدر: ${formData.referralSource || 'مباشر'}
 
-// دالة توليد كلمة مرور آمنة
-function generatePassword() {
-    const length = 8;
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
-    let password = "";
-    for (let i = 0; i < length; i++) {
-        password += charset.charAt(Math.floor(Math.random() * charset.length));
-    }
-    return password;
-}
-
-// دالة إرسال كلمة المرور بالإيميل
-function sendPasswordEmail(email, name, password) {
-    // الطريقة 1: استخدام EmailJS (مجاني وسهل)
-    // سجل في https://www.emailjs.com وأضف:
-    
-    /*
-    emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
-        to_email: email,
-        to_name: name,
-        password: password,
-        login_link: 'https://mahmoudfouad25.github.io/login.html'
-    });
-    */
-    
-    // الطريقة 2: عرض كلمة المرور مؤقتاً (للتجربة)
-    // يمكن إضافة هذا في رسالة النجاح
-    const successMessage = document.getElementById('successMessage');
-    successMessage.innerHTML += `
-        <div style="background: #e8f5e9; padding: 20px; border-radius: 10px; margin-top: 20px;">
-            <h3>بيانات دخولك للوحة التحكم:</h3>
-            <p><strong>البريد الإلكتروني:</strong> ${email}</p>
-            <p><strong>كلمة المرور المؤقتة:</strong> ${password}</p>
-            <p style="color: #d32f2f; margin-top: 10px;">
-                ⚠️ احفظ هذه البيانات! سيتم إرسالها أيضاً لبريدك الإلكتروني.
-            </p>
-            <a href="login.html" class="btn btn-primary" style="margin-top: 10px;">
-                دخول لوحة التحكم
-            </a>
-        </div>
-    `;
-    
-    // الطريقة 3: إرسال عبر WhatsApp API (إضافي)
-    const whatsappPasswordMsg = `
-مرحباً ${name} 👋
-
-بيانات دخولك لمنصة محمود فؤاد:
-
-📧 البريد: ${email}
-🔐 كلمة المرور: ${password}
-
-🔗 رابط الدخول:
-https://mahmoudfouad25.github.io/login.html
-
-⚠️ نصيحة: غيّر كلمة المرور بعد أول دخول
-
-مع تحياتي،
-محمود فؤاد
-    `;
-    
-    // فتح واتساب بالرسالة (اختياري)
-    // window.open(`https://wa.me/${formData.phone}?text=${encodeURIComponent(whatsappPasswordMsg)}`, '_blank');
-}
+🔗 رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
+                
+                // Open WhatsApp
+                const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(whatsappMessage)}`;
+                window.open(whatsappUrl, '_blank');
+                
+                // Save to localStorage for backup
+                const bookingBackup = {
+                    ...finalData,
+                    firestoreId: docRef.id,
+                    savedAt: new Date().toISOString()
+                };
+                localStorage.setItem(`booking_${bookingNumber}`, JSON.stringify(bookingBackup));
+                
+                // Show success message
+                showLoading(false);
+                document.getElementById('formContainer').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('bookingNumber').textContent = bookingNumber;
+                
+                // Track conversion if analytics available
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'conversion', {
+                        'send_to': 'AW-CONVERSION_ID/CONVERSION_LABEL',
+                        'value': getProgramPrice(formData.program),
+                        'currency': 'EGP'
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error submitting booking:', error);
+                showLoading(false);
+                
+                // Save to localStorage as fallback
+                const fallbackBooking = {
+                    ...formData,
+                    bookingNumber: 'FB' + Date.now().toString().slice(-8),
+                    createdAt: new Date().toISOString(),
+                    status: 'pending_sync',
+                    error: error.message
+                };
+                
+                localStorage.setItem(`fallback_booking_${Date.now()}`, JSON.stringify(fallbackBooking));
+                
+                showAlert('حدث خطأ في إرسال الطلب، لكن تم حفظ بياناتك. سنتواصل معك قريباً أو يمكنك التواصل معنا مباشرة.', 'error');
+                
+                // Open WhatsApp for direct contact
+                setTimeout(() => {
+                    if (confirm('هل تريد التواصل معنا مباشرة عبر واتساب؟')) {
+                        const errorMessage = `مرحباً، حاولت الحجز على الموقع لكن واجهت مشكلة تقنية.
+                        
+الاسم: ${formData.name}
+الهاتف: ${formData.phone}
+البرنامج: ${getProgramName(formData.program)}`;
+                        
+                        window.open(`https://wa.me/201224938330?text=${encodeURIComponent(errorMessage)}`, '_blank');
+                    }
+                }, 2000);
+            }
+        });
+        
+        // Clear form on page load
+        window.onload = function() {
+            document.getElementById('bookingForm').reset();
+            currentStep = 1;
+            selectedProgram = '';
+            formData = {};
+            showStep(1);
+            
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref');
+            const promo = urlParams.get('promo');
+            
+            if (ref) {
+                document.getElementById('referralSource').value = ref;
+                showNotification(`مرحباً! وصلت من ${ref} 🎉`, 'success');
+            }
+            
+            if (promo) {
+                sessionStorage.setItem('promoCode', promo);
+                showNotification('تم تطبيق كود الخصم', 'success');
+            }
+            
+            // Restore form data if exists (in case of page refresh)
+            const savedFormData = sessionStorage.getItem('bookingFormData');
+            if (savedFormData) {
+                if (confirm('لديك بيانات محفوظة، هل تريد استكمال الحجز السابق؟')) {
+                    formData = JSON.parse(savedFormData);
+                    restoreFormData();
+                } else {
+                    sessionStorage.removeItem('bookingFormData');
+                }
+            }
+        };
+        
+        // Save form data on change
+        document.getElementById('bookingForm').addEventListener('change', () => {
+            saveStepData(currentStep);
+            sessionStorage.setItem('bookingFormData', JSON.stringify(formData));
+        });
+        
+        // Restore form data
+        function restoreFormData() {
+            if (formData.name) document.getElementById('name').value = formData.name;
+            if (formData.email) document.getElementById('email').value = formData.email;
+            if (formData.phone) document.getElementById('phone').value = formData.phone;
+            if (formData.contactMethod) document.getElementById('contactMethod').value = formData.contactMethod;
+            if (formData.message) document.getElementById('message').value = formData.message;
+            if (formData.duration) document.getElementById('duration').value = formData.duration;
+            if (formData.goal) document.getElementById('goal').value = formData.goal;
+            if (formData.preferredTimes) document.getElementById('preferredTimes').value = formData.preferredTimes;
+            if (formData.referralSource) document.getElementById('referralSource').value = formData.referralSource;
+            
+            // Restore checkboxes
+            if (formData.issues) {
+                formData.issues.forEach(issue => {
+                    const checkbox = document.querySelector(`input[name="issues"][value="${issue}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            
+            // Restore radio
+            if (formData.previousCoaching) {
+                const radio = document.querySelector(`input[name="previousCoaching"][value="${formData.previousCoaching}"]`);
+                if (radio) radio.checked = true;
+            }
+            
+            // Restore program selection
+            if (formData.program) {
+                const programCard = document.querySelector(`.program-card[onclick*="${formData.program}"]`);
+                if (programCard) selectProgram(programCard, formData.program);
+            }
+        }
+        
+        // Prevent accidental navigation
+        window.addEventListener('beforeunload', (e) => {
+            if (currentStep > 1 && currentStep < 4) {
+                e.preventDefault();
+                e.returnValue = 'لديك بيانات غير محفوظة، هل تريد المغادرة؟';
+            }
+        });
+        
+        // Input formatting
+        document.getElementById('phone').addEventListener('input', (e) => {
+            // Remove non-digits
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Limit to 11 digits
+            if (value.length > 11) {
+                value = value.slice(0, 11);
+            }
+            
+            e.target.value = value;
+        });
+        
+        // Real-time validation
+        document.getElementById('email').addEventListener('blur', () => {
+            const email = document.getElementById('email').value;
+            if (email && !validateEmail(email)) {
+                showError('email', 'البريد الإلكتروني غير صحيح');
+            } else {
+                clearError('email');
+            }
+        });
+        
+        document.getElementById('phone').addEventListener('blur', () => {
+            const phone = document.getElementById('phone').value;
+            if (phone && !validatePhone(phone)) {
+                showError('phone', 'رقم الواتساب غير صحيح (10-11 رقم)');
+            } else {
+                clearError('phone');
+            }
+        });
+        
+        // Message character counter (optional)
+        document.getElementById('message').addEventListener('input', (e) => {
+            const length = e.target.value.length;
+            if (length < 10 && length > 0) {
+                showError('message', `اكتب ${10 - length} حروف إضافية على الأقل`);
+            } else {
+                clearError('message');
+            }
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                const activeStep = document.querySelector('.form-step.active');
+                const nextBtn = activeStep.querySelector('.btn-primary');
+                if (nextBtn && !nextBtn.disabled) {
+                    nextBtn.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
