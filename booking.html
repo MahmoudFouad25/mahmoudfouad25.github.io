@@ -1118,11 +1118,71 @@
                 };
                 localStorage.setItem(`booking_${bookingNumber}`, JSON.stringify(bookingBackup));
                 
+                // Create user account if doesn't exist
+                let loginInfo = '';
+                if (!auth.currentUser) {
+                    const tempPassword = 'Welcome' + bookingNumber.slice(-4);
+                    
+                    try {
+                        await auth.createUserWithEmailAndPassword(formData.email, tempPassword);
+                        
+                        await db.collection('users').doc(auth.currentUser.uid).set({
+                            name: formData.name,
+                            email: formData.email,
+                            phone: formData.phone,
+                            program: formData.program,
+                            tempPassword: tempPassword,
+                            mustChangePassword: true,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        loginInfo = `
+                            <div style="background: #e8f5e9; padding: 20px; border-radius: 10px; margin-top: 20px; text-align: right;">
+                                <h3>🔐 بيانات الدخول لمساحتك الخاصة:</h3>
+                                <p><strong>البريد الإلكتروني:</strong> ${formData.email}</p>
+                                <p><strong>كلمة المرور المؤقتة:</strong> ${tempPassword}</p>
+                                <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                                    <em>نصيحة: احفظ هذه البيانات أو صور الشاشة</em>
+                                </p>
+                                <div style="margin-top: 15px;">
+                                    <a href="login.html" class="btn btn-primary" style="text-decoration: none; display: inline-block;">
+                                        دخول لمساحتي الخاصة
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add to WhatsApp message
+                        whatsappMessage += `\n\n🔐 بيانات دخول العميل:\nالبريد: ${formData.email}\nكلمة المرور: ${tempPassword}`;
+                        
+                    } catch (error) {
+                        if (error.code === 'auth/email-already-in-use') {
+                            loginInfo = `
+                                <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-top: 20px; text-align: right;">
+                                    <h3>📝 ملاحظة:</h3>
+                                    <p>لديك حساب مسجل بالفعل بهذا البريد الإلكتروني.</p>
+                                    <p>يمكنك الدخول باستخدام كلمة المرور الخاصة بك.</p>
+                                    <div style="margin-top: 15px;">
+                                        <a href="login.html" class="btn btn-primary" style="text-decoration: none; display: inline-block;">
+                                            تسجيل الدخول
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+                
                 // Show success message
                 showLoading(false);
                 document.getElementById('formContainer').style.display = 'none';
                 document.getElementById('successMessage').style.display = 'block';
                 document.getElementById('bookingNumber').textContent = bookingNumber;
+                
+                // Add login info if exists
+                if (loginInfo) {
+                    document.getElementById('successMessage').innerHTML += loginInfo;
+                }
                 
                 // Track conversion if analytics available
                 if (typeof gtag !== 'undefined') {
