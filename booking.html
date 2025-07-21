@@ -1095,11 +1095,39 @@ document.getElementById('bookingForm').addEventListener('submit', async (e) => {
                 // User doesn't exist, create new account
                 temporaryPassword = generateSecurePassword();
                 
-                try {
-                    const userCredential = await auth.createUserWithEmailAndPassword(
-                        formData.email, 
-                        temporaryPassword
-                    );
+try {
+    // إنشاء حساب في Authentication
+    const userCredential = await auth.createUserWithEmailAndPassword(
+        formData.email, 
+        temporaryPassword
+    );
+    userId = userCredential.user.uid;
+    
+    console.log('تم إنشاء حساب Authentication بنجاح:', userId);
+    
+    // مهم جداً: حفظ المستخدم في Firestore
+    await db.collection('users').doc(userId).set({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        program: formData.program,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        bookingNumber: bookingNumber,
+        role: 'client'
+    });
+    
+    console.log('تم حفظ المستخدم في Firestore');
+    
+} catch (authError) {
+    console.error('خطأ في إنشاء الحساب:', authError);
+    
+    if (authError.code === 'auth/email-already-in-use') {
+        console.log('المستخدم موجود بالفعل');
+        temporaryPassword = null; // مهم: امسح كلمة المرور
+    } else {
+        throw authError; // لو خطأ تاني، اطلعه
+    }
+}
                     userId = userCredential.user.uid;
                     
                     // Send verification email
