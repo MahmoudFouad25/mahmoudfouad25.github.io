@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مساحتك الخاصة - محمود فؤاد</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2C5530;
+            --secondary: #8B9467;
+            --accent: #D4AF37;
+            --light: #F5F2E8;
+            --dark: #1A1A1A;
+            --gradient: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s;
+        }
+        
+        .sidebar.hidden {
+            transform: translateX(100%);
+        }
+        
+        .profile-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-name {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-program {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            background: var(--gradient);
+            color: white;
+        }
+        
+        .nav-icon {
+            margin-left: 0.75rem;
+            font-size: 1.2rem;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-right: 280px;
+            padding: 2rem;
+            transition: margin 0.3s;
+        }
+        
+        .main-content.full-width {
+            margin-right: 0;
+        }
+        
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .content-header {
+            margin-bottom: 2rem;
+        }
+        
+        .content-header h1 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-header p {
+            color: #666;
+        }
+        
+        /* Sections */
+        .section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .card-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Sessions */
+        .sessions-list {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .session-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--light);
+            transition: background 0.3s;
+        }
+        
+        .session-item:hover {
+            background: #fafafa;
+        }
+        
+        .session-item:last-child {
+            border-bottom: none;
+        }
+        
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .session-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .session-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .status-upcoming { background: #d1ecf1; color: #0c5460; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        
+        .session-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .session-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Practices */
+        .practices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .practice-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .practice-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .practice-header {
+            background: var(--gradient);
+            color: white;
+            padding: 1.5rem;
+        }
+        
+        .practice-header h3 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .practice-content {
+            padding: 1.5rem;
+        }
+        
+        .practice-description {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .practice-steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+        
+        .practice-steps li {
+            counter-increment: step-counter;
+            padding-right: 2rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .practice-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            right: 0;
+            width: 25px;
+            height: 25px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .practice-progress {
+            margin-top: 1rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 0.5s;
+        }
+        
+        /* Progress Chart */
+        .progress-chart {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .chart-container {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        
+        /* Resources */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .resource-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--dark);
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-5px);
+            background: var(--light);
+        }
+        
+        .resource-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .resource-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .resource-description {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Notes */
+        .notes-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .notes-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .note-item {
+            padding: 1rem;
+            background: var(--light);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .note-item:hover {
+            transform: translateX(-5px);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .note-date {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 0.5rem;
+        }
+        
+        .note-content {
+            color: #666;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: fadeIn 0.3s;
+        }
+        
+        .close {
+            color: #aaa;
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+        
+        .empty-state img {
+            width: 150px;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                transform: translateX(100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-right: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .session-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <div class="mobile-menu-toggle" id="mobileMenuToggle">☰</div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="profile-section">
+            <div class="profile-avatar" id="profileAvatar">
+                <span id="avatarInitial">👤</span>
+            </div>
+            <h3 class="profile-name" id="profileName">جاري التحميل...</h3>
+            <p class="profile-program" id="profileProgram">-</p>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalSessions">0</div>
+                    <div class="stat-label">الجلسات</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="completedSessions">0</div>
+                    <div class="stat-label">مكتملة</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="upcomingSessions">0</div>
+                    <div class="stat-label">قادمة</div>
+                </div>
+            </div>
+        </div>
+        
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">
+                        <span class="nav-icon">🏠</span>
+                        الرئيسية
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#sessions" class="nav-link" onclick="showSection('sessions')">
+                        <span class="nav-icon">📅</span>
+                        جلساتي
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#practices" class="nav-link" onclick="showSection('practices')">
+                        <span class="nav-icon">🎯</span>
+                        الممارسات
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#progress" class="nav-link" onclick="showSection('progress')">
+                        <span class="nav-icon">📊</span>
+                        تقدمي
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#resources" class="nav-link" onclick="showSection('resources')">
+                        <span class="nav-icon">📚</span>
+                        المكتبة
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#notes" class="nav-link" onclick="showSection('notes')">
+                        <span class="nav-icon">📝</span>
+                        ملاحظاتي
+                    </a>
+                </li>
+                <li class="nav-item" style="margin-top: 2rem;">
+                    <a href="#" class="nav-link" onclick="logout()">
+                        <span class="nav-icon">🚪</span>
+                        خروج
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="content-header">
+                <h1>مرحباً <span id="welcomeName">بك</span> 👋</h1>
+                <p id="welcomeMessage">مستعد لجلستك القادمة؟</p>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-icon">📅</div>
+                    <div class="card-title">الجلسة القادمة</div>
+                    <div class="card-value" id="nextSessionDate">-</div>
+                    <div class="card-subtitle" id="nextSessionTime">-</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">⏱️</div>
+                    <div class="card-title">مدة البرنامج</div>
+                    <div class="card-value" id="programDuration">-</div>
+                    <div class="card-subtitle">متبقي</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">🎯</div>
+                    <div class="card-title">الممارسات</div>
+                    <div class="card-value" id="practicesCount">0</div>
+                    <div class="card-subtitle">ممارسة نشطة</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">📈</div>
+                    <div class="card-title">معدل التقدم</div>
+                    <div class="card-value" id="progressRate">0%</div>
+                    <div class="card-subtitle">نسبة الإنجاز</div>
+                </div>
+            </div>
+            
+            <div class="sessions-list">
+                <h2>آخر النشاطات</h2>
+                <div id="recentActivities" class="loading">
+                    <div class="spinner"></div>
+                    <p>جاري التحميل...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sessions Section -->
+        <section id="sessions" class="section">
+            <div class="content-header">
+                <h1>جلساتي</h1>
+                <p>تابع جلساتك السابقة والقادمة</p>
+            </div>
+            
+            <div class="sessions-list">
+                <div id="sessionsList" class="loading">
+                    <div class="spinner"></div>
+                    <p>جاري تحميل الجلسات...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practices Section -->
+        <section id="practices" class="section">
+            <div class="content-header">
+                <h1>الممارسات</h1>
+                <p>ممارسات يومية لتعزيز رحلتك</p>
+            </div>
+            
+            <div class="practices-grid" id="practicesGrid">
+                <!-- سيتم ملؤها بـ JavaScript -->
+            </div>
+        </section>
+
+        <!-- Progress Section -->
+        <section id="progress" class="section">
+            <div class="content-header">
+                <h1>تقدمي</h1>
+                <p>تابع رحلة تطورك</p>
+            </div>
+            
+            <div class="progress-chart">
+                <h3>مخطط التقدم</h3>
+                <div class="chart-container">
+                    <p>الرسوم البيانية ستكون متاحة قريباً</p>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-icon">✅</div>
+                    <div class="card-title">الإنجازات</div>
+                    <div class="card-value" id="achievementsCount">0</div>
+                    <div class="card-subtitle">إنجاز محقق</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">🔥</div>
+                    <div class="card-title">أطول سلسلة</div>
+                    <div class="card-value" id="longestStreak">0</div>
+                    <div class="card-subtitle">يوم متتالي</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">⭐</div>
+                    <div class="card-title">التقييم</div>
+                    <div class="card-value" id="averageRating">-</div>
+                    <div class="card-subtitle">متوسط التقييم</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources Section -->
+        <section id="resources" class="section">
+            <div class="content-header">
+                <h1>المكتبة</h1>
+                <p>موارد لدعم رحلتك</p>
+            </div>
+            
+            <div class="resources-grid">
+                <a href="#" class="resource-card" onclick="openResource('meditation')">
+                    <span class="resource-icon">🧘</span>
+                    <h3 class="resource-title">تأملات موجهة</h3>
+                    <p class="resource-description">مجموعة من التأملات الصوتية لتعزيز السلام الداخلي</p>
+                </a>
+                <a href="#" class="resource-card" onclick="openResource('articles')">
+                    <span class="resource-icon">📖</span>
+                    <h3 class="resource-title">مقالات مختارة</h3>
+                    <p class="resource-description">مقالات تساعدك في فهم أعمق لرحلتك</p>
+                </a>
+                <a href="#" class="resource-card" onclick="openResource('videos')">
+                    <span class="resource-icon">🎥</span>
+                    <h3 class="resource-title">فيديوهات تعليمية</h3>
+                    <p class="resource-description">شروحات وتمارين مرئية</p>
+                </a>
+                <a href="#" class="resource-card" onclick="openResource('books')">
+                    <span class="resource-icon">📚</span>
+                    <h3 class="resource-title">كتب مقترحة</h3>
+                    <p class="resource-description">قائمة بالكتب المفيدة في رحلتك</p>
+                </a>
+                <a href="#" class="resource-card" onclick="openResource('worksheets')">
+                    <span class="resource-icon">📝</span>
+                    <h3 class="resource-title">أوراق عمل</h3>
+                    <p class="resource-description">تمارين وأنشطة للتطبيق العملي</p>
+                </a>
+                <a href="#" class="resource-card" onclick="openResource('community')">
+                    <span class="resource-icon">👥</span>
+                    <h3 class="resource-title">مجتمع الدعم</h3>
+                    <p class="resource-description">تواصل مع زملائك في الرحلة</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Notes Section -->
+        <section id="notes" class="section">
+            <div class="content-header">
+                <h1>ملاحظاتي</h1>
+                <p>دوّن أفكارك وملاحظاتك</p>
+            </div>
+            
+            <div class="notes-container">
+                <div class="notes-header">
+                    <h3>الملاحظات المحفوظة</h3>
+                    <button class="btn btn-primary" onclick="addNewNote()">+ ملاحظة جديدة</button>
+                </div>
+                <div class="notes-list" id="notesList">
+                    <div class="empty-state">
+                        <p>لا توجد ملاحظات محفوظة</p>
+                        <button class="btn btn-primary" onclick="addNewNote()">أضف أول ملاحظة</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Note Modal -->
+    <div id="noteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('noteModal')">&times;</span>
+            <h2>ملاحظة جديدة</h2>
+            <textarea id="noteTextarea" rows="10" style="width: 100%; margin: 20px 0; padding: 10px; border: 2px solid #eee; border-radius: 10px;" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+            <button class="btn btn-primary" onclick="saveNote()">حفظ</button>
+        </div>
+    </div>
+
+    <!-- Session Details Modal -->
+    <div id="sessionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('sessionModal')">&times;</span>
+            <h2>تفاصيل الجلسة</h2>
+            <div id="sessionDetails"></div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        // Initialize
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        let currentUser = null;
+        let userData = null;
+        let userBookings = [];
+        
+        // Check authentication
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
+                await loadUserBookings();
+                initializeDashboard();
+            } else {
+                // Redirect to login
+                window.location.href = 'login.html';
+            }
+        });
+        
+        // Load user data
+        async function loadUserData() {
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                } else {
+                    // Create user document if doesn't exist
+                    userData = {
+                        email: currentUser.email,
+                        name: currentUser.displayName || 'مستخدم جديد',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await db.collection('users').doc(currentUser.uid).set(userData);
+                }
+                
+                // Update UI
+                updateProfileSection();
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+        
+        // Load user bookings
+        async function loadUserBookings() {
+            try {
+                const snapshot = await db.collection('bookings')
+                    .where('email', '==', currentUser.email)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                userBookings = [];
+                snapshot.forEach(doc => {
+                    userBookings.push({ id: doc.id, ...doc.data() });
+                });
+                
+                updateDashboard();
+                updateSessionsList();
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+            }
+        }
+        
+        // Update profile section
+        function updateProfileSection() {
+            const name = userData?.name || currentUser.displayName || 'مستخدم';
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('welcomeName').textContent = name;
+            
+            // Set avatar
+            if (currentUser.photoURL) {
+                document.getElementById('profileAvatar').innerHTML = 
+                    `<img src="${currentUser.photoURL}" alt="Avatar">`;
+            } else {
+                const initial = name.charAt(0).toUpperCase();
+                document.getElementById('avatarInitial').textContent = initial;
+            }
+            
+            // Set program
+            const latestBooking = userBookings.find(b => b.status !== 'cancelled');
+            if (latestBooking) {
+                document.getElementById('profileProgram').textContent = getProgramName(latestBooking.program);
+            }
+        }
+        
+        // Initialize dashboard
+        function initializeDashboard() {
+            // Load practices
+            loadPractices();
+            
+            // Load notes
+            loadNotes();
+            
+            // Set welcome message
+            const hour = new Date().getHours();
+            let greeting = '';
+            if (hour < 12) greeting = 'صباح الخير';
+            else if (hour < 18) greeting = 'مساء الخير';
+            else greeting = 'مساء الخير';
+            
+            document.getElementById('welcomeMessage').textContent = `${greeting}! كيف حالك اليوم؟`;
+        }
+        
+        // Update dashboard
+        function updateDashboard() {
+            // Count sessions
+            const totalSessions = userBookings.length;
+            const completedSessions = userBookings.filter(b => b.status === 'completed').length;
+            const upcomingSessions = userBookings.filter(b => b.status === 'confirmed').length;
+            
+            document.getElementById('totalSessions').textContent = totalSessions;
+            document.getElementById('completedSessions').textContent = completedSessions;
+            document.getElementById('upcomingSessions').textContent = upcomingSessions;
+            
+            // Next session
+            const nextSession = userBookings.find(b => b.status === 'confirmed' && b.appointmentDate);
+            if (nextSession) {
+                const date = nextSession.appointmentDate.toDate ? 
+                    nextSession.appointmentDate.toDate() : new Date(nextSession.appointmentDate);
+                document.getElementById('nextSessionDate').textContent = date.toLocaleDateString('ar-EG');
+                document.getElementById('nextSessionTime').textContent = nextSession.appointmentTime || 'لم يحدد';
+            } else {
+                document.getElementById('nextSessionDate').textContent = 'لا توجد جلسات قادمة';
+            }
+            
+            // Progress rate
+            const progressRate = totalSessions > 0 ? 
+                Math.round((completedSessions / totalSessions) * 100) : 0;
+            document.getElementById('progressRate').textContent = progressRate + '%';
+            
+            // Recent activities
+            updateRecentActivities();
+        }
+        
+        // Update recent activities
+        function updateRecentActivities() {
+            const container = document.getElementById('recentActivities');
+            
+            if (userBookings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>لا توجد نشاطات حتى الآن</p>
+                        <a href="booking.html" class="btn btn-primary">احجز جلستك الأولى</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            userBookings.slice(0, 3).forEach(booking => {
+                const date = booking.createdAt?.toDate ? 
+                    booking.createdAt.toDate() : new Date();
+                
+                html += `
+                    <div class="session-item">
+                        <div class="session-header">
+                            <div class="session-title">${getProgramName(booking.program)}</div>
+                            <span class="session-status status-${booking.status || 'pending'}">
+                                ${getStatusName(booking.status)}
+                            </span>
+                        </div>
+                        <div class="session-details">
+                            <div>📅 ${date.toLocaleDateString('ar-EG')}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Update sessions list
+        function updateSessionsList() {
+            const container = document.getElementById('sessionsList');
+            
+            if (userBookings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>لم تحجز أي جلسات بعد</p>
+                        <a href="booking.html" class="btn btn-primary">احجز جلستك الأولى</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            userBookings.forEach(booking => {
+                const date = booking.createdAt?.toDate ? 
+                    booking.createdAt.toDate() : new Date();
+                
+                let sessionDate = 'لم يحدد';
+                if (booking.appointmentDate) {
+                    const apptDate = booking.appointmentDate.toDate ? 
+                        booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
+                    sessionDate = apptDate.toLocaleDateString('ar-EG');
+                    if (booking.appointmentTime) {
+                        sessionDate += ' - ' + booking.appointmentTime;
+                    }
+                }
+                
+                html += `
+                    <div class="session-item">
+                        <div class="session-header">
+                            <div class="session-title">${getProgramName(booking.program)}</div>
+                            <span class="session-status status-${booking.status || 'pending'}">
+                                ${getStatusName(booking.status)}
+                            </span>
+                        </div>
+                        <div class="session-details">
+                            <div>📅 تاريخ الحجز: ${date.toLocaleDateString('ar-EG')}</div>
+                            <div>⏰ موعد الجلسة: ${sessionDate}</div>
+                            <div>💬 نوع الجلسة: ${booking.sessionType ? getSessionTypeName(booking.sessionType) : 'لم يحدد'}</div>
+                        </div>
+                        <div class="session-actions">
+                            <button class="btn btn-secondary" onclick="viewSessionDetails('${booking.id}')">التفاصيل</button>
+                            ${booking.status === 'confirmed' ? 
+                                `<button class="btn btn-primary" onclick="joinSession('${booking.sessionLink}')">انضم للجلسة</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Load practices
+        function loadPractices() {
+            const practices = [
+                {
+                    id: 'triangle',
+                    title: 'المثلث القلبي',
+                    description: 'ممارسة يومية للانفتاح والحضور والتحرك القلبي',
+                    steps: [
+                        'توقف وخذ نفساً عميقاً',
+                        'استقبل ما تشعر به دون مقاومة',
+                        'اسأل: ما الذي يحتاجه قلبي الآن؟',
+                        'تحرك من مكان الحكمة والرحمة'
+                    ],
+                    progress: 60
+                },
+                {
+                    id: 'gratitude',
+                    title: 'دفتر الامتنان',
+                    description: 'سجل 3 أشياء تشعر بالامتنان لها يومياً',
+                    steps: [
+                        'اختر وقتاً ثابتاً كل يوم',
+                        'اكتب 3 أشياء أنت ممتن لها',
+                        'اشعر بالامتنان في قلبك',
+                        'لاحظ كيف يتغير شعورك'
+                    ],
+                    progress: 40
+                },
+                {
+                    id: 'meditation',
+                    title: 'تأمل الحضور',
+                    description: '10 دقائق من التأمل اليومي',
+                    steps: [
+                        'اجلس في مكان هادئ',
+                        'أغمض عينيك وركز على تنفسك',
+                        'عندما يشرد ذهنك، ارجع برفق للتنفس',
+                        'استمر لمدة 10 دقائق'
+                    ],
+                    progress: 80
+                }
+            ];
+            
+            const container = document.getElementById('practicesGrid');
+            let html = '';
+            
+            practices.forEach(practice => {
+                html += `
+                    <div class="practice-card">
+                        <div class="practice-header">
+                            <h3>${practice.title}</h3>
+                        </div>
+                        <div class="practice-content">
+                            <p class="practice-description">${practice.description}</p>
+                            <ol class="practice-steps">
+                                ${practice.steps.map(step => `<li>${step}</li>`).join('')}
+                            </ol>
+                            <div class="practice-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${practice.progress}%"></div>
+                                </div>
+                                <p style="text-align: center; margin-top: 0.5rem; color: #666;">
+                                    ${practice.progress}% مكتمل
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Update practices count
+            document.getElementById('practicesCount').textContent = practices.length;
+        }
+        
+        // Load notes
+        async function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem('userNotes_' + currentUser.uid) || '[]');
+            const container = document.getElementById('notesList');
+            
+            if (notes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>لا توجد ملاحظات محفوظة</p>
+                        <button class="btn btn-primary" onclick="addNewNote()">أضف أول ملاحظة</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            notes.forEach((note, index) => {
+                const date = new Date(note.date);
+                html += `
+                    <div class="note-item" onclick="viewNote(${index})">
+                        <div class="note-date">${date.toLocaleDateString('ar-EG')} - ${date.toLocaleTimeString('ar-EG')}</div>
+                        <div class="note-content">${note.content.substring(0, 100)}${note.content.length > 100 ? '...' : ''}</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Show section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update nav
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Close mobile menu
+            document.getElementById('sidebar').classList.remove('active');
+        }
+        
+        // View session details
+        function viewSessionDetails(bookingId) {
+            const booking = userBookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            let html = `
+                <div style="margin-top: 20px;">
+                    <p><strong>البرنامج:</strong> ${getProgramName(booking.program)}</p>
+                    <p><strong>الحالة:</strong> ${getStatusName(booking.status)}</p>
+                    <p><strong>تاريخ الحجز:</strong> ${booking.createdAt?.toDate ? 
+                        booking.createdAt.toDate().toLocaleDateString('ar-EG') : 'غير محدد'}</p>
+            `;
+            
+            if (booking.appointmentDate) {
+                const date = booking.appointmentDate.toDate ? 
+                    booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
+                html += `<p><strong>موعد الجلسة:</strong> ${date.toLocaleDateString('ar-EG')}`;
+                if (booking.appointmentTime) {
+                    html += ` - ${booking.appointmentTime}`;
+                }
+                html += `</p>`;
+            }
+            
+            if (booking.sessionType) {
+                html += `<p><strong>نوع الجلسة:</strong> ${getSessionTypeName(booking.sessionType)}</p>`;
+            }
+            
+            if (booking.sessionLink && booking.status === 'confirmed') {
+                html += `<p><strong>رابط الجلسة:</strong> <a href="${booking.sessionLink}" target="_blank">${booking.sessionLink}</a></p>`;
+            }
+            
+            if (booking.message) {
+                html += `<hr><p><strong>رسالتك:</strong></p><p style="background: #f8f8f8; padding: 15px; border-radius: 10px;">${booking.message}</p>`;
+            }
+            
+            if (booking.notes) {
+                html += `<hr><p><strong>ملاحظات المدرب:</strong></p><p style="background: #e8f5e9; padding: 15px; border-radius: 10px;">${booking.notes}</p>`;
+            }
+            
+            html += '</div>';
+            
+            document.getElementById('sessionDetails').innerHTML = html;
+            document.getElementById('sessionModal').style.display = 'block';
+        }
+        
+        // Join session
+        function joinSession(link) {
+            if (link) {
+                window.open(link, '_blank');
+            } else {
+                alert('لم يتم تحديد رابط الجلسة بعد');
+            }
+        }
+        
+        // Add new note
+        function addNewNote() {
+            document.getElementById('noteTextarea').value = '';
+            document.getElementById('noteModal').style.display = 'block';
+        }
+        
+        // Save note
+        function saveNote() {
+            const content = document.getElementById('noteTextarea').value;
+            if (!content.trim()) {
+                alert('من فضلك اكتب ملاحظة');
+                return;
+            }
+            
+            const notes = JSON.parse(localStorage.getItem('userNotes_' + currentUser.uid) || '[]');
+            notes.unshift({
+                content: content,
+                date: new Date().toISOString()
+            });
+            
+            // Keep only last 50 notes
+            if (notes.length > 50) {
+                notes.splice(50);
+            }
+            
+            localStorage.setItem('userNotes_' + currentUser.uid, JSON.stringify(notes));
+            
+            closeModal('noteModal');
+            loadNotes();
+            
+            // Show success message
+            showNotification('تم حفظ الملاحظة بنجاح');
+        }
+        
+        // View note
+        function viewNote(index) {
+            const notes = JSON.parse(localStorage.getItem('userNotes_' + currentUser.uid) || '[]');
+            const note = notes[index];
+            if (!note) return;
+            
+            document.getElementById('noteTextarea').value = note.content;
+            document.getElementById('noteModal').style.display = 'block';
+        }
+        
+        // Open resource
+        function openResource(type) {
+            let message = '';
+            
+            switch(type) {
+                case 'meditation':
+                    message = 'التأملات الموجهة ستكون متاحة قريباً';
+                    break;
+                case 'articles':
+                    message = 'المقالات ستكون متاحة قريباً';
+                    break;
+                case 'videos':
+                    message = 'الفيديوهات التعليمية ستكون متاحة قريباً';
+                    break;
+                case 'books':
+                    message = 'قائمة الكتب المقترحة ستكون متاحة قريباً';
+                    break;
+                case 'worksheets':
+                    message = 'أوراق العمل ستكون متاحة قريباً';
+                    break;
+                case 'community':
+                    message = 'مجتمع الدعم سيكون متاحاً قريباً';
+                    break;
+            }
+            
+            alert(message);
+        }
+        
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 5px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Logout
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                auth.signOut().then(() => {
+                    window.location.href = 'login.html';
+                });
+            }
+        }
+        
+        // Utility functions
+        function getProgramName(program) {
+            const names = {
+                clarity: 'جلسة الوضوح',
+                discovery: 'رحلة الاكتشاف',
+                transformation: 'رحلة التحول'
+            };
+            return names[program] || program;
+        }
+        
+        function getStatusName(status) {
+            const names = {
+                pending: 'في الانتظار',
+                confirmed: 'مؤكد',
+                completed: 'مكتمل',
+                cancelled: 'ملغي'
+            };
+            return names[status] || 'في الانتظار';
+        }
+        
+        function getSessionTypeName(type) {
+            const names = {
+                online: 'أونلاين',
+                phone: 'هاتفي',
+                inperson: 'حضوري'
+            };
+            return names[type] || 'أونلاين';
+        }
+        
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+        
+        // Close modals on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+        
+        // Calculate program duration
+        function calculateProgramDuration() {
+            const activeBooking = userBookings.find(b => b.status === 'confirmed');
+            if (!activeBooking) {
+                document.getElementById('programDuration').textContent = '-';
+                return;
+            }
+            
+            let duration = '';
+            switch(activeBooking.program) {
+                case 'clarity':
+                    duration = 'جلسة واحدة';
+                    break;
+                case 'discovery':
+                    duration = '3 جلسات';
+                    break;
+                case 'transformation':
+                    duration = '6 جلسات';
+                    break;
+            }
+            
+            document.getElementById('programDuration').textContent = duration;
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            calculateProgramDuration();
+        });
+    </script>
+</body>
+</html>
