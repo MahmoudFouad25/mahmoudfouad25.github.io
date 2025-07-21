@@ -202,24 +202,40 @@
         
         .social-login {
             display: flex;
+            flex-direction: column;
             gap: 10px;
             margin-bottom: 20px;
         }
         
         .social-btn {
-            flex: 1;
-            padding: 10px;
+            padding: 12px;
             border: 2px solid #eee;
             border-radius: 10px;
             background: white;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 20px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 500;
         }
         
         .social-btn:hover {
             border-color: var(--primary);
             background: var(--light);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .social-btn img {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .google-btn {
+            color: #333;
         }
         
         .register-link {
@@ -298,6 +314,12 @@
             border: 1px solid #bee5eb;
         }
         
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
         .back-link {
             position: absolute;
             top: 20px;
@@ -310,6 +332,67 @@
         
         .back-link:hover {
             opacity: 0.8;
+        }
+        
+        /* Account info box */
+        .account-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .account-info h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .account-info p {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        /* Help section */
+        .help-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .help-section h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .help-section ul {
+            margin-right: 20px;
+            color: #666;
+        }
+        
+        .help-section li {
+            margin-bottom: 5px;
+        }
+        
+        /* Remember me checkbox */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .remember-me input {
+            width: auto;
+            margin-left: 8px;
+        }
+        
+        .remember-me label {
+            margin-bottom: 0;
+            font-weight: normal;
+            font-size: 14px;
+            color: #666;
         }
         
         @media (max-width: 480px) {
@@ -335,6 +418,13 @@
         
         <div id="alertBox" class="alert"></div>
         
+        <!-- Account info for returning users -->
+        <div id="accountInfo" class="account-info">
+            <h3>مرحباً بعودتك! 👋</h3>
+            <p>يمكنك تسجيل الدخول باستخدام:</p>
+            <p id="loginMethods"></p>
+        </div>
+        
         <form id="loginForm">
             <div class="form-group">
                 <label for="email">البريد الإلكتروني</label>
@@ -346,9 +436,14 @@
                 <label for="password">كلمة المرور</label>
                 <div class="password-toggle">
                     <input type="password" id="password" required placeholder="أدخل كلمة المرور">
-                    <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                    <span class="toggle-password" onclick="togglePassword()">👁</span>
                 </div>
                 <div class="error-message" id="passwordError"></div>
+            </div>
+            
+            <div class="remember-me">
+                <input type="checkbox" id="rememberMe">
+                <label for="rememberMe">تذكرني</label>
             </div>
             
             <div class="forgot-password">
@@ -368,19 +463,26 @@
         </div>
         
         <div class="social-login">
-            <button class="social-btn" onclick="loginWithGoogle()" title="دخول بحساب جوجل">
-                <span style="color: #4285f4;">G</span>
-            </button>
-            <button class="social-btn" onclick="loginWithFacebook()" title="دخول بحساب فيسبوك">
-                <span style="color: #1877f2;">f</span>
+            <button type="button" class="social-btn google-btn" onclick="loginWithGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                <span>تسجيل الدخول باستخدام Google</span>
             </button>
         </div>
         
         <div class="register-link">
             ليس لديك حساب؟ <a href="booking.html">احجز جلستك الأولى</a>
         </div>
+        
+        <div class="help-section">
+            <h4>تحتاج مساعدة؟</h4>
+            <ul>
+                <li>إذا كنت عميل جديد، يمكنك <a href="booking.html">حجز جلستك الأولى</a></li>
+                <li>إذا حجزت جلسة ولم تستلم بيانات الدخول، تواصل معنا</li>
+                <li>يمكنك استخدام نفس البريد الذي سجلت به عند الحجز</li>
+            </ul>
+        </div>
     </div>
-
+    
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
@@ -392,13 +494,67 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
         
+        // Configure auth persistence
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        
+        // Google Provider
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+        googleProvider.setCustomParameters({
+            prompt: 'select_account'
+        });
+        
         // Check if already logged in
         auth.onAuthStateChanged(user => {
-            if (user) {
-                // Redirect to portal
+            if (user && !window.isLoggingOut) {
+                // User is signed in
                 window.location.href = 'portal.html';
             }
         });
+        
+        // Check for saved email
+        window.onload = function() {
+            const savedEmail = localStorage.getItem('userEmail');
+            if (savedEmail) {
+                document.getElementById('email').value = savedEmail;
+                checkUserLoginMethods(savedEmail);
+            }
+            
+            // Check remember me
+            const rememberMe = localStorage.getItem('rememberMe') === 'true';
+            document.getElementById('rememberMe').checked = rememberMe;
+            
+            // Focus on password if email is filled
+            if (savedEmail) {
+                document.getElementById('password').focus();
+            } else {
+                document.getElementById('email').focus();
+            }
+        };
+        
+        // Check user login methods
+        async function checkUserLoginMethods(email) {
+            try {
+                const methods = await auth.fetchSignInMethodsForEmail(email);
+                
+                if (methods.length > 0) {
+                    const accountInfo = document.getElementById('accountInfo');
+                    const loginMethods = document.getElementById('loginMethods');
+                    
+                    let methodsText = '';
+                    if (methods.includes('password')) {
+                        methodsText += '• البريد الإلكتروني وكلمة المرور<br>';
+                    }
+                    if (methods.includes('google.com')) {
+                        methodsText += '• حساب Google<br>';
+                    }
+                    
+                    loginMethods.innerHTML = methodsText;
+                    accountInfo.style.display = 'block';
+                }
+            } catch (error) {
+                console.log('No account found for this email');
+            }
+        }
         
         // Show alert
         function showAlert(message, type = 'error') {
@@ -422,7 +578,7 @@
                 toggleIcon.textContent = '🙈';
             } else {
                 passwordInput.type = 'password';
-                toggleIcon.textContent = '👁️';
+                toggleIcon.textContent = '👁';
             }
         }
         
@@ -465,8 +621,9 @@
             clearError('email');
             clearError('password');
             
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
             
             // Validate
             let isValid = true;
@@ -490,11 +647,20 @@
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
+                // Save email if remember me is checked
+                if (rememberMe) {
+                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('rememberMe', 'true');
+                } else {
+                    localStorage.removeItem('userEmail');
+                    localStorage.setItem('rememberMe', 'false');
+                }
+                
                 // Check if user exists in database
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
-                    // Create user document if doesn't exist
+                    // Create user document if doesn't exist (for old users)
                     await db.collection('users').doc(user.uid).set({
                         email: user.email,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -523,12 +689,16 @@
                     case 'auth/user-not-found':
                         showAlert('البريد الإلكتروني غير مسجل. من فضلك احجز جلستك أولاً.');
                         setTimeout(() => {
-                            window.location.href = 'booking.html';
-                        }, 3000);
+                            if (confirm('هل تريد حجز جلسة جديدة؟')) {
+                                window.location.href = 'booking.html';
+                            }
+                        }, 2000);
                         break;
                     case 'auth/wrong-password':
                         showAlert('كلمة المرور غير صحيحة');
                         showError('password', 'كلمة المرور غير صحيحة');
+                        document.getElementById('password').value = '';
+                        document.getElementById('password').focus();
                         break;
                     case 'auth/invalid-email':
                         showAlert('البريد الإلكتروني غير صحيح');
@@ -540,6 +710,9 @@
                     case 'auth/too-many-requests':
                         showAlert('محاولات كثيرة خاطئة. حاول مرة أخرى بعد قليل.');
                         break;
+                    case 'auth/network-request-failed':
+                        showAlert('خطأ في الاتصال. تحقق من الإنترنت.');
+                        break;
                     default:
                         showAlert('حدث خطأ في تسجيل الدخول. حاول مرة أخرى.');
                 }
@@ -548,7 +721,7 @@
         
         // Forgot password
         async function forgotPassword() {
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             
             if (!email) {
                 showAlert('من فضلك أدخل بريدك الإلكتروني أولاً', 'info');
@@ -567,11 +740,22 @@
                 try {
                     await auth.sendPasswordResetEmail(email);
                     showAlert('تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني', 'success');
+                    
+                    // Show additional instructions
+                    setTimeout(() => {
+                        alert('تعليمات مهمة:\n\n1. تحقق من صندوق البريد الوارد\n2. إذا لم تجد الرسالة، تحقق من مجلد البريد المزعج (Spam)\n3. الرابط صالح لمدة ساعة واحدة\n4. بعد تغيير كلمة المرور، عد لهذه الصفحة لتسجيل الدخول');
+                    }, 1000);
+                    
                 } catch (error) {
                     console.error('Password reset error:', error);
                     
                     if (error.code === 'auth/user-not-found') {
                         showAlert('هذا البريد الإلكتروني غير مسجل', 'error');
+                        setTimeout(() => {
+                            if (confirm('هل تريد حجز جلسة جديدة؟')) {
+                                window.location.href = 'booking.html';
+                            }
+                        }, 2000);
                     } else {
                         showAlert('حدث خطأ في إرسال الرابط. حاول مرة أخرى.', 'error');
                     }
@@ -581,35 +765,57 @@
             }
         }
         
-        // Social login
+        // Social login with Google
         async function loginWithGoogle() {
             showLoading(true);
             
             try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                provider.setCustomParameters({
-                    prompt: 'select_account'
-                });
-                
-                const result = await auth.signInWithPopup(provider);
+                const result = await auth.signInWithPopup(googleProvider);
                 const user = result.user;
                 
                 // Check if new user
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
+                    // Check if user has a booking with this email
+                    const bookingQuery = await db.collection('bookings')
+                        .where('email', '==', user.email)
+                        .limit(1)
+                        .get();
+                    
+                    if (bookingQuery.empty) {
+                        // New user without booking
+                        showLoading(false);
+                        showAlert('لم تحجز جلسة بعد. سيتم توجيهك لصفحة الحجز.', 'warning');
+                        
+                        // Sign out and redirect
+                        await auth.signOut();
+                        setTimeout(() => {
+                            window.location.href = 'booking.html';
+                        }, 3000);
+                        return;
+                    }
+                    
                     // Create user document
+                    const bookingData = bookingQuery.docs[0].data();
                     await db.collection('users').doc(user.uid).set({
-                        name: user.displayName,
+                        name: user.displayName || bookingData.name,
                         email: user.email,
-                        phone: user.phoneNumber || '',
+                        phone: bookingData.phone || '',
                         photoURL: user.photoURL,
+                        program: bookingData.program,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                        loginMethod: 'google'
+                        authProvider: 'google'
                     });
                     
-                    showAlert('مرحباً بك! يمكنك الآن حجز جلستك الأولى', 'success');
+                    // Update booking with userId
+                    await db.collection('bookings').doc(bookingQuery.docs[0].id).update({
+                        userId: user.uid,
+                        accountLinked: true
+                    });
+                    
+                    showAlert('مرحباً بك! تم ربط حسابك بنجاح.', 'success');
                 } else {
                     // Update last login
                     await db.collection('users').doc(user.uid).update({
@@ -618,6 +824,9 @@
                     
                     showAlert('مرحباً مرة أخرى!', 'success');
                 }
+                
+                // Save email
+                localStorage.setItem('userEmail', user.email);
                 
                 // Redirect
                 setTimeout(() => {
@@ -630,25 +839,30 @@
                 
                 if (error.code === 'auth/popup-closed-by-user') {
                     showAlert('تم إلغاء تسجيل الدخول', 'info');
+                } else if (error.code === 'auth/popup-blocked') {
+                    showAlert('تم حظر النافذة المنبثقة. من فضلك اسمح بالنوافذ المنبثقة لهذا الموقع.', 'error');
                 } else {
-                    showAlert('حدث خطأ في تسجيل الدخول بجوجل', 'error');
+                    showAlert('حدث خطأ في تسجيل الدخول بـ Google', 'error');
                 }
             }
         }
         
-        async function loginWithFacebook() {
-            showAlert('تسجيل الدخول بفيسبوك سيكون متاحاً قريباً', 'info');
-            // يمكن إضافة Facebook login لاحقاً
-        }
-        
         // Real-time validation
         document.getElementById('email').addEventListener('blur', () => {
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             if (email && !validateEmail(email)) {
                 showError('email', 'البريد الإلكتروني غير صحيح');
             } else {
                 clearError('email');
+                if (email) {
+                    checkUserLoginMethods(email);
+                }
             }
+        });
+        
+        document.getElementById('email').addEventListener('input', () => {
+            clearError('email');
+            document.getElementById('accountInfo').style.display = 'none';
         });
         
         document.getElementById('password').addEventListener('input', () => {
@@ -658,9 +872,24 @@
         // Enter key submits form
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !document.getElementById('loginBtn').disabled) {
-                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+                const activeElement = document.activeElement;
+                if (activeElement.id === 'email' || activeElement.id === 'password') {
+                    document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+                }
             }
         });
+        
+        // Clear any auth errors on page load
+        window.addEventListener('load', () => {
+            // Clear any persisted auth state that might cause issues
+            if (window.location.search.includes('error=')) {
+                showAlert('حدث خطأ. حاول مرة أخرى.', 'error');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+        
+        // Handle auth state persistence
+        window.isLoggingOut = false;
     </script>
 </body>
 </html>
