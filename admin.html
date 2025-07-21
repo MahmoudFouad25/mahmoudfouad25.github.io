@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم المتقدمة - محمود فؤاد</title>
+    <title>لوحة التحكم - محمود فؤاد</title>
     <style>
         * {
             margin: 0;
@@ -29,6 +29,7 @@
             margin-bottom: 30px;
         }
         
+        /* Stats Cards */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -55,6 +56,25 @@
             margin-top: 5px;
         }
         
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filters select, .filters input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        /* Table */
         .bookings-table {
             background: white;
             border-radius: 10px;
@@ -65,7 +85,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1000px;
+            min-width: 1200px;
         }
         
         th {
@@ -86,6 +106,7 @@
             background: #f9f9f9;
         }
         
+        /* Status Badges */
         .status {
             padding: 5px 10px;
             border-radius: 5px;
@@ -93,43 +114,20 @@
             font-weight: bold;
         }
         
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirming { background: #d1ecf1; color: #0c5460; }
+        .status-confirmed { background: #d4edda; color: #155724; }
+        .status-completed { background: #cce5ff; color: #004085; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
         
-        .status-confirming {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-        
-        .status-confirmed {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .status-completed {
-            background: #cce5ff;
-            color: #004085;
-        }
-        
-        .status-cancelled {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-        
+        /* Buttons */
         .btn {
             padding: 5px 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 0.8em;
+            margin: 2px;
             transition: all 0.3s;
         }
         
@@ -138,37 +136,42 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         
-        .btn-primary {
-            background: #007bff;
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-whatsapp { background: #25d366; color: white; }
+        
+        /* Login Form */
+        .login-form {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            background: #2C5530;
             color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
         
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-        
-        .btn-warning {
-            background: #ffc107;
-            color: black;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .btn-info {
-            background: #17a2b8;
-            color: white;
-        }
-        
-        .btn-whatsapp {
-            background: #25d366;
-            color: white;
-        }
-        
-        /* Modal Styles */
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -222,18 +225,12 @@
             border-radius: 5px;
         }
         
-        .appointment-slots {
-            display: grid;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        
         .slot {
             padding: 10px;
             border: 2px solid #ddd;
             border-radius: 5px;
+            margin: 5px 0;
             cursor: pointer;
-            transition: all 0.3s;
         }
         
         .slot:hover {
@@ -241,48 +238,21 @@
             background: #f0f0f0;
         }
         
-        .filters {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        .actions {
             display: flex;
-            gap: 20px;
-            align-items: center;
+            gap: 5px;
             flex-wrap: wrap;
-        }
-        
-        .login-form {
-            max-width: 400px;
-            margin: 100px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-        }
-        
-        .login-form input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        .login-form button {
-            width: 100%;
-            padding: 10px;
-            background: #2C5530;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
         }
         
         /* Responsive */
         @media (max-width: 768px) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
             }
             
             .actions {
@@ -296,7 +266,7 @@
     </style>
 </head>
 <body>
-    <!-- Login Form -->
+    <!-- Login Section -->
     <div id="loginSection" class="login-form">
         <h2>تسجيل الدخول</h2>
         <input type="password" id="password" placeholder="كلمة المرور">
@@ -305,7 +275,7 @@
 
     <!-- Admin Panel -->
     <div id="adminPanel" class="container" style="display: none;">
-        <h1>لوحة التحكم المتقدمة</h1>
+        <h1>لوحة التحكم</h1>
         
         <!-- Statistics -->
         <div class="stats">
@@ -318,10 +288,6 @@
                 <div class="stat-label">في الانتظار</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="confirmingBookings">0</div>
-                <div class="stat-label">قيد التأكيد</div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-number" id="confirmedBookings">0</div>
                 <div class="stat-label">مؤكدة</div>
             </div>
@@ -329,15 +295,11 @@
                 <div class="stat-number" id="completedBookings">0</div>
                 <div class="stat-label">مكتملة</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="todayBookings">0</div>
-                <div class="stat-label">جلسات اليوم</div>
-            </div>
         </div>
         
         <!-- Filters -->
         <div class="filters">
-            <label>فلترة حسب البرنامج:</label>
+            <label>البرنامج:</label>
             <select id="programFilter" onchange="filterBookings()">
                 <option value="">الكل</option>
                 <option value="clarity">جلسة الوضوح</option>
@@ -349,14 +311,10 @@
             <select id="statusFilter" onchange="filterBookings()">
                 <option value="">الكل</option>
                 <option value="pending">في الانتظار</option>
-                <option value="confirming">قيد التأكيد</option>
                 <option value="confirmed">مؤكد</option>
                 <option value="completed">مكتمل</option>
                 <option value="cancelled">ملغي</option>
             </select>
-            
-            <label>التاريخ:</label>
-            <input type="date" id="dateFilter" onchange="filterBookings()">
             
             <button class="btn btn-info" onclick="showTodaySchedule()">جدول اليوم</button>
             <button class="btn btn-primary" onclick="showWeekSchedule()">جدول الأسبوع</button>
@@ -371,72 +329,34 @@
                     <tr>
                         <th>التاريخ</th>
                         <th>الاسم</th>
-                        <th>البريد</th>
                         <th>الهاتف</th>
                         <th>البرنامج</th>
-                        <th>الرسالة</th>
                         <th>الموعد</th>
                         <th>الحالة</th>
                         <th>الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="bookingsTableBody">
-                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                    <!-- سيتم ملؤها بـ JavaScript -->
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Appointment Modal -->
-    <div id="appointmentModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('appointmentModal')">&times;</span>
-            <h2>إرسال مواعيد مقترحة</h2>
-            
-            <div class="form-group">
-                <label>اسم العميل: <span id="clientName"></span></label>
-                <input type="hidden" id="currentBookingId">
-            </div>
-            
-            <div class="form-group">
-                <label>اختر 3-4 مواعيد مقترحة:</label>
-                <div class="appointment-slots" id="appointmentSlots">
-                    <!-- سيتم توليدها ديناميكياً -->
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>رسالة إضافية (اختياري):</label>
-                <textarea id="additionalMessage" rows="3" placeholder="أي ملاحظات أو تعليمات..."></textarea>
-            </div>
-            
-            <button class="btn btn-success" onclick="sendAppointmentOptions()">إرسال المواعيد</button>
-        </div>
-    </div>
-
     <!-- Slots Manager Modal -->
-    <div id="slotsManagerModal" class="modal">
+    <div id="slotsModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('slotsManagerModal')">&times;</span>
-            <h2>إدارة المواعيد المتاحة</h2>
+            <span class="close" onclick="closeModal('slotsModal')">&times;</span>
+            <h2>إدارة المواعيد</h2>
             
             <div class="form-group">
                 <label>أضف موعد جديد:</label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="date" id="newSlotDate" style="flex: 1;">
-                    <input type="time" id="newSlotTime" style="flex: 1;">
-                    <button class="btn btn-success" onclick="addNewSlot()">إضافة</button>
-                </div>
+                <input type="date" id="slotDate">
+                <input type="time" id="slotTime">
+                <button class="btn btn-success" onclick="addSlot()">إضافة</button>
             </div>
             
-            <div class="form-group">
-                <label>المواعيد المتاحة حالياً:</label>
-                <div id="currentSlots" style="max-height: 300px; overflow-y: auto;">
-                    <!-- سيتم ملؤها ديناميكياً -->
-                </div>
-            </div>
-            
-            <button class="btn btn-primary" onclick="saveSlots()">حفظ التغييرات</button>
+            <div id="slotsList"></div>
         </div>
     </div>
 
@@ -444,24 +364,54 @@
     <div id="notesModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('notesModal')">&times;</span>
-            <h2>ملاحظات العميل</h2>
+            <h2>الملاحظات</h2>
+            
+            <div id="cancelReasonDiv" style="display: none; background: #f8d7da; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                <strong>سبب الإلغاء:</strong>
+                <p id="cancelReasonText"></p>
+            </div>
+            
+            <textarea id="notesTextarea" rows="5" style="width: 100%; margin-top: 10px;"></textarea>
+            <button class="btn btn-primary" onclick="saveNotes()">حفظ</button>
+        </div>
+    </div>
+
+    <!-- Week Schedule Modal -->
+    <div id="weekModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close" onclick="closeModal('weekModal')">&times;</span>
+            <h2>جدول الأسبوع</h2>
+            <div id="weekContent"></div>
+        </div>
+    </div>
+
+    <!-- Send Appointments Modal -->
+    <div id="appointmentsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('appointmentsModal')">&times;</span>
+            <h2>إرسال مواعيد</h2>
+            <div id="appointmentSlots"></div>
+            <button class="btn btn-success" onclick="sendSelectedSlots()">إرسال</button>
+        </div>
+    </div>
+
+    <!-- Confirm Appointment Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('confirmModal')">&times;</span>
+            <h2>تأكيد الموعد</h2>
             
             <div class="form-group">
-                <label>اسم العميل: <span id="notesClientName"></span></label>
-                <input type="hidden" id="notesBookingId">
-            </div>
-            
-            <div id="cancelReasonDiv" class="form-group" style="display: none; background: #f8d7da; padding: 10px; border-radius: 5px;">
-                <label style="color: #721c24;">سبب الإلغاء:</label>
-                <p id="cancelReasonText" style="margin: 5px 0;"></p>
+                <label>التاريخ:</label>
+                <input type="date" id="confirmDate">
             </div>
             
             <div class="form-group">
-                <label>الملاحظات:</label>
-                <textarea id="bookingNotes" rows="5"></textarea>
+                <label>الوقت:</label>
+                <input type="time" id="confirmTime">
             </div>
             
-            <button class="btn btn-primary" onclick="saveNotes()">حفظ الملاحظات</button>
+            <button class="btn btn-success" onclick="confirmAppointment()">تأكيد</button>
         </div>
     </div>
 
@@ -471,27 +421,18 @@
     <script src="firebase-config.js"></script>
     
     <script>
-        // Initialize Firestore
+        // Initialize
         const db = firebase.firestore();
         let allBookings = [];
-        
-        // Extended status system
-        const statusFlow = {
-            'pending': ['confirming', 'cancelled'],
-            'confirming': ['confirmed', 'pending', 'cancelled'],
-            'confirmed': ['completed', 'cancelled', 'pending'],
-            'completed': ['confirmed'], // يمكن إعادة فتحها
-            'cancelled': ['pending'] // يمكن إعادة تفعيلها
-        };
+        let currentBookingId = null;
+        let availableSlots = JSON.parse(localStorage.getItem('availableSlots') || '[]');
         
         // Login
         function login() {
-            const password = document.getElementById('password').value;
-            if (password === 'admin123') {
+            if (document.getElementById('password').value === 'admin123') {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
                 loadBookings();
-                generateTimeSlots();
             } else {
                 alert('كلمة مرور خاطئة');
             }
@@ -500,19 +441,15 @@
         // Load bookings
         async function loadBookings() {
             try {
-                const snapshot = await db.collection('bookings')
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
+                const snapshot = await db.collection('bookings').orderBy('createdAt', 'desc').get();
                 allBookings = [];
                 snapshot.forEach(doc => {
                     allBookings.push({ id: doc.id, ...doc.data() });
                 });
-                
                 displayBookings(allBookings);
-                updateStatistics();
+                updateStats();
             } catch (error) {
-                console.error('Error loading bookings:', error);
+                console.error('Error:', error);
             }
         }
         
@@ -522,532 +459,262 @@
             tbody.innerHTML = '';
             
             bookings.forEach(booking => {
+                const tr = document.createElement('tr');
+                
+                // التاريخ
                 const date = booking.createdAt ? 
-                    new Date(booking.createdAt.toDate()).toLocaleDateString('ar-EG') : 
-                    'غير محدد';
+                    new Date(booking.createdAt.toDate()).toLocaleDateString('ar-EG') : 'غير محدد';
                 
-                const appointmentInfo = booking.appointmentDate ? 
-                    `${new Date(booking.appointmentDate.toDate()).toLocaleDateString('ar-EG')} - ${booking.appointmentTime}` : 
-                    'لم يحدد';
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${date}</td>
-                    <td>${booking.name}</td>
-                    <td>${booking.email}</td>
-                    <td>${booking.phone}</td>
-                    <td>${getProgramName(booking.program)}</td>
-                    <td title="${booking.message || ''}">${(booking.message || 'لا توجد').substring(0, 30)}${booking.message && booking.message.length > 30 ? '...' : ''}</td>
-                    <td>${appointmentInfo}</td>
-                    <td><span class="status status-${booking.status}">${getStatusName(booking.status)}</span></td>
-                    <td class="actions">${generateActions(booking)}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-        
-        // Generate action buttons based on status
-        function generateActions(booking) {
-            let actions = `<button class="btn btn-whatsapp" onclick="openWhatsApp('${booking.phone}', '${booking.name}')">واتساب</button>`;
-            
-            const currentStatus = booking.status || 'pending';
-            const possibleStatuses = statusFlow[currentStatus] || [];
-            
-            // إضافة الأزرار حسب الحالة
-            if (currentStatus === 'pending') {
-                actions += `<button class="btn btn-primary" onclick="showAppointmentModal('${booking.id}', '${booking.name}')">إرسال مواعيد</button>`;
-                actions += `<button class="btn btn-danger" onclick="updateStatus('${booking.id}', 'cancelled')">رفض</button>`;
-            } else if (currentStatus === 'confirming') {
-                actions += `<button class="btn btn-success" onclick="showConfirmAppointmentModal('${booking.id}')">تأكيد الموعد</button>`;
-                actions += `<button class="btn btn-warning" onclick="updateStatus('${booking.id}', 'pending')">إلغاء التأكيد</button>`;
-            } else if (currentStatus === 'confirmed') {
-                actions += `<button class="btn btn-info" onclick="sendReminder('${booking.id}')">إرسال تذكير</button>`;
-                actions += `<button class="btn btn-success" onclick="updateStatus('${booking.id}', 'completed')">مكتمل</button>`;
-                actions += `<button class="btn btn-warning" onclick="updateStatus('${booking.id}', 'cancelled')">إلغاء</button>`;
-            } else if (currentStatus === 'completed') {
-                actions += `<button class="btn btn-info" onclick="sendFeedbackRequest('${booking.id}')">طلب تقييم</button>`;
-            } else if (currentStatus === 'cancelled') {
-                actions += `<button class="btn btn-success" onclick="updateStatus('${booking.id}', 'pending')">إعادة تفعيل</button>`;
-            }
-            
-            actions += `<button class="btn btn-info" onclick="showNotesModal('${booking.id}', '${booking.name}')">ملاحظات</button>`;
-            
-            return actions;
-        }
-        
-        // Update statistics
-        function updateStatistics() {
-            const stats = {
-                total: allBookings.length,
-                pending: 0,
-                confirming: 0,
-                confirmed: 0,
-                completed: 0,
-                today: 0
-            };
-            
-            const today = new Date().toDateString();
-            
-            allBookings.forEach(booking => {
-                const status = booking.status || 'pending';
-                if (stats[status] !== undefined) {
-                    stats[status]++;
-                }
-                
-                // عد جلسات اليوم
+                // الموعد
+                let appointmentInfo = 'لم يحدد';
                 if (booking.appointmentDate) {
-                    const appointmentDate = new Date(booking.appointmentDate.toDate()).toDateString();
-                    if (appointmentDate === today) {
-                        stats.today++;
+                    const apptDate = booking.appointmentDate.toDate ? 
+                        booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
+                    appointmentInfo = apptDate.toLocaleDateString('ar-EG');
+                    if (booking.appointmentTime) {
+                        appointmentInfo += ' - ' + booking.appointmentTime;
                     }
                 }
-            });
-            
-            document.getElementById('totalBookings').textContent = stats.total;
-            document.getElementById('pendingBookings').textContent = stats.pending;
-            document.getElementById('confirmingBookings').textContent = stats.confirming;
-            document.getElementById('confirmedBookings').textContent = stats.confirmed;
-            document.getElementById('completedBookings').textContent = stats.completed;
-            document.getElementById('todayBookings').textContent = stats.today;
-        }
-        
-        // Show appointment modal
-        function showAppointmentModal(bookingId, clientName) {
-            document.getElementById('currentBookingId').value = bookingId;
-            document.getElementById('clientName').textContent = clientName;
-            document.getElementById('appointmentModal').style.display = 'block';
-        }
-        
-        // إدارة المواعيد المتاحة
-        let availableSlots = JSON.parse(localStorage.getItem('availableSlots') || '[]');
-        
-        // Generate time slots from saved data
-        function generateTimeSlots() {
-            const slotsContainer = document.getElementById('appointmentSlots');
-            slotsContainer.innerHTML = '';
-            
-            if (availableSlots.length === 0) {
-                slotsContainer.innerHTML = '<p>لا توجد مواعيد متاحة. <a href="#" onclick="showSlotsManager()">أضف مواعيد</a></p>';
-                return;
-            }
-            
-            availableSlots.forEach((slot, index) => {
-                const slotDiv = document.createElement('div');
-                slotDiv.className = 'slot';
-                slotDiv.innerHTML = `
-                    <input type="checkbox" id="slot_${index}" value="${slot}">
-                    <label for="slot_${index}">${slot}</label>
+                
+                tr.innerHTML = `
+                    <td>${date}</td>
+                    <td>${booking.name}</td>
+                    <td>${booking.phone}</td>
+                    <td>${getProgramName(booking.program)}</td>
+                    <td>${appointmentInfo}</td>
+                    <td><span class="status status-${booking.status || 'pending'}">${getStatusName(booking.status)}</span></td>
+                    <td class="actions">${generateActions(booking)}</td>
                 `;
-                slotsContainer.appendChild(slotDiv);
+                
+                tbody.appendChild(tr);
             });
         }
         
-        // Send appointment options
-        async function sendAppointmentOptions() {
-            const bookingId = document.getElementById('currentBookingId').value;
-            const clientName = document.getElementById('clientName').textContent;
-            const additionalMessage = document.getElementById('additionalMessage').value;
+        // Generate action buttons
+        function generateActions(booking) {
+            let html = `<button class="btn btn-whatsapp" onclick="openWhatsApp('${booking.phone}', '${booking.name}')">واتساب</button>`;
+            html += `<button class="btn btn-info" onclick="showNotes('${booking.id}')">ملاحظات</button>`;
             
-            // جمع المواعيد المختارة
-            const selectedSlots = [];
-            document.querySelectorAll('#appointmentSlots input:checked').forEach(input => {
-                selectedSlots.push(input.value);
+            const status = booking.status || 'pending';
+            
+            if (status === 'pending') {
+                html += `<button class="btn btn-primary" onclick="showAppointments('${booking.id}')">إرسال مواعيد</button>`;
+                html += `<button class="btn btn-danger" onclick="cancelBooking('${booking.id}')">إلغاء</button>`;
+            } else if (status === 'confirmed') {
+                html += `<button class="btn btn-success" onclick="markComplete('${booking.id}')">مكتمل</button>`;
+                html += `<button class="btn btn-danger" onclick="cancelBooking('${booking.id}')">إلغاء</button>`;
+            } else if (status === 'completed') {
+                html += `<button class="btn btn-info" onclick="requestFeedback('${booking.id}')">طلب تقييم</button>`;
+            }
+            
+            return html;
+        }
+        
+        // WhatsApp
+        function openWhatsApp(phone, name) {
+            const cleanPhone = phone.replace(/\D/g, '');
+            const fullPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
+            const message = `مرحباً ${name}، معك محمود فؤاد...`;
+            window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+        
+        // Show appointments modal
+        function showAppointments(bookingId) {
+            currentBookingId = bookingId;
+            const slotsDiv = document.getElementById('appointmentSlots');
+            slotsDiv.innerHTML = '';
+            
+            availableSlots.forEach((slot, i) => {
+                slotsDiv.innerHTML += `
+                    <div class="slot">
+                        <input type="checkbox" id="slot${i}" value="${slot}">
+                        <label for="slot${i}">${slot}</label>
+                    </div>
+                `;
             });
             
-            if (selectedSlots.length < 2) {
-                alert('من فضلك اختر على الأقل موعدين');
+            document.getElementById('appointmentsModal').style.display = 'block';
+        }
+        
+        // Send selected slots
+        async function sendSelectedSlots() {
+            const selected = [];
+            document.querySelectorAll('#appointmentSlots input:checked').forEach(input => {
+                selected.push(input.value);
+            });
+            
+            if (selected.length === 0) {
+                alert('اختر موعد واحد على الأقل');
                 return;
             }
             
-            // تحضير رسالة WhatsApp
-            let message = `مرحباً ${clientName} 🌟\n\n`;
-            message += `شكراً لحجزك. المواعيد المتاحة:\n\n`;
+            const booking = allBookings.find(b => b.id === currentBookingId);
             
-            selectedSlots.forEach((slot, index) => {
-                const [date, time] = slot.split('|');
-                message += `${index + 1}️⃣ ${date} - ${time}\n`;
+            let message = `مرحباً ${booking.name} 🌟\n\nالمواعيد المتاحة:\n\n`;
+            selected.forEach((slot, i) => {
+                message += `${i + 1}. ${slot}\n`;
+            });
+            message += `\nاختر الرقم المناسب`;
+            
+            // Open WhatsApp
+            const cleanPhone = booking.phone.replace(/\D/g, '');
+            const fullPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
+            window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
+            
+            // Update status
+            await db.collection('bookings').doc(currentBookingId).update({
+                status: 'confirmed',
+                proposedSlots: selected
             });
             
-            message += `\nللتأكيد، فقط ارسل رقم الموعد المناسب\n`;
-            
-            if (additionalMessage) {
-                message += `\n${additionalMessage}`;
-            }
-            
-            // تحديث حالة الحجز
-            try {
-                await db.collection('bookings').doc(bookingId).update({
-                    status: 'confirming',
-                    proposedSlots: selectedSlots,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // فتح WhatsApp
-                const booking = allBookings.find(b => b.id === bookingId);
-                window.open(`https://wa.me/2${booking.phone}?text=${encodeURIComponent(message)}`, '_blank');
-                
-                closeModal('appointmentModal');
-                loadBookings();
-            } catch (error) {
-                console.error('Error updating booking:', error);
-                alert('حدث خطأ');
-            }
+            closeModal('appointmentsModal');
+            loadBookings();
         }
         
-        // Update booking status
-        async function updateStatus(bookingId, newStatus) {
-            if (newStatus === 'cancelled') {
-                const reason = prompt('سبب الإلغاء:');
-                if (!reason) return;
-                
-                try {
-                    await db.collection('bookings').doc(bookingId).update({
-                        status: newStatus,
-                        cancelReason: reason,
-                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            } else {
-                try {
-                    await db.collection('bookings').doc(bookingId).update({
-                        status: newStatus,
-                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } catch (error) {
-                    console.error('Error:', error);
-                }
+        // Show confirm modal
+        function showConfirmModal(bookingId) {
+            currentBookingId = bookingId;
+            document.getElementById('confirmModal').style.display = 'block';
+        }
+        
+        // Confirm appointment
+        async function confirmAppointment() {
+            const date = document.getElementById('confirmDate').value;
+            const time = document.getElementById('confirmTime').value;
+            
+            if (!date || !time) {
+                alert('أدخل التاريخ والوقت');
+                return;
             }
+            
+            await db.collection('bookings').doc(currentBookingId).update({
+                status: 'confirmed',
+                appointmentDate: new Date(date),
+                appointmentTime: time
+            });
+            
+            closeModal('confirmModal');
+            loadBookings();
+        }
+        
+        // Cancel booking
+        async function cancelBooking(bookingId) {
+            const reason = prompt('سبب الإلغاء:');
+            if (!reason) return;
+            
+            await db.collection('bookings').doc(bookingId).update({
+                status: 'cancelled',
+                cancelReason: reason
+            });
             
             loadBookings();
         }
         
-        // Show appointment confirmation modal
-        function showConfirmAppointmentModal(bookingId) {
-            const booking = allBookings.find(b => b.id === bookingId);
-            if (!booking) return;
-            
-            document.getElementById('confirmBookingId').value = bookingId;
-            document.getElementById('confirmClientName').textContent = booking.name;
-            
-            // عرض المواعيد المقترحة
-            const proposedDiv = document.getElementById('proposedSlotsDiv');
-            const selectElement = document.getElementById('selectedSlotIndex');
-            
-            proposedDiv.innerHTML = '';
-            selectElement.innerHTML = '<option value="">اختر الموعد الذي أكده العميل</option>';
-            
-            if (booking.proposedSlots && booking.proposedSlots.length > 0) {
-                booking.proposedSlots.forEach((slot, index) => {
-                    proposedDiv.innerHTML += `<p>${index + 1}. ${slot}</p>`;
-                    selectElement.innerHTML += `<option value="${index}">${index + 1} - ${slot}</option>`;
-                });
-            }
-            
-            document.getElementById('confirmAppointmentModal').style.display = 'block';
+        // Mark complete
+        async function markComplete(bookingId) {
+            await db.collection('bookings').doc(bookingId).update({
+                status: 'completed'
+            });
+            loadBookings();
         }
         
-        // Confirm selected appointment (Fixed date parsing)
-        async function confirmSelectedAppointment() {
-            const bookingId = document.getElementById('confirmBookingId').value;
-            const selectedIndex = document.getElementById('selectedSlotIndex').value;
-            const customDateTime = document.getElementById('customDateTime').value;
+        // Request feedback
+        function requestFeedback(bookingId) {
+            const booking = allBookings.find(b => b.id === bookingId);
+            const message = `مرحباً ${booking.name}\n\nأتمنى أن تكون الجلسة كانت مفيدة.\nهل يمكنك تقييم تجربتك من 1-5؟\n\nشكراً لك`;
             
-            let appointmentDate, appointmentTime;
+            const cleanPhone = booking.phone.replace(/\D/g, '');
+            const fullPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
+            window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+        
+        // Show notes
+        function showNotes(bookingId) {
+            currentBookingId = bookingId;
+            const booking = allBookings.find(b => b.id === bookingId);
             
-            if (customDateTime) {
-                // Custom datetime selected
-                appointmentDate = new Date(customDateTime);
-                const hours = appointmentDate.getHours();
-                const minutes = appointmentDate.getMinutes();
-                const ampm = hours >= 12 ? 'م' : 'ص';
-                const hour12 = hours % 12 || 12;
-                appointmentTime = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
-            } else if (selectedIndex !== '') {
-                // Selected from proposed slots
-                const booking = allBookings.find(b => b.id === bookingId);
-                const selectedSlot = booking.proposedSlots[selectedIndex];
-                
-                // Parse the Arabic date string
-                const parts = selectedSlot.split(' - ');
-                appointmentTime = parts[parts.length - 1];
-                
-                // Extract date from the slot string
-                // This is complex with Arabic dates, so we'll need a more robust solution
-                // For now, let's ask the user to confirm the date
-                const dateStr = prompt('أدخل التاريخ بصيغة YYYY-MM-DD (مثال: 2025-07-22):');
-                if (!dateStr) return;
-                
-                const [year, month, day] = dateStr.split('-');
-                appointmentDate = new Date(year, month - 1, day);
+            document.getElementById('notesTextarea').value = booking.notes || '';
+            
+            // Show cancel reason if exists
+            if (booking.cancelReason) {
+                document.getElementById('cancelReasonDiv').style.display = 'block';
+                document.getElementById('cancelReasonText').textContent = booking.cancelReason;
             } else {
-                alert('من فضلك اختر موعد أو أدخل موعد مخصص');
-                return;
+                document.getElementById('cancelReasonDiv').style.display = 'none';
             }
-            
-            try {
-                await db.collection('bookings').doc(bookingId).update({
-                    status: 'confirmed',
-                    appointmentDate: appointmentDate,
-                    appointmentTime: appointmentTime,
-                    confirmedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                alert('تم تأكيد الموعد بنجاح');
-                closeModal('confirmAppointmentModal');
-                loadBookings();
-                
-                // Send confirmation message
-                const booking = allBookings.find(b => b.id === bookingId);
-                const confirmMessage = `تم تأكيد موعدك ✅\n\n` +
-                    `📅 ${appointmentDate.toLocaleDateString('ar-EG')}\n` +
-                    `⏰ ${appointmentTime}\n\n` +
-                    `سأرسل لك رابط الجلسة قبلها بساعة.\n` +
-                    `للاستفسار: 01224938330`;
-                
-                const cleanPhone = booking.phone.replace(/\D/g, '');
-                const formattedPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
-                    
-                window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(confirmMessage)}`, '_blank');
-                
-            } catch (error) {
-                console.error('Error confirming appointment:', error);
-                alert('حدث خطأ في تأكيد الموعد');
-            }
-        }
-        
-        // Show slots manager
-        function showSlotsManager() {
-            updateSlotsDisplay();
-            document.getElementById('slotsManagerModal').style.display = 'block';
-        }
-        
-        // Update slots display
-        function updateSlotsDisplay() {
-            const container = document.getElementById('currentSlots');
-            container.innerHTML = '';
-            
-            if (availableSlots.length === 0) {
-                container.innerHTML = '<p>لا توجد مواعيد محفوظة</p>';
-                return;
-            }
-            
-            availableSlots.forEach((slot, index) => {
-                const slotDiv = document.createElement('div');
-                slotDiv.style.cssText = 'display: flex; justify-content: space-between; padding: 10px; background: #f0f0f0; margin: 5px 0; border-radius: 5px;';
-                slotDiv.innerHTML = `
-                    <span>${slot}</span>
-                    <button class="btn btn-danger" onclick="removeSlot(${index})">حذف</button>
-                `;
-                container.appendChild(slotDiv);
-            });
-        }
-        
-        // Add new slot (Fixed date issue)
-        function addNewSlot() {
-            const dateInput = document.getElementById('newSlotDate').value;
-            const timeInput = document.getElementById('newSlotTime').value;
-            
-            if (!dateInput || !timeInput) {
-                alert('من فضلك أدخل التاريخ والوقت');
-                return;
-            }
-            
-            // Parse the date correctly
-            const [year, month, day] = dateInput.split('-');
-            const dateObj = new Date(year, month - 1, day); // month is 0-indexed
-            
-            const formattedDate = dateObj.toLocaleDateString('ar-EG', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-            
-            // Convert 24h to 12h format
-            const [hours, minutes] = timeInput.split(':');
-            const hour = parseInt(hours);
-            const ampm = hour >= 12 ? 'م' : 'ص';
-            const hour12 = hour % 12 || 12;
-            const formattedTime = `${hour12}:${minutes} ${ampm}`;
-            
-            const slot = `${formattedDate} - ${formattedTime}`;
-            availableSlots.push(slot);
-            
-            // Clear inputs
-            document.getElementById('newSlotDate').value = '';
-            document.getElementById('newSlotTime').value = '';
-            
-            updateSlotsDisplay();
-        }
-        
-        // Remove slot
-        function removeSlot(index) {
-            availableSlots.splice(index, 1);
-            updateSlotsDisplay();
-        }
-        
-        // Save slots
-        function saveSlots() {
-            localStorage.setItem('availableSlots', JSON.stringify(availableSlots));
-            generateTimeSlots();
-            alert('تم حفظ المواعيد');
-            closeModal('slotsManagerModal');
-        }
-        
-        // Show notes modal
-        function showNotesModal(bookingId, clientName) {
-            document.getElementById('notesBookingId').value = bookingId;
-            document.getElementById('notesClientName').textContent = clientName;
-            
-            const booking = allBookings.find(b => b.id === bookingId);
-            document.getElementById('bookingNotes').value = booking?.notes || '';
             
             document.getElementById('notesModal').style.display = 'block';
         }
         
         // Save notes
         async function saveNotes() {
-            const bookingId = document.getElementById('notesBookingId').value;
-            const notes = document.getElementById('bookingNotes').value;
-            
-            try {
-                await db.collection('bookings').doc(bookingId).update({
-                    notes: notes,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                alert('تم حفظ الملاحظات');
-                closeModal('notesModal');
-                loadBookings();
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            const notes = document.getElementById('notesTextarea').value;
+            await db.collection('bookings').doc(currentBookingId).update({ notes });
+            closeModal('notesModal');
+            loadBookings();
         }
         
-        // Filter bookings
-        function filterBookings() {
-            const programFilter = document.getElementById('programFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            const dateFilter = document.getElementById('dateFilter').value;
-            
-            let filtered = allBookings;
-            
-            if (programFilter) {
-                filtered = filtered.filter(b => b.program === programFilter);
-            }
-            
-            if (statusFilter) {
-                filtered = filtered.filter(b => b.status === statusFilter);
-            }
-            
-            if (dateFilter) {
-                const filterDate = new Date(dateFilter).toDateString();
-                filtered = filtered.filter(b => {
-                    if (b.appointmentDate) {
-                        return new Date(b.appointmentDate.toDate()).toDateString() === filterDate;
-                    }
-                    return false;
-                });
-            }
-            
-            displayBookings(filtered);
+        // Slots manager
+        function showSlotsManager() {
+            updateSlotsList();
+            document.getElementById('slotsModal').style.display = 'block';
         }
         
-        // Show week schedule
-        function showWeekSchedule() {
-            const modal = document.getElementById('weekScheduleModal');
-            const content = document.getElementById('weekScheduleContent');
+        function updateSlotsList() {
+            const list = document.getElementById('slotsList');
+            list.innerHTML = '<h3>المواعيد المحفوظة:</h3>';
             
-            // Get all confirmed bookings for the next 7 days
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const weekEnd = new Date(today);
-            weekEnd.setDate(weekEnd.getDate() + 7);
+            availableSlots.forEach((slot, i) => {
+                list.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; padding: 10px; background: #f0f0f0; margin: 5px 0;">
+                        <span>${slot}</span>
+                        <button class="btn btn-danger" onclick="removeSlot(${i})">حذف</button>
+                    </div>
+                `;
+            });
+        }
+        
+        function addSlot() {
+            const date = document.getElementById('slotDate').value;
+            const time = document.getElementById('slotTime').value;
             
-            const weekBookings = allBookings.filter(b => {
-                if (b.appointmentDate && (b.status === 'confirmed' || b.status === 'completed')) {
-                    const bookingDate = new Date(b.appointmentDate.toDate ? b.appointmentDate.toDate() : b.appointmentDate);
-                    return bookingDate >= today && bookingDate <= weekEnd;
-                }
-                return false;
+            if (!date || !time) {
+                alert('أدخل التاريخ والوقت');
+                return;
+            }
+            
+            const dateObj = new Date(date);
+            const dateStr = dateObj.toLocaleDateString('ar-EG', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
             });
             
-            // Group by date
-            const groupedBookings = {};
-            weekBookings.forEach(booking => {
-                const date = new Date(booking.appointmentDate.toDate ? booking.appointmentDate.toDate() : booking.appointmentDate);
-                const dateKey = date.toLocaleDateString('ar-EG');
-                
-                if (!groupedBookings[dateKey]) {
-                    groupedBookings[dateKey] = [];
-                }
-                groupedBookings[dateKey].push(booking);
-            });
+            availableSlots.push(`${dateStr} - ${time}`);
+            localStorage.setItem('availableSlots', JSON.stringify(availableSlots));
             
-            // Generate HTML
-            let html = '<div style="overflow-x: auto;">';
+            document.getElementById('slotDate').value = '';
+            document.getElementById('slotTime').value = '';
             
-            if (Object.keys(groupedBookings).length === 0) {
-                html += '<p style="text-align: center; padding: 20px;">لا توجد جلسات مجدولة هذا الأسبوع</p>';
-            } else {
-                // Create a table for better visualization
-                html += '<table style="width: 100%; border-collapse: collapse;">';
-                html += '<thead><tr>';
-                html += '<th style="border: 1px solid #ddd; padding: 10px; background: #2C5530; color: white;">اليوم</th>';
-                html += '<th style="border: 1px solid #ddd; padding: 10px; background: #2C5530; color: white;">الوقت</th>';
-                html += '<th style="border: 1px solid #ddd; padding: 10px; background: #2C5530; color: white;">العميل</th>';
-                html += '<th style="border: 1px solid #ddd; padding: 10px; background: #2C5530; color: white;">البرنامج</th>';
-                html += '<th style="border: 1px solid #ddd; padding: 10px; background: #2C5530; color: white;">الحالة</th>';
-                html += '</tr></thead><tbody>';
-                
-                // Sort dates
-                const sortedDates = Object.keys(groupedBookings).sort((a, b) => {
-                    return new Date(a.split('/').reverse().join('-')) - new Date(b.split('/').reverse().join('-'));
-                });
-                
-                sortedDates.forEach(dateKey => {
-                    const dayBookings = groupedBookings[dateKey];
-                    // Sort by time
-                    dayBookings.sort((a, b) => {
-                        const timeA = a.appointmentTime || '00:00';
-                        const timeB = b.appointmentTime || '00:00';
-                        return timeA.localeCompare(timeB);
-                    });
-                    
-                    dayBookings.forEach((booking, index) => {
-                        html += '<tr>';
-                        if (index === 0) {
-                            html += `<td rowspan="${dayBookings.length}" style="border: 1px solid #ddd; padding: 10px; font-weight: bold; background: #f5f5f5;">${dateKey}</td>`;
-                        }
-                        html += `<td style="border: 1px solid #ddd; padding: 10px;">${booking.appointmentTime || 'غير محدد'}</td>`;
-                        html += `<td style="border: 1px solid #ddd; padding: 10px;">${booking.name}</td>`;
-                        html += `<td style="border: 1px solid #ddd; padding: 10px;">${getProgramName(booking.program)}</td>`;
-                        html += `<td style="border: 1px solid #ddd; padding: 10px;"><span class="status status-${booking.status}">${getStatusName(booking.status)}</span></td>`;
-                        html += '</tr>';
-                    });
-                });
-                
-                html += '</tbody></table>';
-            }
-            
-            html += '</div>';
-            
-            content.innerHTML = html;
-            modal.style.display = 'block';
+            updateSlotsList();
         }
         
-        // Show today's schedule (Fixed)
+        function removeSlot(index) {
+            availableSlots.splice(index, 1);
+            localStorage.setItem('availableSlots', JSON.stringify(availableSlots));
+            updateSlotsList();
+        }
+        
+        // Today schedule
         function showTodaySchedule() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
             
             const todayBookings = allBookings.filter(b => {
-                if (b.appointmentDate && (b.status === 'confirmed' || b.status === 'completed')) {
-                    const bookingDate = new Date(b.appointmentDate.toDate ? b.appointmentDate.toDate() : b.appointmentDate);
+                if (b.appointmentDate && b.status === 'confirmed') {
+                    const bookingDate = b.appointmentDate.toDate ? 
+                        b.appointmentDate.toDate() : new Date(b.appointmentDate);
                     bookingDate.setHours(0, 0, 0, 0);
                     return bookingDate.getTime() === today.getTime();
                 }
@@ -1055,92 +722,127 @@
             });
             
             if (todayBookings.length === 0) {
-                alert('لا توجد جلسات مجدولة اليوم');
+                alert('لا توجد جلسات اليوم');
                 return;
             }
             
-            // Sort by time
-            todayBookings.sort((a, b) => {
-                const timeA = a.appointmentTime || '00:00';
-                const timeB = b.appointmentTime || '00:00';
-                return timeA.localeCompare(timeB);
+            let msg = 'جلسات اليوم:\n\n';
+            todayBookings.forEach(b => {
+                msg += `${b.appointmentTime} - ${b.name} - ${b.phone}\n`;
             });
             
-            let schedule = `جدول اليوم (${today.toLocaleDateString('ar-EG')}):\n\n`;
-            
-            todayBookings.forEach(booking => {
-                schedule += `⏰ ${booking.appointmentTime || 'غير محدد'}\n`;
-                schedule += `👤 ${booking.name}\n`;
-                schedule += `📱 ${booking.phone}\n`;
-                schedule += `📋 ${getProgramName(booking.program)}\n`;
-                schedule += `📌 ${getStatusName(booking.status)}\n`;
-                schedule += '━━━━━━━━━━━━━━━\n\n';
-            });
-            
-            alert(schedule);
+            alert(msg);
         }
         
-        // Export to Excel (Fixed formatting)
-        function exportToExcel() {
-            // Create array for Excel data
-            const data = [
-                ['التاريخ', 'الاسم', 'البريد الإلكتروني', 'رقم الهاتف', 'البرنامج', 'موعد الجلسة', 'الحالة', 'الرسالة', 'الملاحظات', 'سبب الإلغاء']
-            ];
+        // Week schedule
+        function showWeekSchedule() {
+            const content = document.getElementById('weekContent');
+            content.innerHTML = '';
             
-            // Add data rows
-            allBookings.forEach(booking => {
-                const createdDate = booking.createdAt ? 
-                    new Date(booking.createdAt.toDate()).toLocaleDateString('ar-EG') : '';
-                    
-                let appointmentDateTime = 'لم يحدد';
-                if (booking.appointmentDate) {
-                    const date = booking.appointmentDate.toDate ? booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
-                    appointmentDateTime = `${date.toLocaleDateString('ar-EG')} ${booking.appointmentTime || ''}`;
+            const today = new Date();
+            const weekBookings = allBookings.filter(b => {
+                if (b.appointmentDate && b.status === 'confirmed') {
+                    const bookingDate = b.appointmentDate.toDate ? 
+                        b.appointmentDate.toDate() : new Date(b.appointmentDate);
+                    const diffDays = Math.floor((bookingDate - today) / (1000 * 60 * 60 * 24));
+                    return diffDays >= 0 && diffDays <= 7;
+                }
+                return false;
+            });
+            
+            if (weekBookings.length === 0) {
+                content.innerHTML = '<p>لا توجد جلسات هذا الأسبوع</p>';
+            } else {
+                let html = '<table style="width: 100%;"><tr><th>التاريخ</th><th>الوقت</th><th>الاسم</th><th>البرنامج</th></tr>';
+                
+                weekBookings.sort((a, b) => {
+                    const dateA = a.appointmentDate.toDate ? a.appointmentDate.toDate() : new Date(a.appointmentDate);
+                    const dateB = b.appointmentDate.toDate ? b.appointmentDate.toDate() : new Date(b.appointmentDate);
+                    return dateA - dateB;
+                });
+                
+                weekBookings.forEach(b => {
+                    const date = b.appointmentDate.toDate ? 
+                        b.appointmentDate.toDate() : new Date(b.appointmentDate);
+                    html += `
+                        <tr>
+                            <td>${date.toLocaleDateString('ar-EG')}</td>
+                            <td>${b.appointmentTime || '-'}</td>
+                            <td>${b.name}</td>
+                            <td>${getProgramName(b.program)}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</table>';
+                content.innerHTML = html;
+            }
+            
+            document.getElementById('weekModal').style.display = 'block';
+        }
+        
+        // Export to Excel
+        function exportToExcel() {
+            let csv = '\ufeff'; // UTF-8 BOM
+            csv += 'التاريخ\tالاسم\tالهاتف\tالبرنامج\tالموعد\tالحالة\tالملاحظات\tسبب الإلغاء\n';
+            
+            allBookings.forEach(b => {
+                const date = b.createdAt ? 
+                    new Date(b.createdAt.toDate()).toLocaleDateString('ar-EG') : '';
+                
+                let appointment = '';
+                if (b.appointmentDate) {
+                    const apptDate = b.appointmentDate.toDate ? 
+                        b.appointmentDate.toDate() : new Date(b.appointmentDate);
+                    appointment = apptDate.toLocaleDateString('ar-EG');
+                    if (b.appointmentTime) appointment += ' ' + b.appointmentTime;
                 }
                 
-                data.push([
-                    createdDate,
-                    booking.name || '',
-                    booking.email || '',
-                    booking.phone || '',
-                    getProgramName(booking.program),
-                    appointmentDateTime,
-                    getStatusName(booking.status),
-                    booking.message || '',
-                    booking.notes || '',
-                    booking.cancelReason || ''
-                ]);
+                csv += `${date}\t${b.name}\t${b.phone}\t${getProgramName(b.program)}\t${appointment}\t${getStatusName(b.status)}\t${b.notes || ''}\t${b.cancelReason || ''}\n`;
             });
             
-            // Convert to CSV with proper formatting
-            let csv = '\ufeff'; // UTF-8 BOM
-            
-            data.forEach(row => {
-                const processedRow = row.map(cell => {
-                    // Handle cells that contain commas or quotes
-                    if (cell.toString().includes(',') || cell.toString().includes('"') || cell.toString().includes('\n')) {
-                        return `"${cell.toString().replace(/"/g, '""')}"`;
-                    }
-                    return cell;
-                });
-                csv += processedRow.join(',') + '\n';
-            });
-            
-            // Create and download file
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            // Download
+            const blob = new Blob([csv], { type: 'text/tab-separated-values;charset=utf-8;' });
             const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', `حجوزات_${new Date().toLocaleDateString('ar-EG').replace(/\//g, '-')}.csv`);
-            link.style.visibility = 'hidden';
-            
-            document.body.appendChild(link);
+            link.href = URL.createObjectURL(blob);
+            link.download = `حجوزات_${new Date().toLocaleDateString('ar-EG')}.xls`;
             link.click();
-            document.body.removeChild(link);
         }
         
-        // Helper functions
+        // Filter bookings
+        function filterBookings() {
+            const program = document.getElementById('programFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            
+            let filtered = allBookings;
+            
+            if (program) {
+                filtered = filtered.filter(b => b.program === program);
+            }
+            
+            if (status) {
+                filtered = filtered.filter(b => (b.status || 'pending') === status);
+            }
+            
+            displayBookings(filtered);
+        }
+        
+        // Update stats
+        function updateStats() {
+            const stats = {
+                total: allBookings.length,
+                pending: allBookings.filter(b => !b.status || b.status === 'pending').length,
+                confirmed: allBookings.filter(b => b.status === 'confirmed').length,
+                completed: allBookings.filter(b => b.status === 'completed').length
+            };
+            
+            document.getElementById('totalBookings').textContent = stats.total;
+            document.getElementById('pendingBookings').textContent = stats.pending;
+            document.getElementById('confirmedBookings').textContent = stats.confirmed;
+            document.getElementById('completedBookings').textContent = stats.completed;
+        }
+        
+        // Utilities
         function getProgramName(program) {
             const names = {
                 clarity: 'جلسة الوضوح',
@@ -1153,30 +855,27 @@
         function getStatusName(status) {
             const names = {
                 pending: 'في الانتظار',
-                confirming: 'قيد التأكيد',
                 confirmed: 'مؤكد',
                 completed: 'مكتمل',
                 cancelled: 'ملغي'
             };
-            return names[status] || status || 'في الانتظار';
+            return names[status] || 'في الانتظار';
         }
         
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
         }
         
-        // Close modal when clicking outside
+        // Close modals on outside click
         window.onclick = function(event) {
             if (event.target.className === 'modal') {
                 event.target.style.display = 'none';
             }
         }
         
-        // Enter key login
+        // Enter key for login
         document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
+            if (e.key === 'Enter') login();
         });
     </script>
 </body>
