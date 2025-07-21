@@ -1401,6 +1401,14 @@
         
         // Process new booking
         async function processNewBooking() {
+            // في بداية processNewBooking function، أضف:
+console.log('Starting processNewBooking...');
+console.log('Form data:', formData);
+console.log('Account type:', accountType);
+console.log('Google user:', googleUser);
+
+// قبل السطر: const userCredential = await auth.createUserWithEmailAndPassword
+console.log('Attempting to create user with:', formData.email);
             const bookingNumber = 'BK' + Date.now().toString().slice(-8);
             
             let userId = null;
@@ -1691,6 +1699,32 @@ async function resetPasswordAndContinue() {
                 }
             }
         });
+        // كود تشخيصي مؤقت - احذفه بعد حل المشكلة
+console.log('Firebase initialized:', firebase.apps.length > 0);
+console.log('Auth object:', auth);
+console.log('Firestore object:', db);
+
+// اختبار إنشاء حساب وهمي
+async function testCreateAccount() {
+    const testEmail = `test${Date.now()}@example.com`;
+    const testPassword = 'test123456';
+    
+    console.log('Testing with:', testEmail);
+    
+    try {
+        const result = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+        console.log('Success! User created:', result.user.uid);
+        
+        // حذف الحساب التجريبي
+        await result.user.delete();
+        console.log('Test user deleted');
+    } catch (error) {
+        console.error('Test failed:', error.code, error.message);
+    }
+}
+
+// جرب هذا الاختبار
+window.testAuth = testCreateAccount;
     </script>
 </body>
 </html>
