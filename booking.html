@@ -1048,53 +1048,108 @@
         }
         
         // Handle form submission
-        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // تحديث في booking.html - القسم الخاص بإرسال النموذج
+// استبدل الكود من السطر 1150 تقريباً
+
+// Handle form submission
+document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Validate final step
+    if (!validateStep(4)) return;
+    
+    // Show loading
+    showLoading(true);
+    
+    try {
+        // Check for existing booking
+        const hasExisting = await checkExistingBooking(formData.email, formData.phone);
+        
+        if (hasExisting) {
+            showLoading(false);
+            showAlert('يبدو أن لديك حجز قائم بالفعل. سنتواصل معك قريباً. إذا كانت هذه مشكلة، تواصل معنا مباشرة.', 'warning');
             
-            // Validate final step
-            if (!validateStep(4)) return;
-            
-            // Show loading
-            showLoading(true);
-            
-            try {
-                // Check for existing booking
-                const hasExisting = await checkExistingBooking(formData.email, formData.phone);
-                
-                if (hasExisting) {
-                    showLoading(false);
-                    showAlert('يبدو أن لديك حجز قائم بالفعل. سنتواصل معك قريباً. إذا كانت هذه مشكلة، تواصل معنا مباشرة.', 'warning');
-                    
-                    // Still allow them to contact via WhatsApp
-                    setTimeout(() => {
-                        if (confirm('هل تريد التواصل معنا مباشرة عبر واتساب؟')) {
-                            window.open('https://wa.me/201224938330', '_blank');
-                        }
-                    }, 2000);
-                    return;
+            setTimeout(() => {
+                if (confirm('هل تريد التواصل معنا مباشرة عبر واتساب؟')) {
+                    window.open('https://wa.me/201224938330', '_blank');
                 }
+            }, 2000);
+            return;
+        }
+        
+        // Generate booking number
+        const bookingNumber = 'BK' + Date.now().toString().slice(-8);
+        
+        // IMPORTANT: Create user account first
+        let userId = null;
+        let temporaryPassword = null;
+        
+        try {
+            // Check if user already exists
+            const auth = firebase.auth();
+            const methods = await auth.fetchSignInMethodsForEmail(formData.email);
+            
+            if (methods.length === 0) {
+                // User doesn't exist, create new account
+                temporaryPassword = generateSecurePassword();
                 
-                // Generate booking number
-                const bookingNumber = 'BK' + Date.now().toString().slice(-8);
-                
-                // Prepare final data
-                const finalData = {
-                    ...formData,
-                    bookingNumber: bookingNumber,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'pending',
-                    source: 'website',
-                    userAgent: navigator.userAgent,
-                    referrer: document.referrer || 'direct'
-                };
-                
-                // Save to Firestore
-                const docRef = await db.collection('bookings').add(finalData);
-                console.log('Booking saved with ID:', docRef.id);
-                
-                // Send WhatsApp notification
-                const whatsappMessage = `🎉 حجز جديد من الموقع!
-                
+                try {
+                    const userCredential = await auth.createUserWithEmailAndPassword(
+                        formData.email, 
+                        temporaryPassword
+                    );
+                    userId = userCredential.user.uid;
+                    
+                    // Send verification email
+                    await userCredential.user.sendEmailVerification();
+                    
+                    // Create user document in Firestore
+                    await db.collection('users').doc(userId).set({
+                        name: formData.name,
+                        email: formData.email,
+                        phone: formData.phone,
+                        program: formData.program,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        bookingNumber: bookingNumber,
+                        role: 'client'
+                    });
+                    
+                    console.log('User account created successfully');
+                } catch (authError) {
+                    console.error('Error creating user:', authError);
+                    // Continue anyway - admin can create account manually
+                }
+            } else {
+                // User already exists
+                console.log('User already has an account');
+                // Try to get current user if logged in
+                if (auth.currentUser) {
+                    userId = auth.currentUser.uid;
+                }
+            }
+        } catch (error) {
+            console.error('Auth check error:', error);
+        }
+        
+        // Prepare final booking data
+        const finalData = {
+            ...formData,
+            bookingNumber: bookingNumber,
+            userId: userId || null,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'pending',
+            source: 'website',
+            userAgent: navigator.userAgent,
+            referrer: document.referrer || 'direct'
+        };
+        
+        // Save booking to Firestore
+        const docRef = await db.collection('bookings').add(finalData);
+        console.log('Booking saved with ID:', docRef.id);
+        
+        // Prepare WhatsApp message
+        let whatsappMessage = `🎉 حجز جديد من الموقع!
+        
 📋 رقم الحجز: ${bookingNumber}
 👤 الاسم: ${formData.name}
 📧 البريد: ${formData.email}
@@ -1102,103 +1157,192 @@
 📚 البرنامج: ${getProgramName(formData.program)}
 💬 الرسالة: ${formData.message}
 ⏰ الأوقات المفضلة: ${formData.preferredTimes || 'لم يحدد'}
-🔗 المصدر: ${formData.referralSource || 'مباشر'}
+🔗 المصدر: ${formData.referralSource || 'مباشر'}`;
+
+        // Add password info if new account was created
+        if (temporaryPassword) {
+            whatsappMessage += `
+
+🔐 تم إنشاء حساب جديد:
+البريد: ${formData.email}
+كلمة المرور المؤقتة: ${temporaryPassword}
+(أرسلها للعميل وأطلب منه تغييرها)`;
+        }
+
+        whatsappMessage += `
 
 🔗 رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
+        
+        // Open WhatsApp
+        const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(whatsappMessage)}`;
+        window.open(whatsappUrl, '_blank');
+        
+        // Save to localStorage for backup
+        const bookingBackup = {
+            ...finalData,
+            firestoreId: docRef.id,
+            temporaryPassword: temporaryPassword,
+            savedAt: new Date().toISOString()
+        };
+        localStorage.setItem(`booking_${bookingNumber}`, JSON.stringify(bookingBackup));
+        
+        // Send email with login details (if new account)
+        if (temporaryPassword) {
+            // This would need Cloud Functions or external service
+            // For now, we'll show it to the user
+            showLoginDetailsModal(formData.email, temporaryPassword);
+        }
+        
+        // Show success message
+        showLoading(false);
+        document.getElementById('formContainer').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('bookingNumber').textContent = bookingNumber;
+        
+        // Track conversion if analytics available
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'conversion', {
+                'send_to': 'AW-CONVERSION_ID/CONVERSION_LABEL',
+                'value': getProgramPrice(formData.program),
+                'currency': 'EGP'
+            });
+        }
+        
+    } catch (error) {
+        console.error('Error submitting booking:', error);
+        showLoading(false);
+        
+        // Save to localStorage as fallback
+        const fallbackBooking = {
+            ...formData,
+            bookingNumber: 'FB' + Date.now().toString().slice(-8),
+            createdAt: new Date().toISOString(),
+            status: 'pending_sync',
+            error: error.message
+        };
+        
+        localStorage.setItem(`fallback_booking_${Date.now()}`, JSON.stringify(fallbackBooking));
+        
+        showAlert('حدث خطأ في إرسال الطلب، لكن تم حفظ بياناتك. سنتواصل معك قريباً أو يمكنك التواصل معنا مباشرة.', 'error');
+        
+        // Open WhatsApp for direct contact
+        setTimeout(() => {
+            if (confirm('هل تريد التواصل معنا مباشرة عبر واتساب؟')) {
+                const errorMessage = `مرحباً، حاولت الحجز على الموقع لكن واجهت مشكلة تقنية.
                 
-                // Open WhatsApp
-                const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(whatsappMessage)}`;
-                window.open(whatsappUrl, '_blank');
-                
-                // Save to localStorage for backup
-                const bookingBackup = {
-                    ...finalData,
-                    firestoreId: docRef.id,
-                    savedAt: new Date().toISOString()
-                };
-                localStorage.setItem(`booking_${bookingNumber}`, JSON.stringify(bookingBackup));
-                
-                // Show success message
-                showLoading(false);
-                document.getElementById('formContainer').style.display = 'none';
-                document.getElementById('successMessage').style.display = 'block';
-                document.getElementById('bookingNumber').textContent = bookingNumber;
-                
-                // Track conversion if analytics available
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'conversion', {
-                        'send_to': 'AW-CONVERSION_ID/CONVERSION_LABEL',
-                        'value': getProgramPrice(formData.program),
-                        'currency': 'EGP'
-                    });
-                }
-                
-            } catch (error) {
-                console.error('Error submitting booking:', error);
-                showLoading(false);
-                
-                // Save to localStorage as fallback
-                const fallbackBooking = {
-                    ...formData,
-                    bookingNumber: 'FB' + Date.now().toString().slice(-8),
-                    createdAt: new Date().toISOString(),
-                    status: 'pending_sync',
-                    error: error.message
-                };
-                
-                localStorage.setItem(`fallback_booking_${Date.now()}`, JSON.stringify(fallbackBooking));
-                
-                showAlert('حدث خطأ في إرسال الطلب، لكن تم حفظ بياناتك. سنتواصل معك قريباً أو يمكنك التواصل معنا مباشرة.', 'error');
-                
-                // Open WhatsApp for direct contact
-                setTimeout(() => {
-                    if (confirm('هل تريد التواصل معنا مباشرة عبر واتساب؟')) {
-                        const errorMessage = `مرحباً، حاولت الحجز على الموقع لكن واجهت مشكلة تقنية.
-                        
 الاسم: ${formData.name}
 الهاتف: ${formData.phone}
 البرنامج: ${getProgramName(formData.program)}`;
-                        
-                        window.open(`https://wa.me/201224938330?text=${encodeURIComponent(errorMessage)}`, '_blank');
-                    }
-                }, 2000);
+                
+                window.open(`https://wa.me/201224938330?text=${encodeURIComponent(errorMessage)}`, '_blank');
             }
-        });
-        
-        // Clear form on page load
-        window.onload = function() {
-            document.getElementById('bookingForm').reset();
-            currentStep = 1;
-            selectedProgram = '';
-            formData = {};
-            showStep(1);
-            
-            // Check for URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const ref = urlParams.get('ref');
-            const promo = urlParams.get('promo');
-            
-            if (ref) {
-                document.getElementById('referralSource').value = ref;
-                showNotification(`مرحباً! وصلت من ${ref} 🎉`, 'success');
-            }
-            
-            if (promo) {
-                sessionStorage.setItem('promoCode', promo);
-                showNotification('تم تطبيق كود الخصم', 'success');
-            }
-            
-            // Restore form data if exists (in case of page refresh)
-            const savedFormData = sessionStorage.getItem('bookingFormData');
-            if (savedFormData) {
-                if (confirm('لديك بيانات محفوظة، هل تريد استكمال الحجز السابق؟')) {
-                    formData = JSON.parse(savedFormData);
-                    restoreFormData();
-                } else {
-                    sessionStorage.removeItem('bookingFormData');
-                }
-            }
-        };
+        }, 2000);
+    }
+});
+
+// Function to generate secure password
+function generateSecurePassword() {
+    const length = 10;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+    let password = "";
+    
+    // Ensure at least one of each type
+    password += "A"; // Uppercase
+    password += "a"; // Lowercase
+    password += "1"; // Number
+    password += "!"; // Special
+    
+    // Fill the rest randomly
+    for (let i = password.length; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    
+    // Shuffle the password
+    return password.split('').sort(() => Math.random() - 0.5).join('');
+}
+
+// Function to show login details modal
+function showLoginDetailsModal(email, password) {
+    // Create modal HTML
+    const modalHTML = `
+        <div id="loginDetailsModal" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        ">
+            <div style="
+                background: white;
+                padding: 30px;
+                border-radius: 20px;
+                max-width: 500px;
+                width: 90%;
+                text-align: center;
+            ">
+                <h2 style="color: #2C5530; margin-bottom: 20px;">تم إنشاء حسابك بنجاح! 🎉</h2>
+                
+                <div style="
+                    background: #f5f5f5;
+                    padding: 20px;
+                    border-radius: 10px;
+                    margin: 20px 0;
+                    text-align: right;
+                ">
+                    <p style="margin-bottom: 10px;"><strong>بيانات الدخول الخاصة بك:</strong></p>
+                    <p>البريد الإلكتروني: <strong>${email}</strong></p>
+                    <p>كلمة المرور المؤقتة: <strong style="color: #D4AF37;">${password}</strong></p>
+                </div>
+                
+                <p style="color: #666; margin-bottom: 20px;">
+                    سيتم إرسال هذه البيانات إلى بريدك الإلكتروني<br>
+                    من فضلك احتفظ بها وقم بتغيير كلمة المرور عند أول دخول
+                </p>
+                
+                <button onclick="copyLoginDetails('${email}', '${password}')" style="
+                    background: #2C5530;
+                    color: white;
+                    padding: 10px 30px;
+                    border: none;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    margin: 5px;
+                ">نسخ البيانات</button>
+                
+                <button onclick="closeLoginModal()" style="
+                    background: white;
+                    color: #2C5530;
+                    padding: 10px 30px;
+                    border: 2px solid #2C5530;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    margin: 5px;
+                ">حسناً</button>
+            </div>
+        </div>
+    `;
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// Helper functions for modal
+window.copyLoginDetails = function(email, password) {
+    const text = `بيانات الدخول:\nالبريد: ${email}\nكلمة المرور: ${password}`;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('تم نسخ البيانات بنجاح!');
+    });
+};
+
+window.closeLoginModal = function() {
+    const modal = document.getElementById('loginDetailsModal');
+    if (modal) modal.remove();
+};
         
         // Save form data on change
         document.getElementById('bookingForm').addEventListener('change', () => {
