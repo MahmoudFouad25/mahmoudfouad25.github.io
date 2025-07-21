@@ -3,63 +3,1263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محمود فؤاد - رحلة الحياة الطيبة</title>
+    <title>محمود فؤاد - رحلة الحياة الطيبة | كوتش تطوير شخصي</title>
+    <meta name="description" content="اكتشف جوهرك الأصيل وعش بتوازن وسلام داخلي مع محمود فؤاد - كوتش متخصص في التطوير الشخصي والحياة الطيبة">
+    <meta name="keywords" content="كوتشينج, تطوير شخصي, حياة طيبة, محمود فؤاد, life coaching">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="محمود فؤاد - رحلة الحياة الطيبة">
+    <meta property="og:description" content="اكتشف جوهرك الأصيل وعش بتوازن وسلام داخلي">
+    <meta property="og:image" content="https://mahmoudfouad25.github.io/assets/images/og-image.jpg">
+    <meta property="og:url" content="https://mahmoudfouad25.github.io">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        
+        :root {
+            --primary: #2C5530;
+            --secondary: #8B9467;
+            --accent: #D4AF37;
+            --light: #F5F2E8;
+            --dark: #1A1A1A;
+            --gradient: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-            background: #F5F2E8;
-            color: #1A1A1A;
+            background: var(--light);
+            color: var(--dark);
             line-height: 1.6;
+            overflow-x: hidden;
         }
+        
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        nav.scrolled {
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .logo:hover {
+            color: var(--secondary);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .cta-button {
+            background: var(--gradient);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(44, 85, 48, 0.3);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(44, 85, 48, 0.4);
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        
+        .mobile-menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--primary);
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+        
+        /* Hero Section */
         .hero {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
+            background: var(--gradient);
             text-align: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.1;
+            top: -300px;
+            right: -300px;
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--secondary) 0%, transparent 70%);
+            opacity: 0.1;
+            bottom: -200px;
+            left: -200px;
+            animation: float 15s ease-in-out infinite reverse;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-50px, 50px) scale(1.1); }
+        }
+        
         .hero-content {
             max-width: 800px;
+            position: relative;
+            z-index: 1;
         }
-        h1 {
-            font-size: 3rem;
+        
+        .hero h1 {
+            font-size: 3.5rem;
             color: white;
             margin-bottom: 1rem;
+            animation: fadeInUp 1s;
         }
-        p {
-            font-size: 1.2rem;
-            color: #F5F2E8;
+        
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--light);
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s 0.3s both;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s 0.6s both;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .secondary-button {
+            background: white;
+            color: var(--primary);
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            border: 2px solid white;
+            transition: all 0.3s;
+        }
+        
+        .secondary-button:hover {
+            background: transparent;
+            color: white;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 5rem 2rem;
+            background: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 3rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 0;
+        }
+        
+        .feature-card:hover::before {
+            opacity: 0.1;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .feature-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .feature-card p {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Programs Section */
+        .programs {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, rgba(244, 241, 234, 0.5) 0%, rgba(255, 255, 255, 0.5) 100%);
+        }
+        
+        .programs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .program-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .program-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+        
+        .program-header {
+            background: var(--gradient);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .program-header::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        
+        .program-header h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .program-header p {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .program-content {
+            padding: 2rem;
+        }
+        
+        .program-features {
+            list-style: none;
             margin-bottom: 2rem;
         }
-        .cta-button {
-            display: inline-block;
-            padding: 15px 40px;
-            background: #D4AF37;
-            color: #1A1A1A;
+        
+        .program-features li {
+            padding: 0.5rem 0;
+            padding-right: 2rem;
+            position: relative;
+        }
+        
+        .program-features li::before {
+            content: '✨';
+            position: absolute;
+            right: 0;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        .program-price {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        
+        .program-cta {
+            display: block;
+            text-align: center;
+            background: var(--gradient);
+            color: white;
+            padding: 1rem;
             text-decoration: none;
             border-radius: 50px;
-            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .program-cta:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(44, 85, 48, 0.3);
+        }
+        
+        /* About Section */
+        .about {
+            padding: 5rem 2rem;
+            background: white;
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        
+        .about-text h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .about-text p {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+        
+        .about-image {
+            position: relative;
+        }
+        
+        .about-image img {
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+        
+        .about-image::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        /* Testimonials */
+        .testimonials {
+            padding: 5rem 2rem;
+            background: var(--light);
+        }
+        
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .testimonial-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             transition: transform 0.3s;
         }
-        .cta-button:hover {
-            transform: translateY(-3px);
+        
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .testimonial-card::before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--accent);
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            opacity: 0.3;
+        }
+        
+        .testimonial-text {
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .testimonial-author {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .testimonial-role {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            padding: 5rem 2rem;
+            background: var(--gradient);
+            text-align: center;
+            color: white;
+        }
+        
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-section p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .cta-section .cta-button {
+            background: white;
+            color: var(--primary);
+            font-size: 1.2rem;
+            padding: 1rem 3rem;
+        }
+        
+        .cta-section .cta-button:hover {
+            background: var(--light);
+        }
+        
+        /* Contact Section */
+        .contact {
+            padding: 5rem 2rem;
+            background: white;
+        }
+        
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        
+        .contact-info h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-item i {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+        
+        .contact-form {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .submit-btn {
+            background: var(--gradient);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(44, 85, 48, 0.3);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 2rem 1rem;
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .social-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+        
+        .social-links a:hover {
+            color: var(--accent);
+        }
+        
+        .footer-nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-nav a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-nav a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            color: #999;
+            font-size: 0.9rem;
+            padding-top: 2rem;
+            border-top: 1px solid #333;
+        }
+        
+        /* WhatsApp Float Button */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 30px;
+            left: 30px;
+            background: #25d366;
+            color: white;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s;
+            animation: pulse 2s infinite;
+        }
+        
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+        
+        /* Scroll to Top Button */
+        .scroll-top {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 99;
+        }
+        
+        .scroll-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .scroll-top:hover {
+            background: var(--secondary);
+            transform: translateY(-5px);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                width: 100%;
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .features-grid,
+            .programs-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .about-content,
+            .contact-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .about-image {
+                order: -1;
+            }
+        }
+        
+        /* Loading Animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+        
+        .loader.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loader-circle {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--light);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
     </style>
 </head>
 <body>
-    <div class="hero">
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-circle"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo">محمود فؤاد</a>
+            <div class="mobile-menu-toggle" id="mobileMenuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home">الرئيسية</a></li>
+                <li><a href="#features">المميزات</a></li>
+                <li><a href="#programs">البرامج</a></li>
+                <li><a href="#about">من أنا</a></li>
+                <li><a href="#testimonials">آراء العملاء</a></li>
+                <li><a href="#contact">تواصل</a></li>
+                <li><a href="booking.html" class="cta-button">احجز جلستك</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
         <div class="hero-content">
             <h1>رحلة إلى الحياة الطيبة</h1>
-            <p>اكتشف جوهرك الأصيل وعش بتوازن وسلام داخلي</p>
-            <a href="booking.html" class="cta-button">احجز جلستك الآن</a>
+            <p>اكتشف جوهرك الأصيل وعش بتوازن وسلام داخلي<br>
+            من خلال منهج متكامل يجمع بين الحكمة الأصيلة والأدوات العملية الحديثة</p>
+            <div class="hero-buttons">
+                <a href="booking.html" class="cta-button">ابدأ رحلتك الآن</a>
+                <a href="#programs" class="secondary-button">تعرف على البرامج</a>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">ماذا نقدم لك؟</h2>
+            <p class="section-subtitle">منهج متكامل للوصول إلى الحياة الطيبة</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌱</div>
+                    <h3>اكتشاف الذات</h3>
+                    <p>رحلة عميقة لفهم جوهرك الحقيقي واكتشاف مواطن قوتك وإمكانياتك الكامنة</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚖️</div>
+                    <h3>التوازن الحياتي</h3>
+                    <p>أدوات عملية لتحقيق التوازن بين جوانب حياتك المختلفة والعيش بسلام</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>الوضوح والهدف</h3>
+                    <p>اكتشف رسالتك في الحياة وحدد أهدافك بوضوح مع خطة عملية للتحقيق</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧘</div>
+                    <h3>السلام الداخلي</h3>
+                    <p>تقنيات مجربة للتعامل مع القلق والضغوط والوصول للطمأنينة</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💪</div>
+                    <h3>القوة الداخلية</h3>
+                    <p>بناء الثقة بالنفس والقدرة على مواجهة التحديات بثبات</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌟</div>
+                    <h3>النمو المستمر</h3>
+                    <p>منهجية للتطور المستمر والارتقاء في كل جوانب الحياة</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programs Section -->
+    <section class="programs" id="programs">
+        <div class="container">
+            <h2 class="section-title">اختر رحلتك</h2>
+            <p class="section-subtitle">برامج مصممة بعناية لتناسب احتياجاتك</p>
+            <div class="programs-grid">
+                <!-- Program 1 -->
+                <div class="program-card">
+                    <div class="program-header">
+                        <h3>جلسة الوضوح</h3>
+                        <p>للتحديات المحددة</p>
+                    </div>
+                    <div class="program-content">
+                        <ul class="program-features">
+                            <li>جلسة واحدة مكثفة (90 دقيقة)</li>
+                            <li>تحليل عميق للتحدي</li>
+                            <li>خطة عمل واضحة ومحددة</li>
+                            <li>متابعة لمدة أسبوع</li>
+                            <li>أدوات عملية للتطبيق الفوري</li>
+                        </ul>
+                        <div class="program-price">400 جنيه</div>
+                        <a href="booking.html?program=clarity" class="program-cta">احجز الآن</a>
+                    </div>
+                </div>
+                
+                <!-- Program 2 -->
+                <div class="program-card">
+                    <div class="program-header">
+                        <h3>رحلة الاكتشاف</h3>
+                        <p>لفهم أعمق للذات</p>
+                    </div>
+                    <div class="program-content">
+                        <ul class="program-features">
+                            <li>3 جلسات متدرجة (60 دقيقة لكل جلسة)</li>
+                            <li>اكتشاف الأنماط والمعوقات</li>
+                            <li>بناء عادات جديدة مستدامة</li>
+                            <li>متابعة لمدة شهر كامل</li>
+                            <li>خطة تطوير شخصية مفصلة</li>
+                            <li>دخول لمجموعة الدعم</li>
+                        </ul>
+                        <div class="program-price">1,500 جنيه</div>
+                        <a href="booking.html?program=discovery" class="program-cta">احجز الآن</a>
+                    </div>
+                </div>
+                
+                <!-- Program 3 -->
+                <div class="program-card">
+                    <div class="program-header">
+                        <h3>رحلة التحول</h3>
+                        <p>للتغيير الجذري</p>
+                    </div>
+                    <div class="program-content">
+                        <ul class="program-features">
+                            <li>6 جلسات شاملة (75 دقيقة لكل جلسة)</li>
+                            <li>إعادة اكتشاف الهدف والرسالة</li>
+                            <li>التعامل مع المعوقات العميقة</li>
+                            <li>متابعة لمدة 3 شهور</li>
+                            <li>برنامج تحول متكامل</li>
+                            <li>جلسات طوارئ عند الحاجة</li>
+                            <li>شهادة إتمام البرنامج</li>
+                        </ul>
+                        <div class="program-price">3,000 جنيه</div>
+                        <a href="booking.html?program=transformation" class="program-cta">احجز الآن</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>من أنا</h2>
+                    <p>محمود فؤاد، كوتش متخصص في التطوير الشخصي ومؤسس منظور الفؤاد للحياة الطيبة.</p>
+                    <p>أؤمن أن كل إنسان يحمل في داخله جوهراً نقياً وإمكانيات هائلة، وأن رحلة الحياة هي رحلة اكتشاف هذا الجوهر والعيش منه.</p>
+                    <p>من خلال منهج يجمع بين الحكمة الأصيلة والأدوات الحديثة، أساعد الناس على:</p>
+                    <ul style="margin-right: 20px; margin-top: 10px;">
+                        <li>اكتشاف جوهرهم الأصيل</li>
+                        <li>التحرر من القيود الداخلية</li>
+                        <li>بناء حياة متوازنة وذات معنى</li>
+                        <li>تحقيق السلام الداخلي</li>
+                    </ul>
+                </div>
+                <div class="about-image">
+                    <img src="https://via.placeholder.com/500x600/2C5530/FFFFFF?text=محمود+فؤاد" alt="محمود فؤاد">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">قصص نجاح</h2>
+            <p class="section-subtitle">ماذا يقول عملاؤنا</p>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        "الجلسات مع أستاذ محمود غيرت نظرتي للحياة تماماً. اكتشفت قدرات في نفسي ما كنتش أعرف إنها موجودة. الآن أعيش بوضوح وهدف."
+                    </p>
+                    <p class="testimonial-author">أحمد محمد</p>
+                    <p class="testimonial-role">رائد أعمال</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        "بعد رحلة التحول، أصبحت أعيش بسلام حقيقي مع نفسي. القلق اللي كان مسيطر على حياتي اختفى والحمد لله، وأصبحت أتعامل مع التحديات بثبات."
+                    </p>
+                    <p class="testimonial-author">سارة أحمد</p>
+                    <p class="testimonial-role">مهندسة</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        "المنهج اللي بيتبعه الأستاذ محمود مختلف تماماً. مش مجرد نصائح، لكن رحلة حقيقية للتغيير من الداخل. أنصح أي حد عايز يغير حياته يبدأ معاه."
+                    </p>
+                    <p class="testimonial-author">محمد عبدالله</p>
+                    <p class="testimonial-role">طبيب</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        "كنت تائهة ومش عارفة هدفي في الحياة. الجلسات ساعدتني أكتشف شغفي الحقيقي وأبدأ مشروعي الخاص. ممتنة جداً لهذه التجربة."
+                    </p>
+                    <p class="testimonial-author">فاطمة علي</p>
+                    <p class="testimonial-role">مصممة</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        "أفضل استثمار عملته في نفسي. تعلمت أدوات عملية ساعدتني في كل جوانب حياتي، من العمل للعلاقات للصحة النفسية."
+                    </p>
+                    <p class="testimonial-author">عمر حسن</p>
+                    <p class="testimonial-role">مدير مبيعات</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">
+                        "الأستاذ محمود مش مجرد كوتش، هو مرشد حقيقي. بيسمع بعمق وبيفهم وبيوجه بحكمة. تجربة غيرت حياتي للأفضل."
+                    </p>
+                    <p class="testimonial-author">نورا إبراهيم</p>
+                    <p class="testimonial-role">معلمة</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>مستعد لبدء رحلتك؟</h2>
+            <p>الحياة الطيبة تنتظرك... كل رحلة تبدأ بخطوة</p>
+            <a href="booking.html" class="cta-button">احجز جلستك الأولى</a>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2 class="section-title">تواصل معنا</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>معلومات التواصل</h3>
+                    <div class="contact-item">
+                        <i>📱</i>
+                        <span>واتساب: 01224938330</span>
+                    </div>
+                    <div class="contact-item">
+                        <i>📧</i>
+                        <span>mahmoudfouad@example.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i>📍</i>
+                        <span>الإسماعيلية، مصر</span>
+                    </div>
+                    <div class="contact-item">
+                        <i>⏰</i>
+                        <span>متاح: السبت - الخميس (10 ص - 8 م)</span>
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <label for="contactName">الاسم</label>
+                        <input type="text" id="contactName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEmail">البريد الإلكتروني</label>
+                        <input type="email" id="contactEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactMessage">رسالتك</label>
+                        <textarea id="contactMessage" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">إرسال الرسالة</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="social-links">
+                <a href="https://wa.me/201224938330" target="_blank">📱 واتساب</a>
+                <a href="#" target="_blank">📘 فيسبوك</a>
+                <a href="#" target="_blank">📸 انستجرام</a>
+                <a href="#" target="_blank">🎥 يوتيوب</a>
+            </div>
+            <div class="footer-nav">
+                <a href="#home">الرئيسية</a>
+                <a href="#programs">البرامج</a>
+                <a href="#about">من نحن</a>
+                <a href="#contact">تواصل</a>
+                <a href="privacy.html">سياسة الخصوصية</a>
+                <a href="terms.html">الشروط والأحكام</a>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 محمود فؤاد - جميع الحقوق محفوظة</p>
+                <p>صُمم بـ ❤️ للحياة الطيبة</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Float Button -->
+    <a href="https://wa.me/201224938330" class="whatsapp-float" target="_blank">
+        <i>💬</i>
+    </a>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top" id="scrollTop">↑</div>
+
+    <script>
+        // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hide');
+            }, 500);
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Smooth Scrolling for Navigation Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Close mobile menu if open
+                    navLinks.classList.remove('active');
+                }
+            });
+        });
+
+        // Navbar Background on Scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Scroll to Top Button
+        const scrollTopBtn = document.getElementById('scrollTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('show');
+            } else {
+                scrollTopBtn.classList.remove('show');
+            }
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Contact Form Handler
+        document.getElementById('contactForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+            
+            // WhatsApp message
+            const whatsappMessage = `رسالة من الموقع:\n\nالاسم: ${name}\nالبريد: ${email}\nالرسالة: ${message}`;
+            
+            // Open WhatsApp
+            window.open(`https://wa.me/201224938330?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+            
+            // Reset form
+            document.getElementById('contactForm').reset();
+            
+            // Show success message
+            alert('تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.');
+        });
+
+        // Intersection Observer for Animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 1s';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all feature cards, program cards, and testimonial cards
+        document.querySelectorAll('.feature-card, .program-card, .testimonial-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // URL Parameter Handler for Programs
+        const urlParams = new URLSearchParams(window.location.search);
+        const programParam = urlParams.get('program');
+        
+        if (programParam) {
+            // Scroll to programs section
+            setTimeout(() => {
+                document.getElementById('programs').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }, 1000);
+        }
+
+        // Dynamic Copyright Year
+        document.querySelector('.copyright p').innerHTML = 
+            `&copy; ${new Date().getFullYear()} محمود فؤاد - جميع الحقوق محفوظة`;
+    </script>
 </body>
 </html>
