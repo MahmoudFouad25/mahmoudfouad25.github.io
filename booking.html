@@ -919,87 +919,22 @@ googleProvider.setCustomParameters({
     prompt: 'select_account'
 });
 
-// ← ضع الكود الجديد هنا مباشرة ←
-// حل نهائي لمشكلة onclick
-(function() {
-    // تعريف جميع الدوال globally
-    window.nextStep = function() {
-        if (validateStep(currentStep)) {
-            saveStepData(currentStep);
-            currentStep++;
-            showStep(currentStep);
-            
-            if (currentStep === 5) {
-                showSummary();
-            }
-        }
-    };
-    
-    window.previousStep = function() {
-        currentStep--;
-        showStep(currentStep);
-    };
-    
-    window.selectProgram = function(element, program) {
-        document.querySelectorAll('.program-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        
-        element.classList.add('selected');
-        selectedProgram = program;
-        document.getElementById('program').value = program;
-        clearError('program');
-    };
-    
-    window.selectAccountType = function(type) {
-        accountType = type;
-        document.getElementById('accountType').value = type;
-        
-        document.querySelectorAll('.account-type-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        
-        if (event && event.target) {
-            event.target.closest('.account-type-card').classList.add('selected');
-        }
-        
-        const passwordSection = document.getElementById('passwordSection');
-        if (passwordSection) {
-            passwordSection.style.display = (type === 'create' && !googleUser) ? 'block' : 'none';
-        }
-    };
-    
-    window.togglePassword = function() {
-        const passwordInput = document.getElementById('password');
-        const toggleIcon = document.querySelector('.toggle-password');
-        
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleIcon.textContent = '🙈';
-        } else {
-            passwordInput.type = 'password';
-            toggleIcon.textContent = '👁';
-        }
-    };
-    
-    window.signInWithGoogle = signInWithGoogle;
-    window.analyzeAndProceed = analyzeAndProceed;
-    window.continueAsGuest = continueAsGuest;
-})();
-
-// ← ثم يستمر باقي الكود كما هو ←
 // Form state
-window.currentStep = window.currentStep || 1;
-window.selectedProgram = window.selectedProgram || '';
+let currentStep = 1;
+let selectedProgram = '';
+let formData = {};
+let accountType = 'auto';
+let googleUser = null;
 
-// ... باقي الكود
-    
-// Form state
-window.currentStep = window.currentStep || 1;
-window.selectedProgram = window.selectedProgram || '';
-window.formData = window.formData || {};
-window.accountType = window.accountType || 'auto';
-window.googleUser = window.googleUser || null;
+// Make functions globally accessible
+window.nextStep = nextStep;
+window.previousStep = previousStep;
+window.selectProgram = selectProgram;
+window.selectAccountType = selectAccountType;
+window.togglePassword = togglePassword;
+window.signInWithGoogle = signInWithGoogle;
+window.analyzeAndProceed = analyzeAndProceed;
+window.continueAsGuest = continueAsGuest;
 
 // Show notification
 function showNotification(message, type = 'success') {
@@ -1506,6 +1441,7 @@ async function continueAsGuest() {
 
 ⚠️ عميل قديم - له حساب بالفعل
 
+رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
         
         window.open(`https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`, '_blank');
         
@@ -1632,6 +1568,7 @@ async function processNewBooking() {
 ${googleUser ? '🔵 باستخدام Google' : '📧 باستخدام البريد الإلكتروني'}
 ${(accountType === 'auto' && !googleUser) ? `🔑 كلمة المرور المؤقتة: ${userPassword}` : ''}
 
+رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
         
         window.open(`https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`, '_blank');
         
@@ -1858,5 +1795,64 @@ document.addEventListener('keydown', (e) => {
     }
 });
     </script>
+    <script>
+// حل نهائي بسيط
+document.addEventListener('DOMContentLoaded', function() {
+    // ربط كل الأزرار بعد تحميل الصفحة
+    
+    // أزرار التالي
+    document.querySelectorAll('button[onclick*="nextStep"]').forEach(btn => {
+        btn.removeAttribute('onclick');
+        btn.addEventListener('click', nextStep);
+    });
+    
+    // أزرار السابق
+    document.querySelectorAll('button[onclick*="previousStep"]').forEach(btn => {
+        btn.removeAttribute('onclick');
+        btn.addEventListener('click', previousStep);
+    });
+    
+    // بطاقات البرامج
+    document.querySelectorAll('.program-card').forEach(card => {
+        const program = card.getAttribute('onclick').match(/'([^']+)'/)[1];
+        card.removeAttribute('onclick');
+        card.addEventListener('click', function() {
+            selectProgram(this, program);
+        });
+    });
+    
+    // نوع الحساب
+    document.querySelectorAll('.account-type-card').forEach(card => {
+        const type = card.getAttribute('onclick').match(/'([^']+)'/)[1];
+        card.removeAttribute('onclick');
+        card.addEventListener('click', function() {
+            selectAccountType(type);
+        });
+    });
+    
+    // زر كلمة المرور
+    const toggleBtn = document.querySelector('.toggle-password');
+    if (toggleBtn) {
+        toggleBtn.removeAttribute('onclick');
+        toggleBtn.addEventListener('click', togglePassword);
+    }
+    
+    // زر Google
+    const googleBtn = document.querySelector('.google-btn');
+    if (googleBtn) {
+        googleBtn.removeAttribute('onclick');
+        googleBtn.addEventListener('click', signInWithGoogle);
+    }
+    
+    // زر analyzeAndProceed
+    const analyzeBtn = document.querySelector('button[onclick*="analyzeAndProceed"]');
+    if (analyzeBtn) {
+        analyzeBtn.removeAttribute('onclick');
+        analyzeBtn.addEventListener('click', analyzeAndProceed);
+    }
+});
+</script>
+</body>
+</html>
 </body>
 </html>
