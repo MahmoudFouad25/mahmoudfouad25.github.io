@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - محمود فؤاد</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2C5530;
+            --secondary: #8B9467;
+            --accent: #D4AF37;
+            --light: #F5F2E8;
+            --dark: #1A1A1A;
+            --gradient: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: var(--gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fafafa;
+        }
+        
+        input.error {
+            border-color: #dc3545;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .password-toggle {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+            font-size: 20px;
+        }
+        
+        .forgot-password {
+            text-align: left;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        
+        .forgot-password a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .forgot-password a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(44, 85, 48, 0.3);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 0;
+            width: 45%;
+            height: 1px;
+            background: #ddd;
+        }
+        
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 45%;
+            height: 1px;
+            background: #ddd;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 10px;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .social-login {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .social-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 20px;
+        }
+        
+        .social-btn:hover {
+            border-color: var(--primary);
+            background: var(--light);
+        }
+        
+        .register-link {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .register-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        
+        .register-link a:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.3s;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity 0.3s;
+        }
+        
+        .back-link:hover {
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← العودة للصفحة الرئيسية</a>
+    
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">محمود فؤاد</div>
+            <h2>تسجيل الدخول</h2>
+            <p class="subtitle">مرحباً بك في مساحتك الخاصة</p>
+        </div>
+        
+        <div id="alertBox" class="alert"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" required placeholder="example@email.com">
+                <div class="error-message" id="emailError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <div class="password-toggle">
+                    <input type="password" id="password" required placeholder="أدخل كلمة المرور">
+                    <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                </div>
+                <div class="error-message" id="passwordError"></div>
+            </div>
+            
+            <div class="forgot-password">
+                <a href="#" onclick="forgotPassword()">نسيت كلمة المرور؟</a>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">دخول</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>جاري تسجيل الدخول...</p>
+        </div>
+        
+        <div class="divider">
+            <span>أو</span>
+        </div>
+        
+        <div class="social-login">
+            <button class="social-btn" onclick="loginWithGoogle()" title="دخول بحساب جوجل">
+                <span style="color: #4285f4;">G</span>
+            </button>
+            <button class="social-btn" onclick="loginWithFacebook()" title="دخول بحساب فيسبوك">
+                <span style="color: #1877f2;">f</span>
+            </button>
+        </div>
+        
+        <div class="register-link">
+            ليس لديك حساب؟ <a href="booking.html">احجز جلستك الأولى</a>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        // Initialize
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Check if already logged in
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Redirect to portal
+                window.location.href = 'portal.html';
+            }
+        });
+        
+        // Show alert
+        function showAlert(message, type = 'error') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.querySelector('.toggle-password');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁️';
+            }
+        }
+        
+        // Show loading
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            document.getElementById('loginBtn').disabled = show;
+        }
+        
+        // Validate email
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+        
+        // Clear error
+        function clearError(fieldId) {
+            document.getElementById(fieldId).classList.remove('error');
+            const errorElement = document.getElementById(fieldId + 'Error');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+                errorElement.textContent = '';
+            }
+        }
+        
+        // Show error
+        function showError(fieldId, message) {
+            document.getElementById(fieldId).classList.add('error');
+            const errorElement = document.getElementById(fieldId + 'Error');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+        
+        // Handle login form
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous errors
+            clearError('email');
+            clearError('password');
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Validate
+            let isValid = true;
+            
+            if (!validateEmail(email)) {
+                showError('email', 'البريد الإلكتروني غير صحيح');
+                isValid = false;
+            }
+            
+            if (password.length < 6) {
+                showError('password', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            showLoading(true);
+            
+            try {
+                // Sign in
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Check if user exists in database
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    // Create user document if doesn't exist
+                    await db.collection('users').doc(user.uid).set({
+                        email: user.email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    // Update last login
+                    await db.collection('users').doc(user.uid).update({
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                showAlert('تم تسجيل الدخول بنجاح!', 'success');
+                
+                // Redirect to portal
+                setTimeout(() => {
+                    window.location.href = 'portal.html';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoading(false);
+                
+                // Handle specific errors
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        showAlert('البريد الإلكتروني غير مسجل. من فضلك احجز جلستك أولاً.');
+                        setTimeout(() => {
+                            window.location.href = 'booking.html';
+                        }, 3000);
+                        break;
+                    case 'auth/wrong-password':
+                        showAlert('كلمة المرور غير صحيحة');
+                        showError('password', 'كلمة المرور غير صحيحة');
+                        break;
+                    case 'auth/invalid-email':
+                        showAlert('البريد الإلكتروني غير صحيح');
+                        showError('email', 'البريد الإلكتروني غير صحيح');
+                        break;
+                    case 'auth/user-disabled':
+                        showAlert('هذا الحساب معطل. تواصل مع الدعم.');
+                        break;
+                    case 'auth/too-many-requests':
+                        showAlert('محاولات كثيرة خاطئة. حاول مرة أخرى بعد قليل.');
+                        break;
+                    default:
+                        showAlert('حدث خطأ في تسجيل الدخول. حاول مرة أخرى.');
+                }
+            }
+        });
+        
+        // Forgot password
+        async function forgotPassword() {
+            const email = document.getElementById('email').value;
+            
+            if (!email) {
+                showAlert('من فضلك أدخل بريدك الإلكتروني أولاً', 'info');
+                document.getElementById('email').focus();
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showAlert('البريد الإلكتروني غير صحيح', 'error');
+                return;
+            }
+            
+            if (confirm(`هل تريد إرسال رابط استعادة كلمة المرور إلى ${email}؟`)) {
+                showLoading(true);
+                
+                try {
+                    await auth.sendPasswordResetEmail(email);
+                    showAlert('تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني', 'success');
+                } catch (error) {
+                    console.error('Password reset error:', error);
+                    
+                    if (error.code === 'auth/user-not-found') {
+                        showAlert('هذا البريد الإلكتروني غير مسجل', 'error');
+                    } else {
+                        showAlert('حدث خطأ في إرسال الرابط. حاول مرة أخرى.', 'error');
+                    }
+                } finally {
+                    showLoading(false);
+                }
+            }
+        }
+        
+        // Social login
+        async function loginWithGoogle() {
+            showLoading(true);
+            
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({
+                    prompt: 'select_account'
+                });
+                
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                
+                // Check if new user
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    // Create user document
+                    await db.collection('users').doc(user.uid).set({
+                        name: user.displayName,
+                        email: user.email,
+                        phone: user.phoneNumber || '',
+                        photoURL: user.photoURL,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                        loginMethod: 'google'
+                    });
+                    
+                    showAlert('مرحباً بك! يمكنك الآن حجز جلستك الأولى', 'success');
+                } else {
+                    // Update last login
+                    await db.collection('users').doc(user.uid).update({
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    showAlert('مرحباً مرة أخرى!', 'success');
+                }
+                
+                // Redirect
+                setTimeout(() => {
+                    window.location.href = 'portal.html';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Google login error:', error);
+                showLoading(false);
+                
+                if (error.code === 'auth/popup-closed-by-user') {
+                    showAlert('تم إلغاء تسجيل الدخول', 'info');
+                } else {
+                    showAlert('حدث خطأ في تسجيل الدخول بجوجل', 'error');
+                }
+            }
+        }
+        
+        async function loginWithFacebook() {
+            showAlert('تسجيل الدخول بفيسبوك سيكون متاحاً قريباً', 'info');
+            // يمكن إضافة Facebook login لاحقاً
+        }
+        
+        // Real-time validation
+        document.getElementById('email').addEventListener('blur', () => {
+            const email = document.getElementById('email').value;
+            if (email && !validateEmail(email)) {
+                showError('email', 'البريد الإلكتروني غير صحيح');
+            } else {
+                clearError('email');
+            }
+        });
+        
+        document.getElementById('password').addEventListener('input', () => {
+            clearError('password');
+        });
+        
+        // Enter key submits form
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !document.getElementById('loginBtn').disabled) {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
