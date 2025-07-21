@@ -908,7 +908,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     
-    <script>
+<script>
 // Initialize Auth & Firestore
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -919,6 +919,80 @@ googleProvider.setCustomParameters({
     prompt: 'select_account'
 });
 
+// ← ضع الكود الجديد هنا مباشرة ←
+// حل نهائي لمشكلة onclick
+(function() {
+    // تعريف جميع الدوال globally
+    window.nextStep = function() {
+        if (validateStep(currentStep)) {
+            saveStepData(currentStep);
+            currentStep++;
+            showStep(currentStep);
+            
+            if (currentStep === 5) {
+                showSummary();
+            }
+        }
+    };
+    
+    window.previousStep = function() {
+        currentStep--;
+        showStep(currentStep);
+    };
+    
+    window.selectProgram = function(element, program) {
+        document.querySelectorAll('.program-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        element.classList.add('selected');
+        selectedProgram = program;
+        document.getElementById('program').value = program;
+        clearError('program');
+    };
+    
+    window.selectAccountType = function(type) {
+        accountType = type;
+        document.getElementById('accountType').value = type;
+        
+        document.querySelectorAll('.account-type-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        if (event && event.target) {
+            event.target.closest('.account-type-card').classList.add('selected');
+        }
+        
+        const passwordSection = document.getElementById('passwordSection');
+        if (passwordSection) {
+            passwordSection.style.display = (type === 'create' && !googleUser) ? 'block' : 'none';
+        }
+    };
+    
+    window.togglePassword = function() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.querySelector('.toggle-password');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.textContent = '👁';
+        }
+    };
+    
+    window.signInWithGoogle = signInWithGoogle;
+    window.analyzeAndProceed = analyzeAndProceed;
+    window.continueAsGuest = continueAsGuest;
+})();
+
+// ← ثم يستمر باقي الكود كما هو ←
+// Form state
+let currentStep = 1;
+let selectedProgram = '';
+// ... باقي الكود
+    
 // Form state
 let currentStep = 1;
 let selectedProgram = '';
@@ -926,15 +1000,7 @@ let formData = {};
 let accountType = 'auto';
 let googleUser = null;
 
-// Make functions globally accessible
-window.nextStep = nextStep;
-window.previousStep = previousStep;
-window.selectProgram = selectProgram;
-window.selectAccountType = selectAccountType;
-window.togglePassword = togglePassword;
-window.signInWithGoogle = signInWithGoogle;
-window.analyzeAndProceed = analyzeAndProceed;
-window.continueAsGuest = continueAsGuest;
+
 
 // Show notification
 function showNotification(message, type = 'success') {
