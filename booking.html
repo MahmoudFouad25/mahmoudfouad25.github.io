@@ -1543,20 +1543,62 @@ ${(accountType === 'auto' && !googleUser) ? `🔑 كلمة المرور المؤ
                 // Process new booking
                 await processNewBooking();
                 
-            } catch (error) {
-                console.error('خطأ في الحجز:', error);
-                showLoading(false);
-                
-                let errorMessage = 'حدث خطأ، من فضلك حاول مرة أخرى';
-                
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل. من فضلك سجل دخولك.';
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 3000);
-                }
-                
-                showAlert(errorMessage, 'error');
+            } // في دالة processNewBooking()، بعد try {
+} catch (error) {
+    console.error('خطأ في الحجز:', error);
+    showLoading(false);
+    
+    let errorMessage = 'حدث خطأ، من فضلك حاول مرة أخرى';
+    
+    if (error.code === 'auth/email-already-in-use') {
+        // البريد مسجل بالفعل
+        errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل.';
+        
+        // نعرض خيارات للمستخدم
+        document.getElementById('alertBox').innerHTML = `
+            <strong>هذا البريد مسجل بالفعل!</strong><br>
+            لديك الخيارات التالية:<br><br>
+            <button class="btn btn-primary" onclick="window.location.href='login.html'">
+                تسجيل الدخول بحسابك الموجود
+            </button>
+            <button class="btn btn-secondary" onclick="useNewEmail()">
+                استخدام بريد إلكتروني آخر
+            </button>
+            <button class="btn btn-warning" onclick="resetPasswordAndContinue()">
+                نسيت كلمة المرور
+            </button>
+        `;
+        document.getElementById('alertBox').className = 'alert alert-warning';
+        document.getElementById('alertBox').style.display = 'block';
+        return;
+    } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'البريد الإلكتروني غير صحيح';
+    } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'كلمة المرور ضعيفة. استخدم 6 أحرف على الأقل';
+    }
+    
+    showAlert(errorMessage, 'error');
+}
+        // وظيفة لاستخدام بريد جديد
+function useNewEmail() {
+    document.getElementById('email').value = '';
+    document.getElementById('email').focus();
+    document.getElementById('alertBox').style.display = 'none';
+    currentStep = 1;
+    showStep(1);
+}
+
+// وظيفة لإعادة تعيين كلمة المرور
+async function resetPasswordAndContinue() {
+    const email = formData.email;
+    try {
+        await auth.sendPasswordResetEmail(email);
+        alert(`تم إرسال رابط إعادة تعيين كلمة المرور إلى ${email}\n\nبعد تغيير كلمة المرور، يمكنك تسجيل الدخول من صفحة تسجيل الدخول`);
+        window.location.href = 'login.html';
+    } catch (error) {
+        showAlert('خطأ في إرسال رابط إعادة التعيين', 'error');
+    }
+}
                 
                 // Fallback WhatsApp
                 setTimeout(() => {
