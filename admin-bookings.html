@@ -267,6 +267,27 @@
             align-items: end;
         }
         
+        /* Action Buttons Section */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .action-buttons-left {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-buttons-right {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
         /* Bookings Table */
         .bookings-section {
             background: white;
@@ -278,9 +299,6 @@
         .table-header {
             padding: 1.5rem;
             border-bottom: 2px solid #f0f0f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
         .table-header h2 {
@@ -314,6 +332,13 @@
         
         tr:hover {
             background: #f8f9fa;
+        }
+        
+        /* Category Headers */
+        .category-header td {
+            font-weight: bold;
+            padding: 10px;
+            border: none;
         }
         
         /* Type Badges */
@@ -364,9 +389,15 @@
             color: #155724;
         }
         
+        .status-badge.completed,
         .status-badge.converted {
             background: #cce5ff;
             color: #004085;
+        }
+        
+        .status-badge.cancelled {
+            background: #f8d7da;
+            color: #721c24;
         }
         
         /* Action Buttons */
@@ -425,6 +456,11 @@
         .btn-secondary {
             background: #6c757d;
             color: white;
+        }
+        
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
         }
         
         /* Client Info */
@@ -702,7 +738,7 @@
     <!-- Auth Check -->
     <div id="authCheck" class="auth-check" style="display: none;">
         <div class="auth-message">
-            <h2>⚠️ غير مصرح</h2>
+            <h2>غير مصرح</h2>
             <p>يجب تسجيل الدخول أولاً للوصول لهذه الصفحة</p>
             <button onclick="window.location.href='admin-dashboard.html'">
                 الذهاب لصفحة الدخول
@@ -723,11 +759,11 @@
                         <span>🏠</span> الرئيسية
                     </a>
                     <a href="admin-bookings.html" class="active">
-                        <span>📋</span> الحجوزات
+                        <span>📅</span> الحجوزات
                         <span class="badge" id="newBookingsCount">0</span>
                     </a>
                     <a href="admin-journeys.html">
-                        <span>🗺️</span> الرحلات
+                        <span>🛤️</span> الرحلات
                     </a>
                     <a href="#" onclick="logout()">
                         <span>🚪</span> خروج
@@ -741,7 +777,7 @@
             <!-- Page Header -->
             <div class="page-header">
                 <h1>إدارة الحجوزات والطلبات</h1>
-                <p>استقبال ومعالجة طلبات الحجز الجديدة وتحويلها لرحلات</p>
+                <p>استقبال ومعالجة طلبات الحجز وتحويلها لرحلات</p>
             </div>
             
             <!-- Stats Row -->
@@ -759,8 +795,8 @@
                     <div class="number" id="confirmedCount">0</div>
                 </div>
                 <div class="stat-card">
-                    <h3>تم تحويلها لرحلات</h3>
-                    <div class="number" id="convertedCount">0</div>
+                    <h3>مكتملة/محولة</h3>
+                    <div class="number" id="completedCount">0</div>
                 </div>
             </div>
             
@@ -769,8 +805,7 @@
                 <div class="filters-grid">
                     <div class="filter-group">
                         <label>البحث</label>
-                        <input type="text" id="searchInput" placeholder="بحث بالاسم أو البريد أو الهاتف..."
-                               onkeyup="applyFilters()">
+                        <input type="text" id="searchInput" placeholder="بحث بالاسم أو البريد أو الهاتف..." onkeyup="applyFilters()">
                     </div>
                     
                     <div class="filter-group">
@@ -800,7 +835,9 @@
                             <option value="pending">في الانتظار</option>
                             <option value="confirming">قيد التأكيد</option>
                             <option value="confirmed">مؤكد</option>
+                            <option value="completed">مكتمل</option>
                             <option value="converted">تم التحويل</option>
+                            <option value="cancelled">ملغي</option>
                         </select>
                     </div>
                     
@@ -819,10 +856,17 @@
             <div class="bookings-section">
                 <div class="table-header">
                     <h2>قائمة الحجوزات</h2>
-                    <div>
-                        <button class="btn btn-primary" onclick="exportToExcel()">
-                            تصدير Excel
-                        </button>
+                    <div class="action-buttons">
+                        <div class="action-buttons-left">
+                            <button class="btn btn-secondary" onclick="showSlotsManager()">
+                                <span>📅</span> إدارة المواعيد
+                            </button>
+                        </div>
+                        <div class="action-buttons-right">
+                            <button class="btn btn-primary" onclick="exportToExcel()">
+                                Excel تصدير
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
@@ -848,6 +892,50 @@
     </div>
     
     <!-- Modals -->
+    <!-- Slots Manager Modal -->
+    <div id="slotsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>إدارة المواعيد المتاحة</h2>
+                <span class="close" onclick="closeModal('slotsModal')">&times;</span>
+            </div>
+            
+            <div class="form-group">
+                <label>أضف موعد جديد:</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="date" id="slotDate" min="">
+                    <input type="time" id="slotTime">
+                    <button class="btn btn-success" onclick="addSlot()">إضافة</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>أضف مواعيد متعددة:</label>
+                <input type="date" id="bulkStartDate" min="" placeholder="من تاريخ">
+                <input type="date" id="bulkEndDate" min="" placeholder="إلى تاريخ">
+                <select id="bulkTimes" multiple style="height: 150px; width: 100%; margin: 10px 0;">
+                    <option value="09:00">9:00 ص</option>
+                    <option value="10:00">10:00 ص</option>
+                    <option value="11:00">11:00 ص</option>
+                    <option value="12:00">12:00 م</option>
+                    <option value="14:00">2:00 م</option>
+                    <option value="15:00">3:00 م</option>
+                    <option value="16:00">4:00 م</option>
+                    <option value="17:00">5:00 م</option>
+                    <option value="18:00">6:00 م</option>
+                    <option value="19:00">7:00 م</option>
+                    <option value="20:00">8:00 م</option>
+                </select>
+                <button class="btn btn-primary" onclick="addBulkSlots()">إضافة جماعية</button>
+            </div>
+            
+            <h3>المواعيد المحفوظة:</h3>
+            <div id="slotsList" style="max-height: 300px; overflow-y: auto;">
+                <!-- سيتم ملؤها بواسطة JavaScript -->
+            </div>
+        </div>
+    </div>
+    
     <!-- Send Appointments Modal -->
     <div id="appointmentsModal" class="modal">
         <div class="modal-content">
@@ -976,7 +1064,9 @@
         let allBookings = [];
         let filteredBookings = [];
         let currentBookingId = null;
-        let availableSlots = [];
+        let availableSlots = JSON.parse(localStorage.getItem('availableSlots') || '[]');
+        let cachedBookings = null;
+        let cacheTime = null;
         
         // Check authentication on load
         window.onload = function() {
@@ -994,9 +1084,9 @@
                 document.getElementById('authCheck').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
                 loadBookings();
-                loadAvailableSlots();
+                
                 // Refresh every 30 seconds
-                setInterval(loadBookings, 30000);
+                setInterval(() => loadBookings(true), 30000);
             } else {
                 document.getElementById('authCheck').style.display = 'flex';
                 document.getElementById('mainContent').style.display = 'none';
@@ -1020,34 +1110,78 @@
         }
         
         // Load bookings
-        async function loadBookings() {
+        async function loadBookings(forceRefresh = false) {
+            // Check cache first
+            if (!forceRefresh && cachedBookings && cacheTime && 
+                (Date.now() - cacheTime < 5 * 60 * 1000)) {
+                allBookings = cachedBookings;
+                filteredBookings = allBookings;
+                displayBookingsByCategory();
+                updateStats();
+                return;
+            }
+            
             showLoading(true);
             
             try {
-                // Get all bookings that are not yet converted to journeys
+                // Get all bookings without filter
                 const snapshot = await db.collection('bookings')
-                    .where('status', 'in', ['pending', 'confirming', 'confirmed'])
                     .orderBy('createdAt', 'desc')
                     .get();
                 
                 allBookings = [];
+                let newBookings = [];
+                let processingBookings = [];
+                let completedBookings = [];
+                let cancelledBookings = [];
+                
                 snapshot.forEach(doc => {
-                    allBookings.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
+                    const data = doc.data();
+                    const booking = { 
+                        id: doc.id, 
+                        ...data,
+                        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date()
+                    };
+                    
+                    allBookings.push(booking);
+                    
+                    // Categorize bookings
+                    switch(booking.status) {
+                        case 'pending':
+                            newBookings.push(booking);
+                            break;
+                        case 'confirming':
+                        case 'confirmed':
+                            processingBookings.push(booking);
+                            break;
+                        case 'completed':
+                        case 'converted':
+                            completedBookings.push(booking);
+                            break;
+                        case 'cancelled':
+                            cancelledBookings.push(booking);
+                            break;
+                        default:
+                            newBookings.push(booking);
+                    }
                 });
+                
+                // Cache the data
+                cachedBookings = allBookings;
+                cacheTime = Date.now();
                 
                 // Update stats
                 updateStats();
                 
-                // Apply filters and display
-                applyFilters();
-                
-                // Update badge
-                const newCount = allBookings.filter(b => b.status === 'pending').length;
+                // Update new bookings count in nav
+                const newCount = newBookings.length;
                 document.getElementById('newBookingsCount').textContent = newCount;
                 document.getElementById('newBookingsCount').style.display = newCount > 0 ? 'inline' : 'none';
+                
+                // Apply filters
+                applyFilters();
+                
+                showNotification(`تم تحميل ${allBookings.length} حجز`, 'success');
                 
             } catch (error) {
                 console.error('Error loading bookings:', error);
@@ -1063,7 +1197,9 @@
                 pending: 0,
                 confirming: 0,
                 confirmed: 0,
-                converted: 0
+                completed: 0,
+                converted: 0,
+                cancelled: 0
             };
             
             allBookings.forEach(booking => {
@@ -1076,7 +1212,7 @@
             document.getElementById('pendingCount').textContent = stats.pending;
             document.getElementById('confirmingCount').textContent = stats.confirming;
             document.getElementById('confirmedCount').textContent = stats.confirmed;
-            document.getElementById('convertedCount').textContent = stats.converted;
+            document.getElementById('completedCount').textContent = stats.completed + stats.converted;
         }
         
         // Apply filters
@@ -1122,7 +1258,204 @@
                 return true;
             });
             
-            displayBookings();
+            displayBookingsByCategory();
+        }
+        
+        // Display bookings by category
+        function displayBookingsByCategory() {
+            const tbody = document.getElementById('bookingsTableBody');
+            let html = '';
+            
+            // Categorize filtered bookings
+            const newBookings = [];
+            const processingBookings = [];
+            const completedBookings = [];
+            const cancelledBookings = [];
+            
+            filteredBookings.forEach(booking => {
+                switch(booking.status) {
+                    case 'pending':
+                        newBookings.push(booking);
+                        break;
+                    case 'confirming':
+                    case 'confirmed':
+                        processingBookings.push(booking);
+                        break;
+                    case 'completed':
+                    case 'converted':
+                        completedBookings.push(booking);
+                        break;
+                    case 'cancelled':
+                        cancelledBookings.push(booking);
+                        break;
+                    default:
+                        newBookings.push(booking);
+                }
+            });
+            
+            // Display new bookings first
+            if (newBookings.length > 0) {
+                html += `
+                    <tr class="category-header">
+                        <td colspan="6" style="background: #fff3cd; color: #856404; font-weight: bold; padding: 10px;">
+                            🆕 طلبات جديدة (${newBookings.length})
+                        </td>
+                    </tr>
+                `;
+                newBookings.forEach(booking => {
+                    html += generateBookingRow(booking);
+                });
+            }
+            
+            // Display processing bookings
+            if (processingBookings.length > 0) {
+                html += `
+                    <tr class="category-header">
+                        <td colspan="6" style="background: #d1ecf1; color: #0c5460; font-weight: bold; padding: 10px;">
+                            ⏳ قيد المعالجة (${processingBookings.length})
+                        </td>
+                    </tr>
+                `;
+                processingBookings.forEach(booking => {
+                    html += generateBookingRow(booking);
+                });
+            }
+            
+            // Display completed bookings
+            if (completedBookings.length > 0) {
+                html += `
+                    <tr class="category-header">
+                        <td colspan="6" style="background: #d4edda; color: #155724; font-weight: bold; padding: 10px;">
+                            ✅ مكتملة/محولة (${completedBookings.length})
+                        </td>
+                    </tr>
+                `;
+                completedBookings.forEach(booking => {
+                    html += generateBookingRow(booking);
+                });
+            }
+            
+            // Display cancelled bookings
+            if (cancelledBookings.length > 0) {
+                html += `
+                    <tr class="category-header">
+                        <td colspan="6" style="background: #f8d7da; color: #721c24; font-weight: bold; padding: 10px;">
+                            ❌ ملغية (${cancelledBookings.length})
+                        </td>
+                    </tr>
+                `;
+                cancelledBookings.forEach(booking => {
+                    html += generateBookingRow(booking);
+                });
+            }
+            
+            if (html === '') {
+                html = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <p>لا توجد حجوزات</p>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            tbody.innerHTML = html;
+        }
+        
+        // Generate booking row
+        function generateBookingRow(booking) {
+            const bookingType = getBookingType(booking);
+            const date = booking.createdAt;
+            
+            return `
+                <tr>
+                    <td>${formatDate(date)}</td>
+                    <td>
+                        <div class="client-info">
+                            <span class="client-name">${booking.name || 'غير محدد'}</span>
+                            <span class="client-contact">${booking.email}</span>
+                            <span class="client-contact">${booking.phone}</span>
+                        </div>
+                    </td>
+                    <td>
+                        ${getTypeBadge(bookingType, booking)}
+                    </td>
+                    <td>
+                        <span class="program-badge">${getProgramName(booking.program)}</span>
+                    </td>
+                    <td>
+                        <span class="status-badge ${booking.status || 'pending'}">
+                            ${getStatusName(booking.status)}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="actions-cell">
+                            ${generateActions(booking)}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+        
+        // Get booking type
+        function getBookingType(booking) {
+            if (booking.isNewJourney) return 'newJourney';
+            if (booking.existingClient) return 'existing';
+            return 'new';
+        }
+        
+        // Get type badge HTML
+        function getTypeBadge(type, booking) {
+            let badge = '';
+            let text = '';
+            
+            switch(type) {
+                case 'newJourney':
+                    text = 'رحلة جديدة';
+                    badge = `<span class="type-badge new-journey">${text}</span>`;
+                    if (booking.previousJourneys && booking.previousJourneys.length > 0) {
+                        badge += `<br><small>سبق له: ${booking.previousJourneys.map(p => 
+                            getProgramName(p)).join(', ')}</small>`;
+                    }
+                    break;
+                case 'existing':
+                    text = 'عميل حالي';
+                    badge = `<span class="type-badge existing-client">${text}</span>`;
+                    break;
+                default:
+                    text = 'عميل جديد';
+                    badge = `<span class="type-badge new-client">${text}</span>`;
+            }
+            
+            return badge;
+        }
+        
+        // Generate action buttons
+        function generateActions(booking) {
+            let html = `<button class="btn btn-whatsapp" onclick="openWhatsApp('${booking.phone}', '${booking.name}')">واتساب</button>`;
+            html += `<button class="btn btn-info" onclick="showNotes('${booking.id}')">ملاحظات</button>`;
+            
+            // Send login credentials button for users with accounts
+            if (booking.accountCreated && booking.userId) {
+                html += `<button class="btn btn-success" onclick="sendLoginCredentials('${booking.id}')">إرسال بيانات الدخول</button>`;
+            }
+            
+            // Status-specific actions
+            const status = booking.status || 'pending';
+            
+            if (status === 'pending') {
+                html += `<button class="btn btn-primary" onclick="showAppointmentsModal('${booking.id}')">إرسال مواعيد</button>`;
+            } else if (status === 'confirming') {
+                html += `<button class="btn btn-success" onclick="showConfirmModal('${booking.id}')">تأكيد الموعد</button>`;
+            } else if (status === 'confirmed') {
+                html += `<button class="btn btn-warning" onclick="convertToJourney('${booking.id}')">تحويل لرحلة</button>`;
+            }
+            
+            // View details - always show
+            html += `<button class="btn btn-secondary" onclick="viewDetails('${booking.id}')">تفاصيل</button>`;
+            
+            return html;
         }
         
         // Reset filters
@@ -1136,146 +1469,7 @@
         
         // Refresh data
         function refreshData() {
-            loadBookings();
-            showNotification('تم تحديث البيانات', 'success');
-        }
-        
-        // Get booking type
-        function getBookingType(booking) {
-            if (booking.isNewJourney) return 'newJourney';
-            if (booking.existingClient) return 'existing';
-            return 'new';
-        }
-        
-        // Display bookings
-        function displayBookings() {
-            const tbody = document.getElementById('bookingsTableBody');
-            
-            if (filteredBookings.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <div class="empty-state-icon">📋</div>
-                            <p>لا توجد حجوزات تطابق معايير البحث</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            let html = '';
-            filteredBookings.forEach(booking => {
-                const bookingType = getBookingType(booking);
-                const date = booking.createdAt?.toDate ? 
-                    booking.createdAt.toDate() : new Date();
-                
-                html += `
-                    <tr>
-                        <td>${formatDate(date)}</td>
-                        <td>
-                            <div class="client-info">
-                                <span class="client-name">${booking.name || 'غير محدد'}</span>
-                                <span class="client-contact">${booking.email}</span>
-                                <span class="client-contact">${booking.phone}</span>
-                            </div>
-                        </td>
-                        <td>
-                            ${getTypeBadge(bookingType, booking)}
-                        </td>
-                        <td>
-                            <span class="program-badge">${getProgramName(booking.program)}</span>
-                        </td>
-                        <td>
-                            <span class="status-badge ${booking.status || 'pending'}">
-                                ${getStatusName(booking.status)}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="actions-cell">
-                                ${generateActions(booking)}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            tbody.innerHTML = html;
-        }
-        
-        // Get type badge HTML
-        function getTypeBadge(type, booking) {
-            let badge = '';
-            let text = '';
-            
-            switch(type) {
-                case 'newJourney':
-                    text = '🔄 رحلة جديدة';
-                    badge = `<span class="type-badge new-journey">${text}</span>`;
-                    if (booking.previousJourneys && booking.previousJourneys.length > 0) {
-                        badge += `<br><small>سبق له: ${booking.previousJourneys.map(p => getProgramName(p)).join(', ')}</small>`;
-                    }
-                    break;
-                case 'existing':
-                    text = '👤 عميل حالي';
-                    badge = `<span class="type-badge existing-client">${text}</span>`;
-                    break;
-                default:
-                    text = '🆕 عميل جديد';
-                    badge = `<span class="type-badge new-client">${text}</span>`;
-            }
-            
-            return badge;
-        }
-        
-        // Generate action buttons
-        function generateActions(booking) {
-            let actions = [];
-            
-            // WhatsApp button - always show
-            actions.push(`
-                <button class="btn btn-whatsapp" onclick="openWhatsApp('${booking.phone}', '${booking.name}')">
-                    واتساب
-                </button>
-            `);
-            
-            // Notes button - always show
-            actions.push(`
-                <button class="btn btn-info" onclick="showNotes('${booking.id}')">
-                    ملاحظات
-                </button>
-            `);
-            
-            // Status-specific actions
-            const status = booking.status || 'pending';
-            
-            if (status === 'pending') {
-                actions.push(`
-                    <button class="btn btn-primary" onclick="showAppointmentsModal('${booking.id}')">
-                        إرسال مواعيد
-                    </button>
-                `);
-            } else if (status === 'confirming') {
-                actions.push(`
-                    <button class="btn btn-success" onclick="showConfirmModal('${booking.id}')">
-                        تأكيد الموعد
-                    </button>
-                `);
-            } else if (status === 'confirmed') {
-                actions.push(`
-                    <button class="btn btn-warning" onclick="convertToJourney('${booking.id}')">
-                        تحويل لرحلة
-                    </button>
-                `);
-            }
-            
-            // View details - always show
-            actions.push(`
-                <button class="btn btn-secondary" onclick="viewDetails('${booking.id}')">
-                    تفاصيل
-                </button>
-            `);
-            
-            return actions.join('');
+            loadBookings(true);
         }
         
         // Open WhatsApp
@@ -1298,7 +1492,7 @@
                 <h4>معلومات الحجز:</h4>
                 <p><strong>الاسم:</strong> ${booking.name || 'غير محدد'}</p>
                 <p><strong>البرنامج:</strong> ${getProgramName(booking.program)}</p>
-                <p><strong>التاريخ:</strong> ${formatDate(booking.createdAt?.toDate() || new Date())}</p>
+                <p><strong>التاريخ:</strong> ${formatDate(booking.createdAt)}</p>
             `;
             
             // Load existing notes
@@ -1323,7 +1517,7 @@
                 
                 showNotification('تم حفظ الملاحظات بنجاح', 'success');
                 closeModal('notesModal');
-                loadBookings();
+                loadBookings(true);
                 
             } catch (error) {
                 console.error('Error saving notes:', error);
@@ -1333,34 +1527,152 @@
             }
         }
         
-        // Load available slots
-        function loadAvailableSlots() {
-            // Get from localStorage or use defaults
-            const savedSlots = localStorage.getItem('availableSlots');
-            if (savedSlots) {
-                availableSlots = JSON.parse(savedSlots);
+        // Send login credentials
+        function sendLoginCredentials(bookingId) {
+            const booking = allBookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            if (!booking.accountCreated) {
+                showNotification('لم يتم إنشاء حساب لهذا العميل بعد', 'error');
+                return;
+            }
+            
+            let message = `مرحباً ${booking.name}!\n\n`;
+            message += `تم تفعيل حسابك بنجاح! ✅\n\n`;
+            message += `بيانات الدخول لمساحتك الخاصة:\n`;
+            message += `البريد: ${booking.email}\n`;
+            
+            if (booking.authProvider === 'google') {
+                message += `تسجيل الدخول: باستخدام Google\n\n`;
+            } else if (booking.temporaryPassword) {
+                message += `كلمة المرور المؤقتة: ${booking.temporaryPassword}\n`;
+                message += `يُنصح بتغيير كلمة المرور بعد تسجيل الدخول\n\n`;
             } else {
-                // Default slots
-                const days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء'];
-                const times = ['10:00 ص', '2:00 م', '4:00 م', '6:00 م', '8:00 م'];
+                message += `كلمة المرور: التي قمت بإنشائها عند التسجيل\n\n`;
+            }
+            
+            message += `رابط الدخول:\n`;
+            message += `https://mahmoudfouad25.github.io/portal.html\n\n`;
+            message += `نصيحة: احفظ هذه الرسالة للرجوع إليها\n`;
+            message += `إذا نسيت كلمة المرور، يمكنك استعادتها من صفحة تسجيل الدخول`;
+            
+            // Open WhatsApp
+            const cleanPhone = booking.phone.replace(/\D/g, '');
+            const fullPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
+            window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
+            
+            showNotification('تم فتح واتساب لإرسال بيانات الدخول', 'success');
+        }
+        
+        // Slots Management Functions
+        function showSlotsManager() {
+            updateSlotsList();
+            document.getElementById('slotsModal').style.display = 'block';
+        }
+        
+        function updateSlotsList() {
+            const list = document.getElementById('slotsList');
+            list.innerHTML = '';
+            
+            if (availableSlots.length === 0) {
+                list.innerHTML = '<p style="color: #999; text-align: center;">لا توجد مواعيد محفوظة</p>';
+            } else {
+                availableSlots.forEach((slot, i) => {
+                    list.innerHTML += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; 
+                                    padding: 10px; background: #f0f0f0; margin: 5px 0; border-radius: 5px;">
+                            <span>${slot}</span>
+                            <button class="btn btn-danger btn-sm" onclick="removeSlot(${i})">حذف</button>
+                        </div>
+                    `;
+                });
+            }
+        }
+        
+        function addSlot() {
+            const date = document.getElementById('slotDate').value;
+            const time = document.getElementById('slotTime').value;
+            
+            if (!date || !time) {
+                showNotification('من فضلك أدخل التاريخ والوقت', 'error');
+                return;
+            }
+            
+            const dateObj = new Date(date);
+            const dateStr = dateObj.toLocaleDateString('ar-EG', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            const slotStr = `${dateStr} - ${time}`;
+            
+            if (availableSlots.includes(slotStr)) {
+                showNotification('هذا الموعد موجود بالفعل', 'error');
+                return;
+            }
+            
+            availableSlots.push(slotStr);
+            availableSlots.sort();
+            localStorage.setItem('availableSlots', JSON.stringify(availableSlots));
+            
+            document.getElementById('slotDate').value = '';
+            document.getElementById('slotTime').value = '';
+            
+            showNotification('تم إضافة الموعد بنجاح', 'success');
+            updateSlotsList();
+        }
+        
+        function addBulkSlots() {
+            const startDate = document.getElementById('bulkStartDate').value;
+            const endDate = document.getElementById('bulkEndDate').value;
+            const times = Array.from(document.getElementById('bulkTimes').selectedOptions).map(o => o.value);
+            
+            if (!startDate || !endDate || times.length === 0) {
+                showNotification('من فضلك أكمل جميع الحقول', 'error');
+                return;
+            }
+            
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            let count = 0;
+            
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const dateStr = new Date(d).toLocaleDateString('ar-EG', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
                 
-                availableSlots = [];
-                for (let i = 0; i < 7; i++) {
-                    const date = new Date();
-                    date.setDate(date.getDate() + i);
-                    const dayName = days[date.getDay()] || days[0];
-                    
-                    times.forEach(time => {
-                        availableSlots.push({
-                            date: date.toLocaleDateString('ar-EG'),
-                            day: dayName,
-                            time: time,
-                            available: true
-                        });
-                    });
-                }
-                
+                times.forEach(time => {
+                    const slotStr = `${dateStr} - ${time}`;
+                    if (!availableSlots.includes(slotStr)) {
+                        availableSlots.push(slotStr);
+                        count++;
+                    }
+                });
+            }
+            
+            availableSlots.sort();
+            localStorage.setItem('availableSlots', JSON.stringify(availableSlots));
+            
+            showNotification(`تم إضافة ${count} موعد`, 'success');
+            updateSlotsList();
+            
+            // Clear form
+            document.getElementById('bulkStartDate').value = '';
+            document.getElementById('bulkEndDate').value = '';
+            document.getElementById('bulkTimes').selectedIndex = -1;
+        }
+        
+        function removeSlot(index) {
+            if (confirm('هل تريد حذف هذا الموعد؟')) {
+                availableSlots.splice(index, 1);
                 localStorage.setItem('availableSlots', JSON.stringify(availableSlots));
+                showNotification('تم حذف الموعد', 'success');
+                updateSlotsList();
             }
         }
         
@@ -1371,20 +1683,22 @@
             
             // Display available slots
             let html = '';
-            availableSlots.forEach((slot, index) => {
-                if (slot.available) {
+            if (availableSlots.length === 0) {
+                html = '<p>لا توجد مواعيد متاحة. يرجى إضافة مواعيد من "إدارة المواعيد"</p>';
+            } else {
+                availableSlots.forEach((slot, index) => {
                     html += `
                         <div class="slot-item" onclick="toggleSlot(this, ${index})">
                             <input type="checkbox" id="slot_${index}" value="${index}">
                             <label for="slot_${index}">
-                                ${slot.day} ${slot.date} - ${slot.time}
+                                ${slot}
                             </label>
                         </div>
                     `;
-                }
-            });
+                });
+            }
             
-            container.innerHTML = html || '<p>لا توجد مواعيد متاحة حالياً</p>';
+            container.innerHTML = html;
             document.getElementById('customMessage').value = '';
             
             openModal('appointmentsModal');
@@ -1429,518 +1743,517 @@
             
             message += 'المواعيد المتاحة لجلستك:\n\n';
             selectedSlots.forEach((slot, index) => {
-                message += `${index + 1}. ${slot.day} ${slot.date} - ${slot.time}\n`;
+                message += `${index + 1}. ${slot}\n`;
             });
             
             message += '\nمن فضلك اختر الموعد المناسب لك بالرقم.';
-            
-            // Open WhatsApp
-            openWhatsApp(booking.phone, booking.name);
-            
-            // Update booking status
-            try {
-                await db.collection('bookings').doc(currentBookingId).update({
-                    status: 'confirming',
-                    proposedSlots: selectedSlots,
-                    lastContactAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                showNotification('تم إرسال المواعيد بنجاح', 'success');
-                closeModal('appointmentsModal');
-                loadBookings();
-                
-            } catch (error) {
-                console.error('Error updating booking:', error);
-                showNotification('خطأ في تحديث الحجز', 'error');
-            }
-        }
-        
-        // Show confirm modal
-        function showConfirmModal(bookingId) {
-            currentBookingId = bookingId;
-            const booking = allBookings.find(b => b.id === bookingId);
-            
-            if (!booking) return;
-            
-            // Pre-fill if editing
-            if (booking.appointmentDate) {
-                const date = booking.appointmentDate.toDate ? 
-                    booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
-                document.getElementById('appointmentDate').value = date.toISOString().split('T')[0];
-            }
-            
-            document.getElementById('appointmentTime').value = booking.appointmentTime || '';
-            document.getElementById('sessionType').value = booking.sessionType || 'online';
-            document.getElementById('sessionLink').value = booking.sessionLink || '';
-            
-            openModal('confirmModal');
-        }
-        
-        // Confirm appointment
-        async function confirmAppointment() {
-            const date = document.getElementById('appointmentDate').value;
-            const time = document.getElementById('appointmentTime').value;
-            const sessionType = document.getElementById('sessionType').value;
-            const sessionLink = document.getElementById('sessionLink').value;
-            
-            if (!date || !time) {
-                showNotification('من فضلك أدخل التاريخ والوقت', 'error');
-                return;
-            }
-            
-            if (sessionType === 'online' && !sessionLink) {
-                showNotification('من فضلك أدخل رابط الجلسة للجلسات الأونلاين', 'error');
-                return;
-            }
-            
-            showLoading(true);
-            
-            try {
-                await db.collection('bookings').doc(currentBookingId).update({
-                    status: 'confirmed',
-                    appointmentDate: new Date(date),
-                    appointmentTime: time,
-                    sessionType: sessionType,
-                    sessionLink: sessionLink,
-                    confirmedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Send confirmation to client
-                const booking = allBookings.find(b => b.id === currentBookingId);
-                if (booking) {
-                    const dateObj = new Date(date);
-                    const dateStr = dateObj.toLocaleDateString('ar-EG', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-                    
-                    let message = `تأكيد موعد جلستك\n\n`;
-                    message += `التاريخ: ${dateStr}\n`;
-                    message += `الوقت: ${time}\n`;
-                    message += `نوع الجلسة: ${getSessionTypeName(sessionType)}\n`;
-                    
-                    if (sessionType === 'online' && sessionLink) {
-                        message += `رابط الجلسة: ${sessionLink}\n`;
-                    }
-                    
-                    message += '\nأراك في الموعد بإذن الله.';
-                    
-                    // Copy message to clipboard
-                    navigator.clipboard.writeText(message).then(() => {
-                        showNotification('تم نسخ رسالة التأكيد', 'success');
-                    });
-                    
-                    // Open WhatsApp
-                    openWhatsApp(booking.phone, booking.name);
-                }
-                
-                showNotification('تم تأكيد الموعد بنجاح', 'success');
-                closeModal('confirmModal');
-                loadBookings();
-                
-            } catch (error) {
-                console.error('Error confirming appointment:', error);
-                showNotification('خطأ في تأكيد الموعد', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // Convert to journey
-        async function convertToJourney(bookingId) {
-            const booking = allBookings.find(b => b.id === bookingId);
-            if (!booking) return;
-            
-            const confirmMessage = `
+           
+           // Open WhatsApp
+           openWhatsApp(booking.phone, booking.name);
+           
+           // Update booking status
+           try {
+               await db.collection('bookings').doc(currentBookingId).update({
+                   status: 'confirming',
+                   proposedSlots: selectedSlots,
+                   lastContactAt: firebase.firestore.FieldValue.serverTimestamp()
+               });
+               
+               showNotification('تم إرسال المواعيد بنجاح', 'success');
+               closeModal('appointmentsModal');
+               loadBookings(true);
+               
+           } catch (error) {
+               console.error('Error updating booking:', error);
+               showNotification('خطأ في تحديث الحجز', 'error');
+           }
+       }
+       
+       // Show confirm modal
+       function showConfirmModal(bookingId) {
+           currentBookingId = bookingId;
+           const booking = allBookings.find(b => b.id === bookingId);
+           
+           if (!booking) return;
+           
+           // Pre-fill if editing
+           if (booking.appointmentDate) {
+               const date = booking.appointmentDate.toDate ? 
+                   booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
+               document.getElementById('appointmentDate').value = date.toISOString().split('T')[0];
+           }
+           
+           document.getElementById('appointmentTime').value = booking.appointmentTime || '';
+           document.getElementById('sessionType').value = booking.sessionType || 'online';
+           document.getElementById('sessionLink').value = booking.sessionLink || '';
+           
+           openModal('confirmModal');
+       }
+       
+       // Confirm appointment
+       async function confirmAppointment() {
+           const date = document.getElementById('appointmentDate').value;
+           const time = document.getElementById('appointmentTime').value;
+           const sessionType = document.getElementById('sessionType').value;
+           const sessionLink = document.getElementById('sessionLink').value;
+           
+           if (!date || !time) {
+               showNotification('من فضلك أدخل التاريخ والوقت', 'error');
+               return;
+           }
+           
+           if (sessionType === 'online' && !sessionLink) {
+               showNotification('من فضلك أدخل رابط الجلسة للجلسات الأونلاين', 'error');
+               return;
+           }
+           
+           showLoading(true);
+           
+           try {
+               await db.collection('bookings').doc(currentBookingId).update({
+                   status: 'confirmed',
+                   appointmentDate: new Date(date),
+                   appointmentTime: time,
+                   sessionType: sessionType,
+                   sessionLink: sessionLink,
+                   confirmedAt: firebase.firestore.FieldValue.serverTimestamp()
+               });
+               
+               // Send confirmation to client
+               const booking = allBookings.find(b => b.id === currentBookingId);
+               if (booking) {
+                   const dateObj = new Date(date);
+                   const dateStr = dateObj.toLocaleDateString('ar-EG', {
+                       weekday: 'long',
+                       year: 'numeric',
+                       month: 'long',
+                       day: 'numeric'
+                   });
+                   
+                   let message = `تأكيد موعد جلستك\n\n`;
+                   message += `التاريخ: ${dateStr}\n`;
+                   message += `الوقت: ${time}\n`;
+                   message += `نوع الجلسة: ${getSessionTypeName(sessionType)}\n`;
+                   
+                   if (sessionType === 'online' && sessionLink) {
+                       message += `رابط الجلسة: ${sessionLink}\n`;
+                   }
+                   
+                   message += '\nأراك في الموعد بإذن الله.';
+                   
+                   // Copy message to clipboard
+                   navigator.clipboard.writeText(message).then(() => {
+                       showNotification('تم نسخ رسالة التأكيد', 'success');
+                   });
+                   
+                   // Open WhatsApp
+                   openWhatsApp(booking.phone, booking.name);
+               }
+               
+               showNotification('تم تأكيد الموعد بنجاح', 'success');
+               closeModal('confirmModal');
+               loadBookings(true);
+               
+           } catch (error) {
+               console.error('Error confirming appointment:', error);
+               showNotification('خطأ في تأكيد الموعد', 'error');
+           } finally {
+               showLoading(false);
+           }
+       }
+       
+       // Convert to journey
+       async function convertToJourney(bookingId) {
+           const booking = allBookings.find(b => b.id === bookingId);
+           if (!booking) return;
+           
+           const confirmMessage = `
 هل تريد تحويل حجز ${booking.name} إلى رحلة ${getProgramName(booking.program)}؟
-
 سيتم:
 - إنشاء رحلة جديدة للعميل
 - تحديد المراحل والجلسات
 - إرسال رسالة ترحيب للعميل
-            `.trim();
-            
-            if (!confirm(confirmMessage)) return;
-            
-            showLoading(true);
-            
-            try {
-                // Create journey data
-                const journeyData = {
-                    // Client info
-                    userId: booking.userId || null,
-                    clientEmail: booking.email,
-                    clientName: booking.name,
-                    clientPhone: booking.phone,
-                    
-                    // Booking reference
-                    bookingId: bookingId,
-                    
-                    // Program info
-                    program: booking.program,
-                    status: 'active',
-                    
-                    // Dates
-                    startDate: firebase.firestore.FieldValue.serverTimestamp(),
-                    expectedEndDate: calculateExpectedEndDate(booking.program),
-                    
-                    // Progress tracking
-                    currentPhase: 1,
-                    totalPhases: getProgramPhases(booking.program).length,
-                    progress: 0,
-                    completedSessions: 0,
-                    totalSessions: getProgramSessions(booking.program),
-                    
-                    // Additional info from booking
-                    goals: booking.goals || '',
-                    challenges: booking.challenges || '',
-                    notes: booking.notes || '',
-                    
-                    // Metadata
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastAction: 'تم إنشاء الرحلة'
-                };
-                
-                // Create journey document
-                const journeyRef = await db.collection('journeys').add(journeyData);
-                
-                // Create phases subcollection
-                const phases = getProgramPhases(booking.program);
-                for (let i = 0; i < phases.length; i++) {
-                    await journeyRef.collection('phases').add({
-                        ...phases[i],
-                        order: i + 1,
-                        status: i === 0 ? 'in_progress' : 'pending',
-                        startDate: i === 0 ? firebase.firestore.FieldValue.serverTimestamp() : null
-                    });
-                }
-                
-                // Update booking status
-                await db.collection('bookings').doc(bookingId).update({
-                    status: 'converted',
-                    journeyId: journeyRef.id,
-                    convertedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Update user if exists
-                if (booking.userId) {
-                    await db.collection('users').doc(booking.userId).update({
-                        activeJourneyId: journeyRef.id,
-                        currentProgram: booking.program,
-                        journeyStartDate: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
-                // Send welcome message
-                const welcomeMessage = getJourneyWelcomeMessage(booking);
-                navigator.clipboard.writeText(welcomeMessage).then(() => {
-                    showNotification('تم نسخ رسالة الترحيب', 'success');
-                });
-                
-                showNotification('تم تحويل الحجز إلى رحلة بنجاح!', 'success');
-                
-                // Redirect to journey management
-                setTimeout(() => {
-                    window.location.href = `admin-journeys.html?journey=${journeyRef.id}`;
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Error converting to journey:', error);
-                showNotification('خطأ في تحويل الحجز', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // View booking details
-        async function viewDetails(bookingId) {
-            const booking = allBookings.find(b => b.id === bookingId);
-            if (!booking) return;
-            
-            let detailsHTML = `
-                <div class="info-box">
-                    <h4>معلومات العميل:</h4>
-                    <p><strong>الاسم:</strong> ${booking.name || 'غير محدد'}</p>
-                    <p><strong>البريد الإلكتروني:</strong> ${booking.email}</p>
-                    <p><strong>رقم الهاتف:</strong> ${booking.phone}</p>
-                    <p><strong>البرنامج:</strong> ${getProgramName(booking.program)}</p>
-                    <p><strong>تاريخ الحجز:</strong> ${formatDate(booking.createdAt?.toDate() || new Date())}</p>
-                </div>
-            `;
-            
-            // Show message if exists
-            if (booking.message) {
-                detailsHTML += `
-                    <div class="info-box">
-                        <h4>رسالة العميل:</h4>
-                        <p>${booking.message}</p>
-                    </div>
-                `;
-            }
-            
-            // Show goals and challenges for new journeys
-            if (booking.goals || booking.challenges) {
-                detailsHTML += `
-                    <div class="info-box">
-                        <h4>معلومات إضافية:</h4>
-                        ${booking.goals ? `<p><strong>الأهداف:</strong> ${booking.goals}</p>` : ''}
-                        ${booking.challenges ? `<p><strong>التحديات:</strong> ${booking.challenges}</p>` : ''}
-                    </div>
-                `;
-            }
-            
-            // Show appointment details if confirmed
-            if (booking.status === 'confirmed' && booking.appointmentDate) {
-                const date = booking.appointmentDate.toDate ? 
-                    booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
-                
-                detailsHTML += `
-                    <div class="info-box">
-                        <h4>تفاصيل الموعد:</h4>
-                        <p><strong>التاريخ:</strong> ${date.toLocaleDateString('ar-EG')}</p>
-                        <p><strong>الوقت:</strong> ${booking.appointmentTime || 'غير محدد'}</p>
-                        <p><strong>نوع الجلسة:</strong> ${getSessionTypeName(booking.sessionType)}</p>
-                        ${booking.sessionLink ? `<p><strong>رابط الجلسة:</strong> <a href="${booking.sessionLink}" target="_blank">${booking.sessionLink}</a></p>` : ''}
-                    </div>
-                `;
-            }
-            
-            // Show notes if exist
-            if (booking.notes) {
-                detailsHTML += `
-                    <div class="info-box">
-                        <h4>الملاحظات:</h4>
-                        <p>${booking.notes}</p>
-                    </div>
-                `;
-            }
-            
-            document.getElementById('bookingDetailsContent').innerHTML = detailsHTML;
-            openModal('detailsModal');
-        }
-        
-        // Export to Excel
-        function exportToExcel() {
-            let csv = '\ufeff'; // UTF-8 BOM
-            
-            // Headers
-            const headers = [
-                'التاريخ',
-                'الاسم',
-                'البريد الإلكتروني',
-                'الهاتف',
-                'النوع',
-                'البرنامج',
-                'الحالة',
-                'الملاحظات'
-            ];
-            
-            csv += headers.join(',') + '\n';
-            
-            // Data
-            filteredBookings.forEach(booking => {
-                const row = [
-                    formatDate(booking.createdAt?.toDate() || new Date()),
-                    booking.name || 'غير محدد',
-                    booking.email,
-                    booking.phone,
-                    getBookingTypeText(booking),
-                    getProgramName(booking.program),
-                    getStatusName(booking.status),
-                    (booking.notes || '').replace(/,/g, ';').replace(/\n/g, ' ')
-                ];
-                
-                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
-            });
-            
-            // Download
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', `حجوزات_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`);
-            link.style.visibility = 'hidden';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showNotification('تم تحميل الملف بنجاح', 'success');
-        }
-        
-        // Helper functions
-        function showLoading(show) {
-            document.querySelector('.loading-overlay').style.display = show ? 'flex' : 'none';
-        }
-        
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            notification.onclick = () => notification.remove();
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 5000);
-        }
-        
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
-        }
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-        
-        function formatDate(date) {
-            return date.toLocaleDateString('ar-EG', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-        
-        function getProgramName(program) {
-            const names = {
-                clarity: 'جلسة الوضوح',
-                discovery: 'رحلة الاكتشاف',
-                transformation: 'رحلة التحول'
-            };
-            return names[program] || program;
-        }
-        
-        function getStatusName(status) {
-            const names = {
-                pending: 'في الانتظار',
-                confirming: 'قيد التأكيد',
-                confirmed: 'مؤكد',
-                converted: 'تم التحويل'
-            };
-            return names[status] || 'في الانتظار';
-        }
-        
-        function getSessionTypeName(type) {
-            const names = {
-                online: 'أونلاين',
-                phone: 'هاتفي',
-                inperson: 'حضوري'
-            };
-            return names[type] || 'أونلاين';
-        }
-        
-        function getBookingTypeText(booking) {
-            if (booking.isNewJourney) return 'رحلة جديدة';
-            if (booking.existingClient) return 'عميل حالي';
-            return 'عميل جديد';
-        }
-        
-        function getProgramSessions(program) {
-            const sessions = {
-                clarity: 1,
-                discovery: 3,
-                transformation: 6
-            };
-            return sessions[program] || 1;
-        }
-        
-        function getProgramPhases(program) {
-            const phases = {
-                clarity: [
-                    {
-                        name: 'جلسة الوضوح',
-                        description: 'جلسة واحدة مكثفة للوصول لحلول عملية',
-                        sessions: 1
-                    }
-                ],
-                discovery: [
-                    {
-                        name: 'اكتشاف الذات',
-                        description: 'فهم أنماطك وقيمك الأساسية',
-                        sessions: 1
-                    },
-                    {
-                        name: 'بناء الوعي',
-                        description: 'تحديد نقاط القوة والتحديات',
-                        sessions: 1
-                    },
-                    {
-                        name: 'خطة العمل',
-                        description: 'رسم خارطة التغيير والتطوير',
-                        sessions: 1
-                    }
-                ],
-                transformation: [
-                    {
-                        name: 'الإنبات',
-                        description: 'كشف الجذور والأنماط العميقة',
-                        sessions: 2
-                    },
-                    {
-                        name: 'النمو',
-                        description: 'بناء الهوية الجديدة والقدرات',
-                        sessions: 2
-                    },
-                    {
-                        name: 'الازدهار',
-                        description: 'دمج التغيير ورسم المستقبل',
-                        sessions: 2
-                    }
-                ]
-            };
-            return phases[program] || [];
-        }
-        
-        function calculateExpectedEndDate(program) {
-            const durations = {
-                clarity: 7, // 1 week
-                discovery: 42, // 6 weeks
-                transformation: 90 // 3 months
-            };
-            
-            const days = durations[program] || 30;
-            const endDate = new Date();
-            endDate.setDate(endDate.getDate() + days);
-            
-            return endDate;
-        }
-        
-        function getJourneyWelcomeMessage(booking) {
-            const programMessages = {
-                clarity: `
-🌟 مرحباً ${booking.name}!
-
+           `.trim();
+           
+           if (!confirm(confirmMessage)) return;
+           
+           showLoading(true);
+           
+           try {
+               // Create journey data
+               const journeyData = {
+                   // Client info
+                   userId: booking.userId || null,
+                   clientEmail: booking.email,
+                   clientName: booking.name,
+                   clientPhone: booking.phone,
+                   
+                   // Booking reference
+                   bookingId: bookingId,
+                   
+                   // Program info
+                   program: booking.program,
+                   status: 'active',
+                   
+                   // Dates
+                   startDate: firebase.firestore.FieldValue.serverTimestamp(),
+                   expectedEndDate: calculateExpectedEndDate(booking.program),
+                   
+                   // Progress tracking
+                   currentPhase: 1,
+                   totalPhases: getProgramPhases(booking.program).length,
+                   progress: 0,
+                   completedSessions: 0,
+                   totalSessions: getProgramSessions(booking.program),
+                   
+                   // Additional info from booking
+                   goals: booking.goals || '',
+                   challenges: booking.challenges || '',
+                   notes: booking.notes || '',
+                   
+                   // Metadata
+                   createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                   lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                   lastAction: 'تم إنشاء الرحلة'
+               };
+               
+               // Create journey document
+               const journeyRef = await db.collection('journeys').add(journeyData);
+               
+               // Create phases subcollection
+               const phases = getProgramPhases(booking.program);
+               for (let i = 0; i < phases.length; i++) {
+                   await journeyRef.collection('phases').add({
+                       ...phases[i],
+                       order: i + 1,
+                       status: i === 0 ? 'in_progress' : 'pending',
+                       startDate: i === 0 ? firebase.firestore.FieldValue.serverTimestamp() : null
+                   });
+               }
+               
+               // Update booking status
+               await db.collection('bookings').doc(bookingId).update({
+                   status: 'converted',
+                   journeyId: journeyRef.id,
+                   convertedAt: firebase.firestore.FieldValue.serverTimestamp()
+               });
+               
+               // Update user if exists
+               if (booking.userId) {
+                   await db.collection('users').doc(booking.userId).update({
+                       activeJourneyId: journeyRef.id,
+                       currentProgram: booking.program,
+                       journeyStartDate: firebase.firestore.FieldValue.serverTimestamp()
+                   });
+               }
+               
+               // Send welcome message
+               const welcomeMessage = getJourneyWelcomeMessage(booking);
+               navigator.clipboard.writeText(welcomeMessage).then(() => {
+                   showNotification('تم نسخ رسالة الترحيب', 'success');
+               });
+               
+               showNotification('تم تحويل الحجز إلى رحلة بنجاح!', 'success');
+               
+               // Redirect to journey management
+               setTimeout(() => {
+                   window.location.href = `admin-journeys.html?journey=${journeyRef.id}`;
+               }, 2000);
+               
+           } catch (error) {
+               console.error('Error converting to journey:', error);
+               showNotification('خطأ في تحويل الحجز', 'error');
+           } finally {
+               showLoading(false);
+           }
+       }
+       
+       // View booking details
+       async function viewDetails(bookingId) {
+           const booking = allBookings.find(b => b.id === bookingId);
+           if (!booking) return;
+           
+           let detailsHTML = `
+               <div class="info-box">
+                   <h4>معلومات العميل:</h4>
+                   <p><strong>الاسم:</strong> ${booking.name || 'غير محدد'}</p>
+                   <p><strong>البريد الإلكتروني:</strong> ${booking.email}</p>
+                   <p><strong>رقم الهاتف:</strong> ${booking.phone}</p>
+                   <p><strong>البرنامج:</strong> ${getProgramName(booking.program)}</p>
+                   <p><strong>تاريخ الحجز:</strong> ${formatDate(booking.createdAt)}</p>
+               </div>
+           `;
+           
+           // Show message if exists
+           if (booking.message) {
+               detailsHTML += `
+                   <div class="info-box">
+                       <h4>رسالة العميل:</h4>
+                       <p>${booking.message}</p>
+                   </div>
+               `;
+           }
+           
+           // Show goals and challenges for new journeys
+           if (booking.goals || booking.challenges) {
+               detailsHTML += `
+                   <div class="info-box">
+                       <h4>معلومات إضافية:</h4>
+                       ${booking.goals ? `<p><strong>الأهداف:</strong> ${booking.goals}</p>` : ''}
+                       ${booking.challenges ? `<p><strong>التحديات:</strong> ${booking.challenges}</p>` : ''}
+                   </div>
+               `;
+           }
+           
+           // Show appointment details if confirmed
+           if (booking.status === 'confirmed' && booking.appointmentDate) {
+               const date = booking.appointmentDate.toDate ? 
+                   booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
+               
+               detailsHTML += `
+                   <div class="info-box">
+                       <h4>تفاصيل الموعد:</h4>
+                       <p><strong>التاريخ:</strong> ${date.toLocaleDateString('ar-EG')}</p>
+                       <p><strong>الوقت:</strong> ${booking.appointmentTime || 'غير محدد'}</p>
+                       <p><strong>نوع الجلسة:</strong> ${getSessionTypeName(booking.sessionType)}</p>
+                       ${booking.sessionLink ? `<p><strong>رابط الجلسة:</strong> <a href="${booking.sessionLink}" target="_blank">${booking.sessionLink}</a></p>` : ''}
+                   </div>
+               `;
+           }
+           
+           // Show notes if exist
+           if (booking.notes) {
+               detailsHTML += `
+                   <div class="info-box">
+                       <h4>الملاحظات:</h4>
+                       <p>${booking.notes}</p>
+                   </div>
+               `;
+           }
+           
+           document.getElementById('bookingDetailsContent').innerHTML = detailsHTML;
+           openModal('detailsModal');
+       }
+       
+       // Export to Excel
+       function exportToExcel() {
+           let csv = '\ufeff'; // UTF-8 BOM
+           
+           // Headers
+           const headers = [
+               'التاريخ',
+               'الاسم',
+               'البريد الإلكتروني',
+               'الهاتف',
+               'النوع',
+               'البرنامج',
+               'الحالة',
+               'الملاحظات'
+           ];
+           
+           csv += headers.join(',') + '\n';
+           
+           // Data
+           filteredBookings.forEach(booking => {
+               const row = [
+                   formatDate(booking.createdAt),
+                   booking.name || 'غير محدد',
+                   booking.email,
+                   booking.phone,
+                   getBookingTypeText(booking),
+                   getProgramName(booking.program),
+                   getStatusName(booking.status),
+                   (booking.notes || '').replace(/,/g, ';').replace(/\n/g, ' ')
+               ];
+               
+               csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+           });
+           
+           // Download
+           const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+           const link = document.createElement('a');
+           const url = URL.createObjectURL(blob);
+           
+           link.setAttribute('href', url);
+           link.setAttribute('download', `حجوزات_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`);
+           link.style.visibility = 'hidden';
+           
+           document.body.appendChild(link);
+           link.click();
+           document.body.removeChild(link);
+           
+           showNotification('تم تحميل الملف بنجاح', 'success');
+       }
+       
+       // Helper functions
+       function showLoading(show) {
+           document.querySelector('.loading-overlay').style.display = show ? 'flex' : 'none';
+       }
+       
+       function showNotification(message, type = 'success') {
+           const notification = document.createElement('div');
+           notification.className = `notification ${type}`;
+           notification.textContent = message;
+           notification.onclick = () => notification.remove();
+           
+           document.body.appendChild(notification);
+           
+           setTimeout(() => {
+               notification.remove();
+           }, 5000);
+       }
+       
+       function openModal(modalId) {
+           document.getElementById(modalId).style.display = 'block';
+       }
+       
+       function closeModal(modalId) {
+           document.getElementById(modalId).style.display = 'none';
+       }
+       
+       function formatDate(date) {
+           return date.toLocaleDateString('ar-EG', {
+               year: 'numeric',
+               month: 'short',
+               day: 'numeric',
+               hour: '2-digit',
+               minute: '2-digit'
+           });
+       }
+       
+       function getProgramName(program) {
+           const names = {
+               clarity: 'جلسة الوضوح',
+               discovery: 'رحلة الاكتشاف',
+               transformation: 'رحلة التحول'
+           };
+           return names[program] || program;
+       }
+       
+       function getStatusName(status) {
+           const names = {
+               pending: 'في الانتظار',
+               confirming: 'قيد التأكيد',
+               confirmed: 'مؤكد',
+               completed: 'مكتمل',
+               converted: 'تم التحويل',
+               cancelled: 'ملغي'
+           };
+           return names[status] || 'في الانتظار';
+       }
+       
+       function getSessionTypeName(type) {
+           const names = {
+               online: 'أونلاين',
+               phone: 'هاتفي',
+               inperson: 'حضوري'
+           };
+           return names[type] || 'أونلاين';
+       }
+       
+       function getBookingTypeText(booking) {
+           if (booking.isNewJourney) return 'رحلة جديدة';
+           if (booking.existingClient) return 'عميل حالي';
+           return 'عميل جديد';
+       }
+       
+       function getProgramSessions(program) {
+           const sessions = {
+               clarity: 1,
+               discovery: 3,
+               transformation: 6
+           };
+           return sessions[program] || 1;
+       }
+       
+       function getProgramPhases(program) {
+           const phases = {
+               clarity: [
+                   {
+                       name: 'جلسة الوضوح',
+                       description: 'جلسة واحدة مكثفة للوصول لحلول عملية',
+                       sessions: 1
+                   }
+               ],
+               discovery: [
+                   {
+                       name: 'اكتشاف الذات',
+                       description: 'فهم أنماطك وقيمك الأساسية',
+                       sessions: 1
+                   },
+                   {
+                       name: 'بناء الوعي',
+                       description: 'تحديد نقاط القوة والتحديات',
+                       sessions: 1
+                   },
+                   {
+                       name: 'خطة العمل',
+                       description: 'رسم خارطة التغيير والتطوير',
+                       sessions: 1
+                   }
+               ],
+               transformation: [
+                   {
+                       name: 'الإنبات',
+                       description: 'كشف الجذور والأنماط العميقة',
+                       sessions: 2
+                   },
+                   {
+                       name: 'النمو',
+                       description: 'بناء الهوية الجديدة والقدرات',
+                       sessions: 2
+                   },
+                   {
+                       name: 'الازدهار',
+                       description: 'دمج التغيير ورسم المستقبل',
+                       sessions: 2
+                   }
+               ]
+           };
+           return phases[program] || [];
+       }
+       
+       function calculateExpectedEndDate(program) {
+           const durations = {
+               clarity: 7,      // 1 week
+               discovery: 42,   // 6 weeks
+               transformation: 90  // 3 months
+           };
+           
+           const days = durations[program] || 30;
+           const endDate = new Date();
+           endDate.setDate(endDate.getDate() + days);
+           
+           return endDate;
+       }
+       
+       function getJourneyWelcomeMessage(booking) {
+           const programMessages = {
+               clarity: `
+مرحباً ${booking.name}!
 تم تأكيد جلسة الوضوح الخاصة بك.
 
 ما يمكنك توقعه:
-• جلسة مكثفة 90 دقيقة
-• حلول عملية لتحديك الحالي
-• خطة عمل واضحة
-• متابعة لمدة أسبوع
+- جلسة مكثفة 90 دقيقة
+- حلول عملية لتحديك الحالي
+- خطة عمل واضحة
+- متابعة لمدة أسبوع
 
 يمكنك الآن الدخول لمساحتك الخاصة:
 https://mahmoudfouad25.github.io/portal.html
 
 أتطلع للقائك!
 محمود فؤاد
-                `,
-                discovery: `
-🗺️ مرحباً ${booking.name}!
-
+               `,
+               discovery: `
+مرحباً ${booking.name}!
 أهلاً بك في رحلة الاكتشاف!
 
 رحلتك تتضمن:
-• 3 جلسات على مدار 6 أسابيع
-• ممارسات يومية مخصصة
-• موارد تعليمية حصرية
-• دعم مستمر طوال الرحلة
+- 3 جلسات على مدار 6 أسابيع
+- ممارسات يومية مخصصة
+- موارد تعليمية حصرية
+- دعم مستمر طوال الرحلة
 
 المرحلة الأولى: اكتشاف الذات
 سنبدأ بفهم أنماطك وقيمك الأساسية.
@@ -1950,18 +2263,17 @@ https://mahmoudfouad25.github.io/portal.html
 
 معاً نحو اكتشاف أفضل نسخة منك!
 محمود فؤاد
-                `,
-                transformation: `
-🦋 مرحباً ${booking.name}!
-
+               `,
+               transformation: `
+مرحباً ${booking.name}!
 مبروك! لقد بدأت رحلة التحول العميق.
 
 رحلتك الملحمية تتضمن:
-• 6 جلسات على مدار 3 شهور
-• 3 مراحل تحولية (الإنبات - النمو - الازدهار)
-• دعم يومي ومتابعة مستمرة
-• مجتمع خاص برفقاء الرحلة
-• موارد وأدوات حصرية
+- 6 جلسات على مدار 3 شهور
+- 3 مراحل تحولية (الإنبات - النمو - الازدهار)
+- دعم يومي ومتابعة مستمرة
+- مجتمع خاص برفقاء الرحلة
+- موارد وأدوات حصرية
 
 هذه ليست مجرد جلسات... بل رحلة تحول حقيقية!
 
@@ -1970,18 +2282,18 @@ https://mahmoudfouad25.github.io/portal.html
 
 أتشرف بمرافقتك في هذه الرحلة المميزة.
 محمود فؤاد
-                `
-            };
-            
-            return programMessages[booking.program]?.trim() || 'مرحباً! تم تأكيد رحلتك بنجاح.';
-        }
-        
-        // Close modals on outside click
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-            }
-        }
-    </script>
+               `
+           };
+           
+           return programMessages[booking.program]?.trim() || 'مرحباً! تم تأكيد رحلتك بنجاح.';
+       }
+       
+       // Close modals on outside click
+       window.onclick = function(event) {
+           if (event.target.classList.contains('modal')) {
+               event.target.style.display = 'none';
+           }
+       }
+   </script>
 </body>
 </html>
