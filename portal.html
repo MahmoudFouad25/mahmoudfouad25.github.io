@@ -4,14 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مساحتك الخاصة - محمود فؤاد</title>
-            <!-- Google Analytics - حطه هنا قبل أي scripts تانية -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-80SPFZH1RS"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-80SPFZH1RS');
-    </script>
     <style>
         * {
             margin: 0;
@@ -129,6 +121,7 @@
             text-decoration: none;
             border-radius: 10px;
             transition: all 0.3s;
+            position: relative;
         }
         
         .nav-link:hover {
@@ -144,6 +137,18 @@
         .nav-icon {
             margin-left: 0.75rem;
             font-size: 1.2rem;
+        }
+        
+        .badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
         }
         
         /* Main Content */
@@ -336,6 +341,122 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
+        /* Journey Section */
+        .journey-timeline {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .phase-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin: 2rem 0;
+        }
+        
+        .phase-line {
+            position: absolute;
+            top: 25px;
+            right: 50px;
+            left: 50px;
+            height: 2px;
+            background: #ddd;
+            z-index: 0;
+        }
+        
+        .phase-progress {
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            background: var(--gradient);
+            transition: width 0.5s;
+        }
+        
+        .phase-item {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .phase-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #ddd;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        .phase-item.completed .phase-circle {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .phase-item.active .phase-circle {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .phase-name {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .phase-item.completed .phase-name,
+        .phase-item.active .phase-name {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        /* Progress Overview */
+        .progress-overview {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #eee;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
         /* Practices */
         .practices-grid {
             display: grid;
@@ -402,39 +523,117 @@
             font-weight: bold;
         }
         
-        .practice-progress {
+        .practice-actions {
             margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
         }
         
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #eee;
-            border-radius: 5px;
-            overflow: hidden;
+        .btn-complete {
+            background: #28a745;
+            color: white;
         }
         
-        .progress-fill {
-            height: 100%;
-            background: var(--gradient);
-            transition: width 0.5s;
-        }
-        
-        /* Progress Chart */
-        .progress-chart {
+        /* Messages Section */
+        .messages-container {
             background: white;
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
         }
         
-        .chart-container {
-            height: 300px;
+        .message-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .message-item:hover {
+            background: #f8f8f8;
+        }
+        
+        .message-item.unread {
+            background: #f0f8ff;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient);
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .message-sender {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
             color: #999;
+        }
+        
+        .message-preview {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Achievements Section */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .achievement-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .achievement-card.unlocked {
+            background: var(--gradient);
+            color: white;
+        }
+        
+        .achievement-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .achievement-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .achievement-card.locked .achievement-icon {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+        
+        .achievement-name {
+            font-size: 0.9rem;
+            font-weight: bold;
         }
         
         /* Resources */
@@ -624,12 +823,12 @@
 <body>
     <!-- Mobile Menu Toggle -->
     <div class="mobile-menu-toggle" id="mobileMenuToggle">☰</div>
-
+    
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="profile-section">
             <div class="profile-avatar" id="profileAvatar">
-                <span id="avatarInitial">👤</span>
+                <span id="avatarInitial">م</span>
             </div>
             <h3 class="profile-name" id="profileName">جاري التحميل...</h3>
             <p class="profile-program" id="profileProgram">-</p>
@@ -658,6 +857,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="#journey" class="nav-link" onclick="showSection('journey')">
+                        <span class="nav-icon">🛤️</span>
+                        رحلتي
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="#sessions" class="nav-link" onclick="showSection('sessions')">
                         <span class="nav-icon">📅</span>
                         جلساتي
@@ -667,6 +872,19 @@
                     <a href="#practices" class="nav-link" onclick="showSection('practices')">
                         <span class="nav-icon">🎯</span>
                         الممارسات
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#messages" class="nav-link" onclick="showSection('messages')">
+                        <span class="nav-icon">💬</span>
+                        الرسائل
+                        <span class="badge" id="unreadCount" style="display: none;">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#achievements" class="nav-link" onclick="showSection('achievements')">
+                        <span class="nav-icon">🏆</span>
+                        إنجازاتي
                     </a>
                 </li>
                 <li class="nav-item">
@@ -703,7 +921,7 @@
         <section id="dashboard" class="section active">
             <div class="content-header">
                 <h1>مرحباً <span id="welcomeName">بك</span> 👋</h1>
-                <p id="welcomeMessage">مستعد لجلستك القادمة؟</p>
+                <p id="welcomeMessage">كيف حالك اليوم؟</p>
             </div>
             
             <div class="dashboard-grid">
@@ -714,13 +932,13 @@
                     <div class="card-subtitle" id="nextSessionTime">-</div>
                 </div>
                 <div class="dashboard-card">
-                    <div class="card-icon">⏱️</div>
+                    <div class="card-icon">🎯</div>
                     <div class="card-title">مدة البرنامج</div>
                     <div class="card-value" id="programDuration">-</div>
                     <div class="card-subtitle">متبقي</div>
                 </div>
                 <div class="dashboard-card">
-                    <div class="card-icon">🎯</div>
+                    <div class="card-icon">✨</div>
                     <div class="card-title">الممارسات</div>
                     <div class="card-value" id="practicesCount">0</div>
                     <div class="card-subtitle">ممارسة نشطة</div>
@@ -741,7 +959,68 @@
                 </div>
             </div>
         </section>
-
+        
+        <!-- Journey Section (الجديد) -->
+        <section id="journey" class="section">
+            <div class="content-header">
+                <h1>رحلتي</h1>
+                <p>تابع تقدمك في الرحلة خطوة بخطوة</p>
+            </div>
+            
+            <div class="progress-overview">
+                <h3>نظرة عامة على التقدم</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="journeyProgress" style="width: 0%">
+                        <span id="journeyProgressText">0%</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                    <span>بداية الرحلة</span>
+                    <span id="journeyStatus">جاري التحميل...</span>
+                    <span>نهاية الرحلة</span>
+                </div>
+            </div>
+            
+            <div class="journey-timeline">
+                <h3>مراحل الرحلة</h3>
+                <div class="phase-container" id="phaseContainer">
+                    <div class="phase-line">
+                        <div class="phase-progress" id="phaseProgress" style="width: 0%"></div>
+                    </div>
+                    <!-- سيتم ملؤها ديناميكياً -->
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-icon">🎯</div>
+                    <div class="card-title">الممارسات المنجزة</div>
+                    <div class="card-value" id="completedPractices">0</div>
+                    <div class="card-subtitle">من أصل <span id="totalPractices">0</span></div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">🏆</div>
+                    <div class="card-title">المعالم المحققة</div>
+                    <div class="card-value" id="achievedMilestones">0</div>
+                    <div class="card-subtitle">إنجاز رائع!</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-icon">📚</div>
+                    <div class="card-title">الموارد المتاحة</div>
+                    <div class="card-value" id="availableResources">0</div>
+                    <div class="card-subtitle">مورد مخصص لك</div>
+                </div>
+            </div>
+            
+            <div class="practices-grid" style="margin-top: 2rem;">
+                <h3 style="grid-column: 1/-1;">ممارساتك الحالية</h3>
+                <div id="currentPractices" class="loading" style="grid-column: 1/-1;">
+                    <div class="spinner"></div>
+                    <p>جاري تحميل الممارسات...</p>
+                </div>
+            </div>
+        </section>
+        
         <!-- Sessions Section -->
         <section id="sessions" class="section">
             <div class="content-header">
@@ -756,7 +1035,7 @@
                 </div>
             </div>
         </section>
-
+        
         <!-- Practices Section -->
         <section id="practices" class="section">
             <div class="content-header">
@@ -765,10 +1044,37 @@
             </div>
             
             <div class="practices-grid" id="practicesGrid">
-                <!-- سيتم ملؤها بـ JavaScript -->
+                <!-- سيتم ملؤها بواسطة JavaScript -->
             </div>
         </section>
-
+        
+        <!-- Messages Section (الجديد) -->
+        <section id="messages" class="section">
+            <div class="content-header">
+                <h1>الرسائل</h1>
+                <p>تواصل مع مدربك</p>
+            </div>
+            
+            <div class="messages-container">
+                <div id="messagesList" class="loading">
+                    <div class="spinner"></div>
+                    <p>جاري تحميل الرسائل...</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Achievements Section (الجديد) -->
+        <section id="achievements" class="section">
+            <div class="content-header">
+                <h1>إنجازاتي</h1>
+                <p>احتفل بإنجازاتك في الرحلة</p>
+            </div>
+            
+            <div class="achievements-grid" id="achievementsGrid">
+                <!-- سيتم ملؤها بواسطة JavaScript -->
+            </div>
+        </section>
+        
         <!-- Progress Section -->
         <section id="progress" class="section">
             <div class="content-header">
@@ -804,7 +1110,7 @@
                 </div>
             </div>
         </section>
-
+        
         <!-- Resources Section -->
         <section id="resources" class="section">
             <div class="content-header">
@@ -819,7 +1125,7 @@
                     <p class="resource-description">مجموعة من التأملات الصوتية لتعزيز السلام الداخلي</p>
                 </a>
                 <a href="#" class="resource-card" onclick="openResource('articles')">
-                    <span class="resource-icon">📖</span>
+                    <span class="resource-icon">📄</span>
                     <h3 class="resource-title">مقالات مختارة</h3>
                     <p class="resource-description">مقالات تساعدك في فهم أعمق لرحلتك</p>
                 </a>
@@ -834,7 +1140,7 @@
                     <p class="resource-description">قائمة بالكتب المفيدة في رحلتك</p>
                 </a>
                 <a href="#" class="resource-card" onclick="openResource('worksheets')">
-                    <span class="resource-icon">📝</span>
+                    <span class="resource-icon">📋</span>
                     <h3 class="resource-title">أوراق عمل</h3>
                     <p class="resource-description">تمارين وأنشطة للتطبيق العملي</p>
                 </a>
@@ -845,7 +1151,7 @@
                 </a>
             </div>
         </section>
-
+        
         <!-- Notes Section -->
         <section id="notes" class="section">
             <div class="content-header">
@@ -867,7 +1173,7 @@
             </div>
         </section>
     </main>
-
+    
     <!-- Note Modal -->
     <div id="noteModal" class="modal">
         <div class="modal-content">
@@ -877,7 +1183,7 @@
             <button class="btn btn-primary" onclick="saveNote()">حفظ</button>
         </div>
     </div>
-
+    
     <!-- Session Details Modal -->
     <div id="sessionModal" class="modal">
         <div class="modal-content">
@@ -886,7 +1192,37 @@
             <div id="sessionDetails"></div>
         </div>
     </div>
-
+    
+    <!-- Practice Complete Modal -->
+    <div id="practiceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('practiceModal')">&times;</span>
+            <h2>إكمال الممارسة</h2>
+            <p>كيف كانت تجربتك مع هذه الممارسة؟</p>
+            <textarea id="practiceNotes" rows="5" style="width: 100%; margin: 20px 0; padding: 10px; border: 2px solid #eee; border-radius: 10px;" placeholder="شارك تجربتك..."></textarea>
+            <p>قيم الممارسة:</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+                <button class="btn btn-secondary" onclick="ratePractice(1)">⭐</button>
+                <button class="btn btn-secondary" onclick="ratePractice(2)">⭐⭐</button>
+                <button class="btn btn-secondary" onclick="ratePractice(3)">⭐⭐⭐</button>
+                <button class="btn btn-secondary" onclick="ratePractice(4)">⭐⭐⭐⭐</button>
+                <button class="btn btn-secondary" onclick="ratePractice(5)">⭐⭐⭐⭐⭐</button>
+            </div>
+            <button class="btn btn-primary" onclick="submitPracticeCompletion()">حفظ</button>
+        </div>
+    </div>
+    
+    <!-- Message Details Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('messageModal')">&times;</span>
+            <h2 id="messageTitle">الرسالة</h2>
+            <div id="messageContent" style="margin: 20px 0; padding: 20px; background: #f8f8f8; border-radius: 10px;"></div>
+            <textarea id="replyTextarea" rows="5" style="width: 100%; margin: 20px 0; padding: 10px; border: 2px solid #eee; border-radius: 10px;" placeholder="اكتب ردك هنا..."></textarea>
+            <button class="btn btn-primary" onclick="sendReply()">إرسال الرد</button>
+        </div>
+    </div>
+    
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
@@ -900,6 +1236,10 @@
         let currentUser = null;
         let userData = null;
         let userBookings = [];
+        let userJourney = null;
+        let currentPracticeId = null;
+        let practiceRating = 0;
+        let currentMessageId = null;
         
         // Check authentication
         auth.onAuthStateChanged(async (user) => {
@@ -907,6 +1247,7 @@
                 currentUser = user;
                 await loadUserData();
                 await loadUserBookings();
+                await loadUserJourney();
                 initializeDashboard();
             } else {
                 // Redirect to login
@@ -958,6 +1299,238 @@
             }
         }
         
+        // Load user journey (الجديد)
+        async function loadUserJourney() {
+            try {
+                const snapshot = await db.collection('journeys')
+                    .where('userId', '==', currentUser.uid)
+                    .where('status', '==', 'active')
+                    .limit(1)
+                    .get();
+                
+                if (!snapshot.empty) {
+                    const doc = snapshot.docs[0];
+                    userJourney = { id: doc.id, ...doc.data() };
+                    updateJourneySection();
+                    updateCurrentPractices();
+                    loadMessages();
+                    loadAchievements();
+                } else {
+                    // No active journey
+                    document.getElementById('journeyStatus').textContent = 'لا توجد رحلة نشطة';
+                }
+            } catch (error) {
+                console.error('Error loading journey:', error);
+            }
+        }
+        
+        // Update journey section (الجديد)
+        function updateJourneySection() {
+            if (!userJourney) return;
+            
+            // Update progress
+            const progress = userJourney.progress?.overallProgress || 0;
+            document.getElementById('journeyProgress').style.width = progress + '%';
+            document.getElementById('journeyProgressText').textContent = progress + '%';
+            
+            // Update status
+            const statusText = {
+                active: 'رحلة نشطة',
+                paused: 'رحلة متوقفة مؤقتاً',
+                completed: 'رحلة مكتملة'
+            };
+            document.getElementById('journeyStatus').textContent = statusText[userJourney.status] || 'غير محدد';
+            
+            // Update phases
+            updatePhases();
+            
+            // Update stats
+            document.getElementById('completedPractices').textContent = userJourney.progress?.practicesCompleted || 0;
+            document.getElementById('totalPractices').textContent = getTotalPractices();
+            document.getElementById('achievedMilestones').textContent = userJourney.progress?.milestonesAchieved?.length || 0;
+            document.getElementById('availableResources').textContent = userJourney.assignedResources?.length || 0;
+        }
+        
+        // Update phases display
+        function updatePhases() {
+            const container = document.getElementById('phaseContainer');
+            container.innerHTML = '<div class="phase-line"><div class="phase-progress" id="phaseProgress"></div></div>';
+            
+            if (!userJourney?.phases) return;
+            
+            let completedPhases = 0;
+            userJourney.phases.forEach((phase, index) => {
+                const phaseItem = document.createElement('div');
+                phaseItem.className = `phase-item ${phase.status}`;
+                
+                let icon = '🔵';
+                if (phase.status === 'completed') {
+                    icon = '✅';
+                    completedPhases++;
+                } else if (phase.status === 'in_progress') {
+                    icon = '🔄';
+                }
+                
+                phaseItem.innerHTML = `
+                    <div class="phase-circle">${icon}</div>
+                    <div class="phase-name">${phase.name}</div>
+                `;
+                
+                container.appendChild(phaseItem);
+            });
+            
+            // Update phase progress line
+            const phaseProgress = (completedPhases / userJourney.phases.length) * 100;
+            document.getElementById('phaseProgress').style.width = phaseProgress + '%';
+        }
+        
+        // Get total practices count
+        function getTotalPractices() {
+            if (!userJourney?.phases) return 0;
+            let total = 0;
+            userJourney.phases.forEach(phase => {
+                total += phase.practices?.length || 0;
+            });
+            return total;
+        }
+        
+        // Update current practices
+        async function updateCurrentPractices() {
+            const container = document.getElementById('currentPractices');
+            
+            if (!userJourney?.assignedPractices || userJourney.assignedPractices.length === 0) {
+                container.innerHTML = '<div class="empty-state">لا توجد ممارسات مخصصة حالياً</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            for (const assigned of userJourney.assignedPractices) {
+                try {
+                    const practiceDoc = await db.collection('practices').doc(assigned.practiceId).get();
+                    if (practiceDoc.exists) {
+                        const practice = practiceDoc.data();
+                        const completionsToday = assigned.completions?.filter(c => {
+                            const date = c.date?.toDate ? c.date.toDate() : new Date(c.date);
+                            return isToday(date);
+                        }).length || 0;
+                        
+                        const practiceCard = document.createElement('div');
+                        practiceCard.className = 'practice-card';
+                        practiceCard.innerHTML = `
+                            <div class="practice-header">
+                                <h3>${practice.title}</h3>
+                                <p>${assigned.frequency === 'daily' ? 'يومياً' : assigned.frequency === 'weekly' ? 'أسبوعياً' : 'حسب الحاجة'}</p>
+                            </div>
+                            <div class="practice-content">
+                                <p class="practice-description">${practice.description}</p>
+                                <div class="practice-actions">
+                                    ${completionsToday > 0 ? 
+                                        '<button class="btn btn-secondary" disabled>✅ تمت اليوم</button>' :
+                                        `<button class="btn btn-complete" onclick="startPracticeCompletion('${assigned.practiceId}')">إكمال الممارسة</button>`
+                                    }
+                                    <button class="btn btn-secondary" onclick="viewPracticeHistory('${assigned.practiceId}')">السجل</button>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(practiceCard);
+                    }
+                } catch (error) {
+                    console.error('Error loading practice:', error);
+                }
+            }
+        }
+        
+        // Load messages
+        async function loadMessages() {
+            const container = document.getElementById('messagesList');
+            
+            if (!userJourney?.communications || userJourney.communications.length === 0) {
+                container.innerHTML = '<div class="empty-state">لا توجد رسائل</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Sort messages by date (newest first)
+            const sortedMessages = [...userJourney.communications].sort((a, b) => {
+                const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+                const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                return dateB - dateA;
+            });
+            
+            let unreadCount = 0;
+            sortedMessages.forEach((message, index) => {
+                if (!message.read) unreadCount++;
+                
+                const messageDate = message.date?.toDate ? message.date.toDate() : new Date(message.date);
+                const messageItem = document.createElement('div');
+                messageItem.className = `message-item ${!message.read ? 'unread' : ''}`;
+                messageItem.onclick = () => openMessage(index);
+                
+                messageItem.innerHTML = `
+                    <div class="message-avatar">
+                        ${message.from === 'coach' ? '👨‍🏫' : message.from === 'system' ? '🤖' : '👤'}
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">${message.from === 'coach' ? 'المدرب' : message.from === 'system' ? 'النظام' : 'أنت'}</span>
+                            <span class="message-time">${formatDate(messageDate)}</span>
+                        </div>
+                        <div class="message-preview">${message.content.substring(0, 100)}${message.content.length > 100 ? '...' : ''}</div>
+                    </div>
+                `;
+                
+                container.appendChild(messageItem);
+            });
+            
+            // Update unread badge
+            const badge = document.getElementById('unreadCount');
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        // Load achievements
+        async function loadAchievements() {
+            const container = document.getElementById('achievementsGrid');
+            container.innerHTML = '';
+            
+            try {
+                // Load all milestones
+                const milestonesSnapshot = await db.collection('milestones').get();
+                const allMilestones = [];
+                milestonesSnapshot.forEach(doc => {
+                    allMilestones.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Get achieved milestones
+                const achievedIds = userJourney?.progress?.milestonesAchieved || [];
+                
+                // Display all milestones
+                allMilestones.forEach(milestone => {
+                    const isUnlocked = achievedIds.includes(milestone.id);
+                    const achievementCard = document.createElement('div');
+                    achievementCard.className = `achievement-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+                    
+                    achievementCard.innerHTML = `
+                        <div class="achievement-icon">${milestone.icon || '🏆'}</div>
+                        <div class="achievement-name">${milestone.name}</div>
+                    `;
+                    
+                    container.appendChild(achievementCard);
+                });
+                
+                // Update achievements count
+                document.getElementById('achievementsCount').textContent = achievedIds.length;
+            } catch (error) {
+                console.error('Error loading achievements:', error);
+            }
+        }
+        
         // Update profile section
         function updateProfileSection() {
             const name = userData?.name || currentUser.displayName || 'مستخدم';
@@ -976,18 +1549,13 @@
             // Set program
             const latestBooking = userBookings.find(b => b.status !== 'cancelled');
             if (latestBooking) {
-                document.getElementById('profileProgram').textContent = getProgramName(latestBooking.program);
+                document.getElementById('profileProgram').textContent = 
+                    getProgramName(latestBooking.program);
             }
         }
         
         // Initialize dashboard
         function initializeDashboard() {
-            // Load practices
-            loadPractices();
-            
-            // Load notes
-            loadNotes();
-            
             // Set welcome message
             const hour = new Date().getHours();
             let greeting = '';
@@ -996,6 +1564,10 @@
             else greeting = 'مساء الخير';
             
             document.getElementById('welcomeMessage').textContent = `${greeting}! كيف حالك اليوم؟`;
+            
+            // Load all sections
+            loadPractices();
+            loadNotes();
         }
         
         // Update dashboard
@@ -1027,6 +1599,9 @@
             
             // Recent activities
             updateRecentActivities();
+            
+            // Calculate program duration
+            calculateProgramDuration();
         }
         
         // Update recent activities
@@ -1105,12 +1680,12 @@
                         </div>
                         <div class="session-details">
                             <div>📅 تاريخ الحجز: ${date.toLocaleDateString('ar-EG')}</div>
-                            <div>⏰ موعد الجلسة: ${sessionDate}</div>
-                            <div>💬 نوع الجلسة: ${booking.sessionType ? getSessionTypeName(booking.sessionType) : 'لم يحدد'}</div>
+                            <div>🕐 موعد الجلسة: ${sessionDate}</div>
+                            <div>📱 نوع الجلسة: ${booking.sessionType ? getSessionTypeName(booking.sessionType) : 'لم يحدد'}</div>
                         </div>
                         <div class="session-actions">
                             <button class="btn btn-secondary" onclick="viewSessionDetails('${booking.id}')">التفاصيل</button>
-                            ${booking.status === 'confirmed' ? 
+                            ${booking.status === 'confirmed' && booking.sessionLink ? 
                                 `<button class="btn btn-primary" onclick="joinSession('${booking.sessionLink}')">انضم للجلسة</button>` : ''}
                         </div>
                     </div>
@@ -1236,11 +1811,127 @@
             // Update nav
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + sectionId) {
+                    link.classList.add('active');
+                }
             });
-            event.target.classList.add('active');
             
             // Close mobile menu
             document.getElementById('sidebar').classList.remove('active');
+        }
+        
+        // Practice completion functions
+        function startPracticeCompletion(practiceId) {
+            currentPracticeId = practiceId;
+            practiceRating = 0;
+            document.getElementById('practiceNotes').value = '';
+            document.getElementById('practiceModal').style.display = 'block';
+        }
+        
+        function ratePractice(rating) {
+            practiceRating = rating;
+            // Update UI to show selected rating
+            document.querySelectorAll('#practiceModal .btn-secondary').forEach((btn, index) => {
+                if (index < rating) {
+                    btn.style.background = 'var(--accent)';
+                    btn.style.color = 'white';
+                } else {
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }
+            });
+        }
+        
+        async function submitPracticeCompletion() {
+            if (!currentPracticeId || practiceRating === 0) {
+                alert('من فضلك قيم الممارسة');
+                return;
+            }
+            
+            const notes = document.getElementById('practiceNotes').value;
+            const completion = {
+                date: new Date(),
+                notes: notes,
+                rating: practiceRating
+            };
+            
+            try {
+                // Update journey document
+                const practiceIndex = userJourney.assignedPractices.findIndex(p => p.practiceId === currentPracticeId);
+                if (practiceIndex !== -1) {
+                    if (!userJourney.assignedPractices[practiceIndex].completions) {
+                        userJourney.assignedPractices[practiceIndex].completions = [];
+                    }
+                    userJourney.assignedPractices[practiceIndex].completions.push(completion);
+                    
+                    await db.collection('journeys').doc(userJourney.id).update({
+                        [`assignedPractices.${practiceIndex}.completions`]: userJourney.assignedPractices[practiceIndex].completions,
+                        'progress.practicesCompleted': firebase.firestore.FieldValue.increment(1)
+                    });
+                    
+                    showNotification('أحسنت! تم تسجيل إكمال الممارسة');
+                    closeModal('practiceModal');
+                    
+                    // Reload journey data
+                    await loadUserJourney();
+                }
+            } catch (error) {
+                console.error('Error saving practice completion:', error);
+                alert('حدث خطأ في حفظ البيانات');
+            }
+        }
+        
+        // Message functions
+        function openMessage(index) {
+            if (!userJourney?.communications) return;
+            
+            const message = userJourney.communications[index];
+            currentMessageId = index;
+            
+            document.getElementById('messageTitle').textContent = message.from === 'coach' ? 'رسالة من المدرب' : 'رسالتك';
+            document.getElementById('messageContent').textContent = message.content;
+            document.getElementById('replyTextarea').value = '';
+            document.getElementById('messageModal').style.display = 'block';
+            
+            // Mark as read
+            if (!message.read) {
+                message.read = true;
+                db.collection('journeys').doc(userJourney.id).update({
+                    [`communications.${index}.read`]: true
+                });
+                loadMessages();
+            }
+        }
+        
+        async function sendReply() {
+            const replyContent = document.getElementById('replyTextarea').value;
+            if (!replyContent.trim()) {
+                alert('من فضلك اكتب رداً');
+                return;
+            }
+            
+            const newMessage = {
+                type: 'message',
+                from: 'client',
+                content: replyContent,
+                date: new Date(),
+                read: false
+            };
+            
+            try {
+                await db.collection('journeys').doc(userJourney.id).update({
+                    communications: firebase.firestore.FieldValue.arrayUnion(newMessage)
+                });
+                
+                showNotification('تم إرسال الرد بنجاح');
+                closeModal('messageModal');
+                
+                // Reload messages
+                await loadUserJourney();
+            } catch (error) {
+                console.error('Error sending reply:', error);
+                alert('حدث خطأ في إرسال الرد');
+            }
         }
         
         // View session details
@@ -1297,6 +1988,12 @@
             }
         }
         
+        // View practice history
+        function viewPracticeHistory(practiceId) {
+            // TODO: Implement practice history view
+            alert('سيتم إضافة هذه الميزة قريباً');
+        }
+        
         // Add new note
         function addNewNote() {
             document.getElementById('noteTextarea').value = '';
@@ -1327,7 +2024,6 @@
             closeModal('noteModal');
             loadNotes();
             
-            // Show success message
             showNotification('تم حفظ الملاحظة بنجاح');
         }
         
@@ -1343,30 +2039,33 @@
         
         // Open resource
         function openResource(type) {
-            let message = '';
+            const messages = {
+                meditation: 'التأملات الموجهة ستكون متاحة قريباً',
+                articles: 'المقالات ستكون متاحة قريباً',
+                videos: 'الفيديوهات التعليمية ستكون متاحة قريباً',
+                books: 'قائمة الكتب المقترحة ستكون متاحة قريباً',
+                worksheets: 'أوراق العمل ستكون متاحة قريباً',
+                community: 'مجتمع الدعم سيكون متاحاً قريباً'
+            };
             
-            switch(type) {
-                case 'meditation':
-                    message = 'التأملات الموجهة ستكون متاحة قريباً';
-                    break;
-                case 'articles':
-                    message = 'المقالات ستكون متاحة قريباً';
-                    break;
-                case 'videos':
-                    message = 'الفيديوهات التعليمية ستكون متاحة قريباً';
-                    break;
-                case 'books':
-                    message = 'قائمة الكتب المقترحة ستكون متاحة قريباً';
-                    break;
-                case 'worksheets':
-                    message = 'أوراق العمل ستكون متاحة قريباً';
-                    break;
-                case 'community':
-                    message = 'مجتمع الدعم سيكون متاحاً قريباً';
-                    break;
+            alert(messages[type] || 'هذا المورد سيكون متاحاً قريباً');
+        }
+        
+        // Calculate program duration
+        function calculateProgramDuration() {
+            const activeBooking = userBookings.find(b => b.status === 'confirmed');
+            if (!activeBooking) {
+                document.getElementById('programDuration').textContent = '-';
+                return;
             }
             
-            alert(message);
+            const durations = {
+                clarity: 'جلسة واحدة',
+                discovery: '3 جلسات',
+                transformation: '6 جلسات'
+            };
+            
+            document.getElementById('programDuration').textContent = durations[activeBooking.program] || '-';
         }
         
         // Close modal
@@ -1399,11 +2098,10 @@
         }
         
         // Logout
-        function logout() {
+        async function logout() {
             if (confirm('هل تريد تسجيل الخروج؟')) {
-                auth.signOut().then(() => {
-                    window.location.href = 'login.html';
-                });
+                await auth.signOut();
+                window.location.href = 'login.html';
             }
         }
         
@@ -1436,6 +2134,34 @@
             return names[type] || 'أونلاين';
         }
         
+        function formatDate(date) {
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (days === 0) {
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                if (hours === 0) {
+                    const minutes = Math.floor(diff / (1000 * 60));
+                    return `منذ ${minutes} دقيقة`;
+                }
+                return `منذ ${hours} ساعة`;
+            } else if (days === 1) {
+                return 'أمس';
+            } else if (days < 7) {
+                return `منذ ${days} أيام`;
+            } else {
+                return date.toLocaleDateString('ar-EG');
+            }
+        }
+        
+        function isToday(date) {
+            const today = new Date();
+            return date.getDate() === today.getDate() &&
+                   date.getMonth() === today.getMonth() &&
+                   date.getFullYear() === today.getFullYear();
+        }
+        
         // Mobile menu toggle
         document.getElementById('mobileMenuToggle').addEventListener('click', () => {
             document.getElementById('sidebar').classList.toggle('active');
@@ -1447,35 +2173,6 @@
                 event.target.style.display = 'none';
             }
         }
-        
-        // Calculate program duration
-        function calculateProgramDuration() {
-            const activeBooking = userBookings.find(b => b.status === 'confirmed');
-            if (!activeBooking) {
-                document.getElementById('programDuration').textContent = '-';
-                return;
-            }
-            
-            let duration = '';
-            switch(activeBooking.program) {
-                case 'clarity':
-                    duration = 'جلسة واحدة';
-                    break;
-                case 'discovery':
-                    duration = '3 جلسات';
-                    break;
-                case 'transformation':
-                    duration = '6 جلسات';
-                    break;
-            }
-            
-            document.getElementById('programDuration').textContent = duration;
-        }
-        
-        // Initialize on load
-        window.addEventListener('load', () => {
-            calculateProgramDuration();
-        });
     </script>
 </body>
 </html>
