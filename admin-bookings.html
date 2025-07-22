@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الحجوزات - محمود فؤاد</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2C5530;
+            --secondary: #8B9467;
+            --accent: #D4AF37;
+            --light: #F5F2E8;
+            --dark: #1A1A1A;
+            --gradient: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: #f5f5f5;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Login Check Container */
+        .auth-check {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--gradient);
+        }
+        
+        .auth-message {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .auth-message h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .auth-message p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-message button {
+            padding: 1rem 2rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* Navigation */
+        .admin-nav {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+        }
+        
+        .badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+            display: inline-block;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Container */
+        .bookings-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Header Section */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            color: #666;
+        }
+        
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        /* Filters Section */
+        .filters-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .filter-group input,
+        .filter-group select {
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: end;
+        }
+        
+        /* Bookings Table */
+        .bookings-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-header h2 {
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f8f9fa;
+            padding: 1rem;
+            text-align: right;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid #e9ecef;
+            white-space: nowrap;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Type Badges */
+        .type-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .type-badge.new-client {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .type-badge.existing-client {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .type-badge.new-journey {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-badge.confirming {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-badge.confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.converted {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        /* Action Buttons */
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        /* Client Info */
+        .client-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        
+        .client-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .client-contact {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        /* Program Badge */
+        .program-badge {
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: var(--light);
+            color: var(--primary);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-header h2 {
+            color: var(--primary);
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+        
+        /* Appointment Slots */
+        .slots-container {
+            display: grid;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .slot-item {
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .slot-item:hover {
+            border-color: var(--primary);
+            background: #f8f9fa;
+        }
+        
+        .slot-item.selected {
+            border-color: var(--primary);
+            background: var(--light);
+        }
+        
+        .slot-item input[type="checkbox"] {
+            width: auto;
+        }
+        
+        /* Info Boxes */
+        .info-box {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-right: 4px solid var(--primary);
+        }
+        
+        .info-box h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0.3rem 0;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideInNotification 0.3s;
+            cursor: pointer;
+        }
+        
+        @keyframes slideInNotification {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .notification.success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .notification.error {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .notification.info {
+            background: var(--info);
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .bookings-container {
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-container {
+                overflow-x: scroll;
+            }
+            
+            table {
+                min-width: 800px;
+            }
+            
+            .actions-cell {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Auth Check -->
+    <div id="authCheck" class="auth-check" style="display: none;">
+        <div class="auth-message">
+            <h2>⚠️ غير مصرح</h2>
+            <p>يجب تسجيل الدخول أولاً للوصول لهذه الصفحة</p>
+            <button onclick="window.location.href='admin-dashboard.html'">
+                الذهاب لصفحة الدخول
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div id="mainContent" style="display: none;">
+        <!-- Navigation -->
+        <nav class="admin-nav">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h2>لوحة تحكم محمود فؤاد</h2>
+                </div>
+                <div class="nav-links">
+                    <a href="admin-dashboard.html">
+                        <span>🏠</span> الرئيسية
+                    </a>
+                    <a href="admin-bookings.html" class="active">
+                        <span>📋</span> الحجوزات
+                        <span class="badge" id="newBookingsCount">0</span>
+                    </a>
+                    <a href="admin-journeys.html">
+                        <span>🗺️</span> الرحلات
+                    </a>
+                    <a href="#" onclick="logout()">
+                        <span>🚪</span> خروج
+                    </a>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Bookings Container -->
+        <div class="bookings-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>إدارة الحجوزات والطلبات</h1>
+                <p>استقبال ومعالجة طلبات الحجز الجديدة وتحويلها لرحلات</p>
+            </div>
+            
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <h3>طلبات جديدة</h3>
+                    <div class="number" id="pendingCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>في انتظار التأكيد</h3>
+                    <div class="number" id="confirmingCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>مؤكدة</h3>
+                    <div class="number" id="confirmedCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>تم تحويلها لرحلات</h3>
+                    <div class="number" id="convertedCount">0</div>
+                </div>
+            </div>
+            
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>البحث</label>
+                        <input type="text" id="searchInput" placeholder="بحث بالاسم أو البريد أو الهاتف..."
+                               onkeyup="applyFilters()">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>نوع الطلب</label>
+                        <select id="typeFilter" onchange="applyFilters()">
+                            <option value="">جميع الأنواع</option>
+                            <option value="new">عميل جديد</option>
+                            <option value="existing">عميل حالي</option>
+                            <option value="newJourney">رحلة جديدة</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>البرنامج</label>
+                        <select id="programFilter" onchange="applyFilters()">
+                            <option value="">جميع البرامج</option>
+                            <option value="clarity">جلسة الوضوح</option>
+                            <option value="discovery">رحلة الاكتشاف</option>
+                            <option value="transformation">رحلة التحول</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>الحالة</label>
+                        <select id="statusFilter" onchange="applyFilters()">
+                            <option value="">جميع الحالات</option>
+                            <option value="pending">في الانتظار</option>
+                            <option value="confirming">قيد التأكيد</option>
+                            <option value="confirmed">مؤكد</option>
+                            <option value="converted">تم التحويل</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group filter-actions">
+                        <button class="btn btn-info" onclick="resetFilters()">
+                            إعادة تعيين
+                        </button>
+                        <button class="btn btn-success" onclick="refreshData()">
+                            تحديث
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bookings Table -->
+            <div class="bookings-section">
+                <div class="table-header">
+                    <h2>قائمة الحجوزات</h2>
+                    <div>
+                        <button class="btn btn-primary" onclick="exportToExcel()">
+                            تصدير Excel
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="bookingsTable">
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>العميل</th>
+                                <th>النوع</th>
+                                <th>البرنامج</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody">
+                            <!-- سيتم ملؤها بواسطة JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <!-- Send Appointments Modal -->
+    <div id="appointmentsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>إرسال مواعيد مقترحة</h2>
+                <span class="close" onclick="closeModal('appointmentsModal')">&times;</span>
+            </div>
+            
+            <div class="info-box">
+                <h4>تعليمات:</h4>
+                <p>• اختر 3-5 مواعيد مناسبة للعميل</p>
+                <p>• تأكد من توفر المواعيد في جدولك</p>
+                <p>• يمكنك إضافة رسالة شخصية</p>
+            </div>
+            
+            <div class="form-group">
+                <label>المواعيد المتاحة:</label>
+                <div class="slots-container" id="slotsContainer">
+                    <!-- سيتم ملؤها ديناميكياً -->
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>رسالة مخصصة (اختياري):</label>
+                <textarea id="customMessage" placeholder="أضف رسالة شخصية للعميل..."></textarea>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('appointmentsModal')">إلغاء</button>
+                <button class="btn btn-success" onclick="sendAppointments()">إرسال المواعيد</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirm Appointment Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>تأكيد الموعد</h2>
+                <span class="close" onclick="closeModal('confirmModal')">&times;</span>
+            </div>
+            
+            <div class="form-group">
+                <label>التاريخ:</label>
+                <input type="date" id="appointmentDate" min="">
+            </div>
+            
+            <div class="form-group">
+                <label>الوقت:</label>
+                <input type="time" id="appointmentTime">
+            </div>
+            
+            <div class="form-group">
+                <label>نوع الجلسة:</label>
+                <select id="sessionType">
+                    <option value="online">أونلاين (Zoom)</option>
+                    <option value="phone">مكالمة هاتفية</option>
+                    <option value="inperson">حضوري</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>رابط الجلسة (للأونلاين):</label>
+                <input type="text" id="sessionLink" placeholder="https://zoom.us/j/...">
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('confirmModal')">إلغاء</button>
+                <button class="btn btn-success" onclick="confirmAppointment()">تأكيد الموعد</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notes Modal -->
+    <div id="notesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ملاحظات الحجز</h2>
+                <span class="close" onclick="closeModal('notesModal')">&times;</span>
+            </div>
+            
+            <div class="info-box" id="bookingInfoBox">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+            
+            <div class="form-group">
+                <label>الملاحظات:</label>
+                <textarea id="notesTextarea" rows="5" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('notesModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveNotes()">حفظ الملاحظات</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Booking Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>تفاصيل الحجز</h2>
+                <span class="close" onclick="closeModal('detailsModal')">&times;</span>
+            </div>
+            
+            <div id="bookingDetailsContent">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeModal('detailsModal')">إغلاق</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        // Initialize
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        let allBookings = [];
+        let filteredBookings = [];
+        let currentBookingId = null;
+        let availableSlots = [];
+        
+        // Check authentication on load
+        window.onload = function() {
+            checkAuth();
+            setMinDates();
+        };
+        
+        // Check authentication
+        function checkAuth() {
+            const authToken = sessionStorage.getItem('adminAuth');
+            const authTime = sessionStorage.getItem('authTime');
+            const oneHour = 60 * 60 * 1000;
+            
+            if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
+                document.getElementById('authCheck').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                loadBookings();
+                loadAvailableSlots();
+                // Refresh every 30 seconds
+                setInterval(loadBookings, 30000);
+            } else {
+                document.getElementById('authCheck').style.display = 'flex';
+                document.getElementById('mainContent').style.display = 'none';
+            }
+        }
+        
+        // Logout
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                sessionStorage.clear();
+                window.location.href = 'admin-dashboard.html';
+            }
+        }
+        
+        // Set minimum dates for date inputs
+        function setMinDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                input.min = today;
+            });
+        }
+        
+        // Load bookings
+        async function loadBookings() {
+            showLoading(true);
+            
+            try {
+                // Get all bookings that are not yet converted to journeys
+                const snapshot = await db.collection('bookings')
+                    .where('status', 'in', ['pending', 'confirming', 'confirmed'])
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                allBookings = [];
+                snapshot.forEach(doc => {
+                    allBookings.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Update stats
+                updateStats();
+                
+                // Apply filters and display
+                applyFilters();
+                
+                // Update badge
+                const newCount = allBookings.filter(b => b.status === 'pending').length;
+                document.getElementById('newBookingsCount').textContent = newCount;
+                document.getElementById('newBookingsCount').style.display = newCount > 0 ? 'inline' : 'none';
+                
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                showNotification('خطأ في تحميل البيانات', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Update stats
+        function updateStats() {
+            const stats = {
+                pending: 0,
+                confirming: 0,
+                confirmed: 0,
+                converted: 0
+            };
+            
+            allBookings.forEach(booking => {
+                const status = booking.status || 'pending';
+                if (stats.hasOwnProperty(status)) {
+                    stats[status]++;
+                }
+            });
+            
+            document.getElementById('pendingCount').textContent = stats.pending;
+            document.getElementById('confirmingCount').textContent = stats.confirming;
+            document.getElementById('confirmedCount').textContent = stats.confirmed;
+            document.getElementById('convertedCount').textContent = stats.converted;
+        }
+        
+        // Apply filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const programFilter = document.getElementById('programFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            filteredBookings = allBookings.filter(booking => {
+                // Search filter
+                if (searchTerm) {
+                    const searchableText = [
+                        booking.name,
+                        booking.email,
+                        booking.phone,
+                        booking.message
+                    ].join(' ').toLowerCase();
+                    
+                    if (!searchableText.includes(searchTerm)) {
+                        return false;
+                    }
+                }
+                
+                // Type filter
+                if (typeFilter) {
+                    const bookingType = getBookingType(booking);
+                    if (bookingType !== typeFilter) {
+                        return false;
+                    }
+                }
+                
+                // Program filter
+                if (programFilter && booking.program !== programFilter) {
+                    return false;
+                }
+                
+                // Status filter
+                if (statusFilter && (booking.status || 'pending') !== statusFilter) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            displayBookings();
+        }
+        
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('programFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            applyFilters();
+        }
+        
+        // Refresh data
+        function refreshData() {
+            loadBookings();
+            showNotification('تم تحديث البيانات', 'success');
+        }
+        
+        // Get booking type
+        function getBookingType(booking) {
+            if (booking.isNewJourney) return 'newJourney';
+            if (booking.existingClient) return 'existing';
+            return 'new';
+        }
+        
+        // Display bookings
+        function displayBookings() {
+            const tbody = document.getElementById('bookingsTableBody');
+            
+            if (filteredBookings.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>لا توجد حجوزات تطابق معايير البحث</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            filteredBookings.forEach(booking => {
+                const bookingType = getBookingType(booking);
+                const date = booking.createdAt?.toDate ? 
+                    booking.createdAt.toDate() : new Date();
+                
+                html += `
+                    <tr>
+                        <td>${formatDate(date)}</td>
+                        <td>
+                            <div class="client-info">
+                                <span class="client-name">${booking.name || 'غير محدد'}</span>
+                                <span class="client-contact">${booking.email}</span>
+                                <span class="client-contact">${booking.phone}</span>
+                            </div>
+                        </td>
+                        <td>
+                            ${getTypeBadge(bookingType, booking)}
+                        </td>
+                        <td>
+                            <span class="program-badge">${getProgramName(booking.program)}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge ${booking.status || 'pending'}">
+                                ${getStatusName(booking.status)}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="actions-cell">
+                                ${generateActions(booking)}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        // Get type badge HTML
+        function getTypeBadge(type, booking) {
+            let badge = '';
+            let text = '';
+            
+            switch(type) {
+                case 'newJourney':
+                    text = '🔄 رحلة جديدة';
+                    badge = `<span class="type-badge new-journey">${text}</span>`;
+                    if (booking.previousJourneys && booking.previousJourneys.length > 0) {
+                        badge += `<br><small>سبق له: ${booking.previousJourneys.map(p => getProgramName(p)).join(', ')}</small>`;
+                    }
+                    break;
+                case 'existing':
+                    text = '👤 عميل حالي';
+                    badge = `<span class="type-badge existing-client">${text}</span>`;
+                    break;
+                default:
+                    text = '🆕 عميل جديد';
+                    badge = `<span class="type-badge new-client">${text}</span>`;
+            }
+            
+            return badge;
+        }
+        
+        // Generate action buttons
+        function generateActions(booking) {
+            let actions = [];
+            
+            // WhatsApp button - always show
+            actions.push(`
+                <button class="btn btn-whatsapp" onclick="openWhatsApp('${booking.phone}', '${booking.name}')">
+                    واتساب
+                </button>
+            `);
+            
+            // Notes button - always show
+            actions.push(`
+                <button class="btn btn-info" onclick="showNotes('${booking.id}')">
+                    ملاحظات
+                </button>
+            `);
+            
+            // Status-specific actions
+            const status = booking.status || 'pending';
+            
+            if (status === 'pending') {
+                actions.push(`
+                    <button class="btn btn-primary" onclick="showAppointmentsModal('${booking.id}')">
+                        إرسال مواعيد
+                    </button>
+                `);
+            } else if (status === 'confirming') {
+                actions.push(`
+                    <button class="btn btn-success" onclick="showConfirmModal('${booking.id}')">
+                        تأكيد الموعد
+                    </button>
+                `);
+            } else if (status === 'confirmed') {
+                actions.push(`
+                    <button class="btn btn-warning" onclick="convertToJourney('${booking.id}')">
+                        تحويل لرحلة
+                    </button>
+                `);
+            }
+            
+            // View details - always show
+            actions.push(`
+                <button class="btn btn-secondary" onclick="viewDetails('${booking.id}')">
+                    تفاصيل
+                </button>
+            `);
+            
+            return actions.join('');
+        }
+        
+        // Open WhatsApp
+        function openWhatsApp(phone, name) {
+            const cleanPhone = phone.replace(/\D/g, '');
+            const fullPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
+            const message = `مرحباً ${name || 'عميلنا العزيز'}، معك محمود فؤاد...`;
+            window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+        
+        // Show notes modal
+        async function showNotes(bookingId) {
+            currentBookingId = bookingId;
+            const booking = allBookings.find(b => b.id === bookingId);
+            
+            if (!booking) return;
+            
+            // Update info box
+            document.getElementById('bookingInfoBox').innerHTML = `
+                <h4>معلومات الحجز:</h4>
+                <p><strong>الاسم:</strong> ${booking.name || 'غير محدد'}</p>
+                <p><strong>البرنامج:</strong> ${getProgramName(booking.program)}</p>
+                <p><strong>التاريخ:</strong> ${formatDate(booking.createdAt?.toDate() || new Date())}</p>
+            `;
+            
+            // Load existing notes
+            document.getElementById('notesTextarea').value = booking.notes || '';
+            
+            openModal('notesModal');
+        }
+        
+        // Save notes
+        async function saveNotes() {
+            const notes = document.getElementById('notesTextarea').value;
+            
+            if (!currentBookingId) return;
+            
+            showLoading(true);
+            
+            try {
+                await db.collection('bookings').doc(currentBookingId).update({
+                    notes: notes,
+                    notesUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('تم حفظ الملاحظات بنجاح', 'success');
+                closeModal('notesModal');
+                loadBookings();
+                
+            } catch (error) {
+                console.error('Error saving notes:', error);
+                showNotification('خطأ في حفظ الملاحظات', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Load available slots
+        function loadAvailableSlots() {
+            // Get from localStorage or use defaults
+            const savedSlots = localStorage.getItem('availableSlots');
+            if (savedSlots) {
+                availableSlots = JSON.parse(savedSlots);
+            } else {
+                // Default slots
+                const days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء'];
+                const times = ['10:00 ص', '2:00 م', '4:00 م', '6:00 م', '8:00 م'];
+                
+                availableSlots = [];
+                for (let i = 0; i < 7; i++) {
+                    const date = new Date();
+                    date.setDate(date.getDate() + i);
+                    const dayName = days[date.getDay()] || days[0];
+                    
+                    times.forEach(time => {
+                        availableSlots.push({
+                            date: date.toLocaleDateString('ar-EG'),
+                            day: dayName,
+                            time: time,
+                            available: true
+                        });
+                    });
+                }
+                
+                localStorage.setItem('availableSlots', JSON.stringify(availableSlots));
+            }
+        }
+        
+        // Show appointments modal
+        function showAppointmentsModal(bookingId) {
+            currentBookingId = bookingId;
+            const container = document.getElementById('slotsContainer');
+            
+            // Display available slots
+            let html = '';
+            availableSlots.forEach((slot, index) => {
+                if (slot.available) {
+                    html += `
+                        <div class="slot-item" onclick="toggleSlot(this, ${index})">
+                            <input type="checkbox" id="slot_${index}" value="${index}">
+                            <label for="slot_${index}">
+                                ${slot.day} ${slot.date} - ${slot.time}
+                            </label>
+                        </div>
+                    `;
+                }
+            });
+            
+            container.innerHTML = html || '<p>لا توجد مواعيد متاحة حالياً</p>';
+            document.getElementById('customMessage').value = '';
+            
+            openModal('appointmentsModal');
+        }
+        
+        // Toggle slot selection
+        function toggleSlot(element, index) {
+            element.classList.toggle('selected');
+            const checkbox = element.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+        }
+        
+        // Send appointments
+        async function sendAppointments() {
+            const selectedSlots = [];
+            document.querySelectorAll('#slotsContainer input[type="checkbox"]:checked').forEach(input => {
+                const index = parseInt(input.value);
+                selectedSlots.push(availableSlots[index]);
+            });
+            
+            if (selectedSlots.length === 0) {
+                showNotification('من فضلك اختر موعد واحد على الأقل', 'error');
+                return;
+            }
+            
+            if (selectedSlots.length > 5) {
+                showNotification('من فضلك اختر 5 مواعيد كحد أقصى', 'error');
+                return;
+            }
+            
+            const booking = allBookings.find(b => b.id === currentBookingId);
+            if (!booking) return;
+            
+            const customMessage = document.getElementById('customMessage').value;
+            
+            // Prepare WhatsApp message
+            let message = `مرحباً ${booking.name}،\n\n`;
+            
+            if (customMessage) {
+                message += customMessage + '\n\n';
+            }
+            
+            message += 'المواعيد المتاحة لجلستك:\n\n';
+            selectedSlots.forEach((slot, index) => {
+                message += `${index + 1}. ${slot.day} ${slot.date} - ${slot.time}\n`;
+            });
+            
+            message += '\nمن فضلك اختر الموعد المناسب لك بالرقم.';
+            
+            // Open WhatsApp
+            openWhatsApp(booking.phone, booking.name);
+            
+            // Update booking status
+            try {
+                await db.collection('bookings').doc(currentBookingId).update({
+                    status: 'confirming',
+                    proposedSlots: selectedSlots,
+                    lastContactAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('تم إرسال المواعيد بنجاح', 'success');
+                closeModal('appointmentsModal');
+                loadBookings();
+                
+            } catch (error) {
+                console.error('Error updating booking:', error);
+                showNotification('خطأ في تحديث الحجز', 'error');
+            }
+        }
+        
+        // Show confirm modal
+        function showConfirmModal(bookingId) {
+            currentBookingId = bookingId;
+            const booking = allBookings.find(b => b.id === bookingId);
+            
+            if (!booking) return;
+            
+            // Pre-fill if editing
+            if (booking.appointmentDate) {
+                const date = booking.appointmentDate.toDate ? 
+                    booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
+                document.getElementById('appointmentDate').value = date.toISOString().split('T')[0];
+            }
+            
+            document.getElementById('appointmentTime').value = booking.appointmentTime || '';
+            document.getElementById('sessionType').value = booking.sessionType || 'online';
+            document.getElementById('sessionLink').value = booking.sessionLink || '';
+            
+            openModal('confirmModal');
+        }
+        
+        // Confirm appointment
+        async function confirmAppointment() {
+            const date = document.getElementById('appointmentDate').value;
+            const time = document.getElementById('appointmentTime').value;
+            const sessionType = document.getElementById('sessionType').value;
+            const sessionLink = document.getElementById('sessionLink').value;
+            
+            if (!date || !time) {
+                showNotification('من فضلك أدخل التاريخ والوقت', 'error');
+                return;
+            }
+            
+            if (sessionType === 'online' && !sessionLink) {
+                showNotification('من فضلك أدخل رابط الجلسة للجلسات الأونلاين', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                await db.collection('bookings').doc(currentBookingId).update({
+                    status: 'confirmed',
+                    appointmentDate: new Date(date),
+                    appointmentTime: time,
+                    sessionType: sessionType,
+                    sessionLink: sessionLink,
+                    confirmedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Send confirmation to client
+                const booking = allBookings.find(b => b.id === currentBookingId);
+                if (booking) {
+                    const dateObj = new Date(date);
+                    const dateStr = dateObj.toLocaleDateString('ar-EG', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    let message = `تأكيد موعد جلستك\n\n`;
+                    message += `التاريخ: ${dateStr}\n`;
+                    message += `الوقت: ${time}\n`;
+                    message += `نوع الجلسة: ${getSessionTypeName(sessionType)}\n`;
+                    
+                    if (sessionType === 'online' && sessionLink) {
+                        message += `رابط الجلسة: ${sessionLink}\n`;
+                    }
+                    
+                    message += '\nأراك في الموعد بإذن الله.';
+                    
+                    // Copy message to clipboard
+                    navigator.clipboard.writeText(message).then(() => {
+                        showNotification('تم نسخ رسالة التأكيد', 'success');
+                    });
+                    
+                    // Open WhatsApp
+                    openWhatsApp(booking.phone, booking.name);
+                }
+                
+                showNotification('تم تأكيد الموعد بنجاح', 'success');
+                closeModal('confirmModal');
+                loadBookings();
+                
+            } catch (error) {
+                console.error('Error confirming appointment:', error);
+                showNotification('خطأ في تأكيد الموعد', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Convert to journey
+        async function convertToJourney(bookingId) {
+            const booking = allBookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            const confirmMessage = `
+هل تريد تحويل حجز ${booking.name} إلى رحلة ${getProgramName(booking.program)}؟
+
+سيتم:
+- إنشاء رحلة جديدة للعميل
+- تحديد المراحل والجلسات
+- إرسال رسالة ترحيب للعميل
+            `.trim();
+            
+            if (!confirm(confirmMessage)) return;
+            
+            showLoading(true);
+            
+            try {
+                // Create journey data
+                const journeyData = {
+                    // Client info
+                    userId: booking.userId || null,
+                    clientEmail: booking.email,
+                    clientName: booking.name,
+                    clientPhone: booking.phone,
+                    
+                    // Booking reference
+                    bookingId: bookingId,
+                    
+                    // Program info
+                    program: booking.program,
+                    status: 'active',
+                    
+                    // Dates
+                    startDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    expectedEndDate: calculateExpectedEndDate(booking.program),
+                    
+                    // Progress tracking
+                    currentPhase: 1,
+                    totalPhases: getProgramPhases(booking.program).length,
+                    progress: 0,
+                    completedSessions: 0,
+                    totalSessions: getProgramSessions(booking.program),
+                    
+                    // Additional info from booking
+                    goals: booking.goals || '',
+                    challenges: booking.challenges || '',
+                    notes: booking.notes || '',
+                    
+                    // Metadata
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastAction: 'تم إنشاء الرحلة'
+                };
+                
+                // Create journey document
+                const journeyRef = await db.collection('journeys').add(journeyData);
+                
+                // Create phases subcollection
+                const phases = getProgramPhases(booking.program);
+                for (let i = 0; i < phases.length; i++) {
+                    await journeyRef.collection('phases').add({
+                        ...phases[i],
+                        order: i + 1,
+                        status: i === 0 ? 'in_progress' : 'pending',
+                        startDate: i === 0 ? firebase.firestore.FieldValue.serverTimestamp() : null
+                    });
+                }
+                
+                // Update booking status
+                await db.collection('bookings').doc(bookingId).update({
+                    status: 'converted',
+                    journeyId: journeyRef.id,
+                    convertedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update user if exists
+                if (booking.userId) {
+                    await db.collection('users').doc(booking.userId).update({
+                        activeJourneyId: journeyRef.id,
+                        currentProgram: booking.program,
+                        journeyStartDate: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                // Send welcome message
+                const welcomeMessage = getJourneyWelcomeMessage(booking);
+                navigator.clipboard.writeText(welcomeMessage).then(() => {
+                    showNotification('تم نسخ رسالة الترحيب', 'success');
+                });
+                
+                showNotification('تم تحويل الحجز إلى رحلة بنجاح!', 'success');
+                
+                // Redirect to journey management
+                setTimeout(() => {
+                    window.location.href = `admin-journeys.html?journey=${journeyRef.id}`;
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error converting to journey:', error);
+                showNotification('خطأ في تحويل الحجز', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // View booking details
+        async function viewDetails(bookingId) {
+            const booking = allBookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            let detailsHTML = `
+                <div class="info-box">
+                    <h4>معلومات العميل:</h4>
+                    <p><strong>الاسم:</strong> ${booking.name || 'غير محدد'}</p>
+                    <p><strong>البريد الإلكتروني:</strong> ${booking.email}</p>
+                    <p><strong>رقم الهاتف:</strong> ${booking.phone}</p>
+                    <p><strong>البرنامج:</strong> ${getProgramName(booking.program)}</p>
+                    <p><strong>تاريخ الحجز:</strong> ${formatDate(booking.createdAt?.toDate() || new Date())}</p>
+                </div>
+            `;
+            
+            // Show message if exists
+            if (booking.message) {
+                detailsHTML += `
+                    <div class="info-box">
+                        <h4>رسالة العميل:</h4>
+                        <p>${booking.message}</p>
+                    </div>
+                `;
+            }
+            
+            // Show goals and challenges for new journeys
+            if (booking.goals || booking.challenges) {
+                detailsHTML += `
+                    <div class="info-box">
+                        <h4>معلومات إضافية:</h4>
+                        ${booking.goals ? `<p><strong>الأهداف:</strong> ${booking.goals}</p>` : ''}
+                        ${booking.challenges ? `<p><strong>التحديات:</strong> ${booking.challenges}</p>` : ''}
+                    </div>
+                `;
+            }
+            
+            // Show appointment details if confirmed
+            if (booking.status === 'confirmed' && booking.appointmentDate) {
+                const date = booking.appointmentDate.toDate ? 
+                    booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
+                
+                detailsHTML += `
+                    <div class="info-box">
+                        <h4>تفاصيل الموعد:</h4>
+                        <p><strong>التاريخ:</strong> ${date.toLocaleDateString('ar-EG')}</p>
+                        <p><strong>الوقت:</strong> ${booking.appointmentTime || 'غير محدد'}</p>
+                        <p><strong>نوع الجلسة:</strong> ${getSessionTypeName(booking.sessionType)}</p>
+                        ${booking.sessionLink ? `<p><strong>رابط الجلسة:</strong> <a href="${booking.sessionLink}" target="_blank">${booking.sessionLink}</a></p>` : ''}
+                    </div>
+                `;
+            }
+            
+            // Show notes if exist
+            if (booking.notes) {
+                detailsHTML += `
+                    <div class="info-box">
+                        <h4>الملاحظات:</h4>
+                        <p>${booking.notes}</p>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('bookingDetailsContent').innerHTML = detailsHTML;
+            openModal('detailsModal');
+        }
+        
+        // Export to Excel
+        function exportToExcel() {
+            let csv = '\ufeff'; // UTF-8 BOM
+            
+            // Headers
+            const headers = [
+                'التاريخ',
+                'الاسم',
+                'البريد الإلكتروني',
+                'الهاتف',
+                'النوع',
+                'البرنامج',
+                'الحالة',
+                'الملاحظات'
+            ];
+            
+            csv += headers.join(',') + '\n';
+            
+            // Data
+            filteredBookings.forEach(booking => {
+                const row = [
+                    formatDate(booking.createdAt?.toDate() || new Date()),
+                    booking.name || 'غير محدد',
+                    booking.email,
+                    booking.phone,
+                    getBookingTypeText(booking),
+                    getProgramName(booking.program),
+                    getStatusName(booking.status),
+                    (booking.notes || '').replace(/,/g, ';').replace(/\n/g, ' ')
+                ];
+                
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+            
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `حجوزات_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('تم تحميل الملف بنجاح', 'success');
+        }
+        
+        // Helper functions
+        function showLoading(show) {
+            document.querySelector('.loading-overlay').style.display = show ? 'flex' : 'none';
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.onclick = () => notification.remove();
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        function formatDate(date) {
+            return date.toLocaleDateString('ar-EG', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function getProgramName(program) {
+            const names = {
+                clarity: 'جلسة الوضوح',
+                discovery: 'رحلة الاكتشاف',
+                transformation: 'رحلة التحول'
+            };
+            return names[program] || program;
+        }
+        
+        function getStatusName(status) {
+            const names = {
+                pending: 'في الانتظار',
+                confirming: 'قيد التأكيد',
+                confirmed: 'مؤكد',
+                converted: 'تم التحويل'
+            };
+            return names[status] || 'في الانتظار';
+        }
+        
+        function getSessionTypeName(type) {
+            const names = {
+                online: 'أونلاين',
+                phone: 'هاتفي',
+                inperson: 'حضوري'
+            };
+            return names[type] || 'أونلاين';
+        }
+        
+        function getBookingTypeText(booking) {
+            if (booking.isNewJourney) return 'رحلة جديدة';
+            if (booking.existingClient) return 'عميل حالي';
+            return 'عميل جديد';
+        }
+        
+        function getProgramSessions(program) {
+            const sessions = {
+                clarity: 1,
+                discovery: 3,
+                transformation: 6
+            };
+            return sessions[program] || 1;
+        }
+        
+        function getProgramPhases(program) {
+            const phases = {
+                clarity: [
+                    {
+                        name: 'جلسة الوضوح',
+                        description: 'جلسة واحدة مكثفة للوصول لحلول عملية',
+                        sessions: 1
+                    }
+                ],
+                discovery: [
+                    {
+                        name: 'اكتشاف الذات',
+                        description: 'فهم أنماطك وقيمك الأساسية',
+                        sessions: 1
+                    },
+                    {
+                        name: 'بناء الوعي',
+                        description: 'تحديد نقاط القوة والتحديات',
+                        sessions: 1
+                    },
+                    {
+                        name: 'خطة العمل',
+                        description: 'رسم خارطة التغيير والتطوير',
+                        sessions: 1
+                    }
+                ],
+                transformation: [
+                    {
+                        name: 'الإنبات',
+                        description: 'كشف الجذور والأنماط العميقة',
+                        sessions: 2
+                    },
+                    {
+                        name: 'النمو',
+                        description: 'بناء الهوية الجديدة والقدرات',
+                        sessions: 2
+                    },
+                    {
+                        name: 'الازدهار',
+                        description: 'دمج التغيير ورسم المستقبل',
+                        sessions: 2
+                    }
+                ]
+            };
+            return phases[program] || [];
+        }
+        
+        function calculateExpectedEndDate(program) {
+            const durations = {
+                clarity: 7, // 1 week
+                discovery: 42, // 6 weeks
+                transformation: 90 // 3 months
+            };
+            
+            const days = durations[program] || 30;
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + days);
+            
+            return endDate;
+        }
+        
+        function getJourneyWelcomeMessage(booking) {
+            const programMessages = {
+                clarity: `
+🌟 مرحباً ${booking.name}!
+
+تم تأكيد جلسة الوضوح الخاصة بك.
+
+ما يمكنك توقعه:
+• جلسة مكثفة 90 دقيقة
+• حلول عملية لتحديك الحالي
+• خطة عمل واضحة
+• متابعة لمدة أسبوع
+
+يمكنك الآن الدخول لمساحتك الخاصة:
+https://mahmoudfouad25.github.io/portal.html
+
+أتطلع للقائك!
+محمود فؤاد
+                `,
+                discovery: `
+🗺️ مرحباً ${booking.name}!
+
+أهلاً بك في رحلة الاكتشاف!
+
+رحلتك تتضمن:
+• 3 جلسات على مدار 6 أسابيع
+• ممارسات يومية مخصصة
+• موارد تعليمية حصرية
+• دعم مستمر طوال الرحلة
+
+المرحلة الأولى: اكتشاف الذات
+سنبدأ بفهم أنماطك وقيمك الأساسية.
+
+يمكنك متابعة رحلتك من مساحتك الخاصة:
+https://mahmoudfouad25.github.io/portal.html
+
+معاً نحو اكتشاف أفضل نسخة منك!
+محمود فؤاد
+                `,
+                transformation: `
+🦋 مرحباً ${booking.name}!
+
+مبروك! لقد بدأت رحلة التحول العميق.
+
+رحلتك الملحمية تتضمن:
+• 6 جلسات على مدار 3 شهور
+• 3 مراحل تحولية (الإنبات - النمو - الازدهار)
+• دعم يومي ومتابعة مستمرة
+• مجتمع خاص برفقاء الرحلة
+• موارد وأدوات حصرية
+
+هذه ليست مجرد جلسات... بل رحلة تحول حقيقية!
+
+ابدأ رحلتك من هنا:
+https://mahmoudfouad25.github.io/portal.html
+
+أتشرف بمرافقتك في هذه الرحلة المميزة.
+محمود فؤاد
+                `
+            };
+            
+            return programMessages[booking.program]?.trim() || 'مرحباً! تم تأكيد رحلتك بنجاح.';
+        }
+        
+        // Close modals on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
