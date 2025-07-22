@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعداد نظام الرحلات</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+            direction: rtl;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2C5530;
+            text-align: center;
+        }
+        .btn {
+            background: #2C5530;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #1e3a21;
+        }
+        .log {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>إعداد نظام الرحلات</h1>
+        <p>هذه الصفحة ستقوم بإنشاء البيانات الأساسية لنظام الرحلات</p>
+        
+        <div style="text-align: center;">
+            <button class="btn" onclick="setupJourneys()">بدء الإعداد</button>
+            <button class="btn" onclick="createSampleJourney()">إنشاء رحلة تجريبية</button>
+        </div>
+        
+        <div id="log" class="log"></div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const db = firebase.firestore();
+        const logDiv = document.getElementById('log');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString('ar-EG');
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+            logDiv.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // تعريف هيكل البرامج
+        const programStructures = {
+            clarity: {
+                name: 'جلسة الوضوح',
+                totalSessions: 1,
+                duration: 7, // أيام
+                phases: [
+                    {
+                        id: 'clarity_phase_1',
+                        name: 'الوضوح والحل',
+                        sessions: 1,
+                        practices: ['practice_1', 'practice_2'],
+                        resources: ['resource_clarity_1']
+                    }
+                ]
+            },
+            discovery: {
+                name: 'رحلة الاكتشاف',
+                totalSessions: 3,
+                duration: 30, // أيام
+                phases: [
+                    {
+                        id: 'discovery_phase_1',
+                        name: 'الاستكشاف الأولي',
+                        sessions: 1,
+                        practices: ['practice_1', 'practice_2'],
+                        resources: ['resource_discovery_1']
+                    },
+                    {
+                        id: 'discovery_phase_2',
+                        name: 'بناء الوعي',
+                        sessions: 1,
+                        practices: ['practice_2', 'practice_3'],
+                        resources: ['resource_discovery_2']
+                    },
+                    {
+                        id: 'discovery_phase_3',
+                        name: 'التطبيق والتثبيت',
+                        sessions: 1,
+                        practices: ['practice_1', 'practice_3'],
+                        resources: ['resource_discovery_3']
+                    }
+                ]
+            },
+            transformation: {
+                name: 'رحلة التحول',
+                totalSessions: 6,
+                duration: 90, // أيام
+                phases: [
+                    {
+                        id: 'transform_phase_1',
+                        name: 'كشف الأنماط',
+                        sessions: 2,
+                        practices: ['practice_1', 'practice_2'],
+                        resources: ['resource_transform_1', 'resource_transform_2']
+                    },
+                    {
+                        id: 'transform_phase_2',
+                        name: 'بناء الأسس الجديدة',
+                        sessions: 2,
+                        practices: ['practice_2', 'practice_3'],
+                        resources: ['resource_transform_3', 'resource_transform_4']
+                    },
+                    {
+                        id: 'transform_phase_3',
+                        name: 'التحول المستدام',
+                        sessions: 2,
+                        practices: ['practice_1', 'practice_2', 'practice_3'],
+                        resources: ['resource_transform_5', 'resource_transform_6']
+                    }
+                ]
+            }
+        };
+
+        // إعداد المعالم (Milestones)
+        const milestones = [
+            { id: 'self_awareness', name: 'الوعي الذاتي', icon: '🎯' },
+            { id: 'goal_clarity', name: 'وضوح الأهداف', icon: '🎯' },
+            { id: 'habit_formation', name: 'بناء العادات', icon: '💪' },
+            { id: 'emotional_balance', name: 'التوازن العاطفي', icon: '⚖️' },
+            { id: 'authentic_expression', name: 'التعبير الأصيل', icon: '🌟' },
+            { id: 'sustainable_growth', name: 'النمو المستدام', icon: '🌱' }
+        ];
+
+        async function setupJourneys() {
+            log('بدء إعداد نظام الرحلات...', 'info');
+            
+            try {
+                // 1. إضافة بيانات البرامج
+                log('إضافة هياكل البرامج...', 'info');
+                const programsRef = db.collection('program_templates');
+                
+                for (const [programId, structure] of Object.entries(programStructures)) {
+                    await programsRef.doc(programId).set(structure);
+                    log(`✓ تم إضافة برنامج: ${structure.name}`, 'success');
+                }
+                
+                // 2. إضافة المعالم
+                log('إضافة المعالم...', 'info');
+                const milestonesRef = db.collection('milestones');
+                
+                for (const milestone of milestones) {
+                    await milestonesRef.doc(milestone.id).set(milestone);
+                    log(`✓ تم إضافة معلم: ${milestone.name}`, 'success');
+                }
+                
+                // 3. إضافة قوالب الرسائل
+                log('إضافة قوالب الرسائل...', 'info');
+                const templatesRef = db.collection('message_templates');
+                
+                const messageTemplates = [
+                    {
+                        id: 'welcome_message',
+                        type: 'welcome',
+                        title: 'مرحباً في رحلتك',
+                        content: 'أهلاً {name}! سعيد ببدء رحلتك معنا. هذه مساحتك الخاصة للنمو والتطور.'
+                    },
+                    {
+                        id: 'practice_reminder',
+                        type: 'reminder',
+                        title: 'تذكير بالممارسة',
+                        content: 'حان وقت ممارسة {practice_name}. خذ {duration} دقائق لنفسك.'
+                    },
+                    {
+                        id: 'session_reminder',
+                        type: 'reminder',
+                        title: 'تذكير بالجلسة',
+                        content: 'جلستك غداً في {time}. استعد بكتابة أسئلتك وملاحظاتك.'
+                    },
+                    {
+                        id: 'achievement_congrats',
+                        type: 'achievement',
+                        title: 'تهانينا! 🎉',
+                        content: 'أحسنت! لقد حققت معلم {milestone_name}. استمر في التقدم!'
+                    }
+                ];
+                
+                for (const template of messageTemplates) {
+                    await templatesRef.doc(template.id).set(template);
+                    log(`✓ تم إضافة قالب رسالة: ${template.title}`, 'success');
+                }
+                
+                log('تم إعداد نظام الرحلات بنجاح! 🎉', 'success');
+                
+            } catch (error) {
+                log(`خطأ: ${error.message}`, 'error');
+            }
+        }
+
+        async function createSampleJourney() {
+            log('إنشاء رحلة تجريبية...', 'info');
+            
+            try {
+                // احصل على أول مستخدم
+                const usersSnapshot = await db.collection('users').limit(1).get();
+                if (usersSnapshot.empty) {
+                    log('لا يوجد مستخدمين. قم بإنشاء حساب أولاً.', 'error');
+                    return;
+                }
+                
+                const user = usersSnapshot.docs[0];
+                const userId = user.id;
+                const userData = user.data();
+                
+                // احصل على أول حجز للمستخدم
+                const bookingsSnapshot = await db.collection('bookings')
+                    .where('email', '==', userData.email)
+                    .limit(1)
+                    .get();
+                    
+                if (bookingsSnapshot.empty) {
+                    log('لا يوجد حجوزات لهذا المستخدم.', 'error');
+                    return;
+                }
+                
+                const booking = bookingsSnapshot.docs[0];
+                const bookingData = booking.data();
+                const program = bookingData.program || 'discovery';
+                
+                // إنشاء رحلة
+                const journeyData = {
+                    userId: userId,
+                    bookingId: booking.id,
+                    program: program,
+                    status: 'active',
+                    startDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    expectedEndDate: new Date(Date.now() + (programStructures[program].duration * 24 * 60 * 60 * 1000)),
+                    
+                    phases: programStructures[program].phases.map((phase, index) => ({
+                        ...phase,
+                        status: index === 0 ? 'in_progress' : 'pending',
+                        startDate: index === 0 ? new Date() : null,
+                        completedDate: null
+                    })),
+                    
+                    progress: {
+                        overallProgress: 0,
+                        sessionsCompleted: 0,
+                        totalSessions: programStructures[program].totalSessions,
+                        practicesCompleted: 0,
+                        milestonesAchieved: []
+                    },
+                    
+                    assignedPractices: [],
+                    assignedResources: [],
+                    communications: [
+                        {
+                            type: 'message',
+                            from: 'system',
+                            content: 'مرحباً بك في رحلتك! نتمنى لك تجربة مثمرة.',
+                            date: new Date(),
+                            read: false
+                        }
+                    ],
+                    assessments: [],
+                    
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const journeyRef = await db.collection('journeys').add(journeyData);
+                log(`✓ تم إنشاء رحلة تجريبية للمستخدم: ${userData.name || userData.email}`, 'success');
+                log(`معرف الرحلة: ${journeyRef.id}`, 'info');
+                
+            } catch (error) {
+                log(`خطأ: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
