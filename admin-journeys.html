@@ -1,0 +1,2923 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الرحلات - محمود فؤاد</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2C5530;
+            --secondary: #8B9467;
+            --accent: #D4AF37;
+            --light: #F5F2E8;
+            --dark: #1A1A1A;
+            --gradient: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: #f5f5f5;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Auth Check Container */
+        .auth-check {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--gradient);
+        }
+        
+        .auth-message {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .auth-message h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .auth-message p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-message button {
+            padding: 1rem 2rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* Navigation */
+        .admin-nav {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+        }
+        
+        .badge {
+            background: var(--success);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+            display: inline-block;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Container */
+        .journeys-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            color: #666;
+        }
+        
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        /* View Toggle */
+        .view-toggle {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .view-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .view-btn:hover {
+            border-color: var(--primary);
+        }
+        
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Filters Section */
+        .filters-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .filter-group input,
+        .filter-group select {
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Journeys Grid View */
+        .journeys-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .journey-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .journey-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .journey-header {
+            background: var(--gradient);
+            padding: 1.5rem;
+            color: white;
+        }
+        
+        .client-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .client-avatar {
+            width: 50px;
+            height: 50px;
+            background: white;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .client-details h3 {
+            margin-bottom: 0.3rem;
+        }
+        
+        .client-details p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .journey-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .journey-body {
+            padding: 1.5rem;
+        }
+        
+        .program-info {
+            margin-bottom: 1rem;
+        }
+        
+        .program-name {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .phase-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .progress-section {
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .journey-meta {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .meta-item {
+            text-align: center;
+        }
+        
+        .meta-value {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        .meta-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .journey-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+        }
+        
+        /* Table View */
+        .table-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: none;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f8f9fa;
+            padding: 1rem;
+            text-align: right;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid #e9ecef;
+            white-space: nowrap;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Journey Management Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 95%;
+            max-width: 1200px;
+            animation: fadeIn 0.3s;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            background: var(--gradient);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .close:hover {
+            opacity: 1;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        
+        /* Management Tabs */
+        .management-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 1rem;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+        }
+        
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Overview Tab */
+        .client-summary {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .summary-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .summary-info h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-info p {
+            color: #666;
+            margin: 0.3rem 0;
+        }
+        
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .overview-stat {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .overview-stat .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .overview-stat .label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-right: 30px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e9ecef;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .timeline-item.completed::before {
+            background: var(--primary);
+        }
+        
+        .timeline-item.current::before {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+        
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-right: 30px;
+        }
+        
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .timeline-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Sessions Tab */
+        .sessions-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .session-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .session-info h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .session-info p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0.3rem 0;
+        }
+        
+        .session-status {
+            padding: 4px 12px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .session-status.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .session-status.scheduled {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .session-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Practices Tab */
+        .practices-assignment {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .practice-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            border: 2px solid transparent;
+        }
+        
+        .practice-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .practice-item.assigned {
+            background: #d4edda;
+            border-color: var(--success);
+        }
+        
+        .practice-item.assigned::after {
+            content: '✓';
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--success);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .practice-item h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .practice-item p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Resources Tab */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .resource-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .resource-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .resource-item.assigned {
+            border-color: var(--accent);
+            background: #fffbf0;
+        }
+        
+        .resource-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .resource-item h4 {
+            color: var(--primary);
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .resource-item p {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        /* Messages Tab */
+        .messages-container {
+            height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .message-item {
+            display: flex;
+            margin-bottom: 1rem;
+            align-items: flex-start;
+        }
+        
+        .message-item.from-coach {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 0.5rem;
+        }
+        
+        .message-content {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+        
+        .message-content.from-coach {
+            background: #e3f2fd;
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.3rem;
+        }
+        
+        .message-input-area {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        /* Progress Tab */
+        .progress-details {
+            display: grid;
+            gap: 2rem;
+        }
+        
+        .progress-chart {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .engagement-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .metric-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .metric-card h4 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Action Buttons Group */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideInNotification 0.3s;
+            cursor: pointer;
+        }
+        
+        @keyframes slideInNotification {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .notification.success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .notification.error {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .notification.info {
+            background: var(--info);
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .journeys-container {
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .journeys-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .view-toggle {
+                overflow-x: auto;
+            }
+            
+            .modal-content {
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+                height: 100%;
+                border-radius: 0;
+            }
+            
+            .client-summary {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .table-container {
+                overflow-x: scroll;
+            }
+            
+            table {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Auth Check -->
+    <div id="authCheck" class="auth-check" style="display: none;">
+        <div class="auth-message">
+            <h2>⚠️ غير مصرح</h2>
+            <p>يجب تسجيل الدخول أولاً للوصول لهذه الصفحة</p>
+            <button onclick="window.location.href='admin-dashboard.html'">
+                الذهاب لصفحة الدخول
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div id="mainContent" style="display: none;">
+        <!-- Navigation -->
+        <nav class="admin-nav">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h2>لوحة تحكم محمود فؤاد</h2>
+                </div>
+                <div class="nav-links">
+                    <a href="admin-dashboard.html">
+                        <span>🏠</span> الرئيسية
+                    </a>
+                    <a href="admin-bookings.html">
+                        <span>📋</span> الحجوزات
+                    </a>
+                    <a href="admin-journeys.html" class="active">
+                        <span>🗺️</span> الرحلات
+                        <span class="badge" id="activeJourneysCount">0</span>
+                    </a>
+                    <a href="#" onclick="logout()">
+                        <span>🚪</span> خروج
+                    </a>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Journeys Container -->
+        <div class="journeys-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>إدارة الرحلات النشطة</h1>
+                <p>متابعة وإدارة رحلات العملاء وتقدمهم</p>
+            </div>
+            
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <h3>الرحلات النشطة</h3>
+                    <div class="number" id="activeCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>رحلات الوضوح</h3>
+                    <div class="number" id="clarityCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>رحلات الاكتشاف</h3>
+                    <div class="number" id="discoveryCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>رحلات التحول</h3>
+                    <div class="number" id="transformationCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>الرحلات المكتملة</h3>
+                    <div class="number" id="completedCount">0</div>
+                </div>
+            </div>
+            
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <button class="view-btn active" onclick="switchView('grid')">
+                    <span>⊞</span> عرض الشبكة
+                </button>
+                <button class="view-btn" onclick="switchView('table')">
+                    <span>☰</span> عرض الجدول
+                </button>
+                <button class="btn btn-success" onclick="refreshData()">
+                    <span>🔄</span> تحديث
+                </button>
+            </div>
+            
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>البحث</label>
+                        <input type="text" id="searchInput" placeholder="بحث بالاسم أو البريد..."
+                               onkeyup="applyFilters()">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>البرنامج</label>
+                        <select id="programFilter" onchange="applyFilters()">
+                            <option value="">جميع البرامج</option>
+                            <option value="clarity">جلسة الوضوح</option>
+                            <option value="discovery">رحلة الاكتشاف</option>
+                            <option value="transformation">رحلة التحول</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>الحالة</label>
+                        <select id="statusFilter" onchange="applyFilters()">
+                            <option value="">جميع الحالات</option>
+                            <option value="active">نشطة</option>
+                            <option value="paused">متوقفة</option>
+                            <option value="completed">مكتملة</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>المرحلة</label>
+                        <select id="phaseFilter" onchange="applyFilters()">
+                            <option value="">جميع المراحل</option>
+                            <option value="1">المرحلة الأولى</option>
+                            <option value="2">المرحلة الثانية</option>
+                            <option value="3">المرحلة الثالثة</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Grid View -->
+            <div id="gridView" class="journeys-grid">
+                <!-- سيتم ملؤها بواسطة JavaScript -->
+            </div>
+            
+            <!-- Table View -->
+            <div id="tableView" class="table-section">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>العميل</th>
+                                <th>البرنامج</th>
+                                <th>المرحلة</th>
+                                <th>التقدم</th>
+                                <th>الجلسات</th>
+                                <th>آخر نشاط</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- سيتم ملؤها بواسطة JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Journey Management Modal -->
+    <div id="journeyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">إدارة الرحلة</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Management Tabs -->
+                <div class="management-tabs">
+                    <button class="tab-btn active" onclick="switchTab('overview')">نظرة عامة</button>
+                    <button class="tab-btn" onclick="switchTab('sessions')">الجلسات</button>
+                    <button class="tab-btn" onclick="switchTab('practices')">الممارسات</button>
+                    <button class="tab-btn" onclick="switchTab('resources')">الموارد</button>
+                    <button class="tab-btn" onclick="switchTab('messages')">الرسائل</button>
+                    <button class="tab-btn" onclick="switchTab('progress')">التقدم</button>
+                </div>
+                
+                <!-- Tab Contents -->
+                <!-- Overview Tab -->
+                <div id="overviewTab" class="tab-content active">
+                    <div class="client-summary">
+                        <div class="summary-avatar" id="clientAvatar">أ</div>
+                        <div class="summary-info">
+                            <h3 id="clientName">اسم العميل</h3>
+                            <p id="clientEmail">البريد الإلكتروني</p>
+                            <p id="clientPhone">رقم الهاتف</p>
+                            <p id="clientProgram">البرنامج</p>
+                        </div>
+                    </div>
+                    
+                    <div class="overview-stats">
+                        <div class="overview-stat">
+                            <div class="value" id="sessionsCompleted">0/0</div>
+                            <div class="label">الجلسات</div>
+                        </div>
+                        <div class="overview-stat">
+                            <div class="value" id="currentPhaseDisplay">1/3</div>
+                            <div class="label">المرحلة</div>
+                        </div>
+                        <div class="overview-stat">
+                            <div class="value" id="progressPercentage">0%</div>
+                            <div class="label">التقدم</div>
+                        </div>
+                        <div class="overview-stat">
+                            <div class="value" id="practicesCount">0</div>
+                            <div class="label">الممارسات</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--primary);">الخط الزمني للرحلة</h3>
+                    <div class="timeline" id="journeyTimeline">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </div>
+                </div>
+                
+                <!-- Sessions Tab -->
+                <div id="sessionsTab" class="tab-content">
+                    <button class="btn btn-primary" onclick="scheduleNewSession()">
+                        جدولة جلسة جديدة
+                    </button>
+                    <hr style="margin: 1rem 0;">
+                    <div class="sessions-grid" id="sessionsList">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </div>
+                </div>
+                
+                <!-- Practices Tab -->
+                <div id="practicesTab" class="tab-content">
+                    <h3 style="margin-bottom: 1rem;">الممارسات المتاحة</h3>
+                    <div class="practices-assignment" id="practicesList">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-success" onclick="savePracticesAssignment()">
+                            حفظ التخصيصات
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Resources Tab -->
+                <div id="resourcesTab" class="tab-content">
+                    <h3 style="margin-bottom: 1rem;">الموارد المتاحة</h3>
+                    <div class="resources-grid" id="resourcesList">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-success" onclick="saveResourcesAssignment()">
+                            حفظ التخصيصات
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Messages Tab -->
+                <div id="messagesTab" class="tab-content">
+                    <div class="messages-container" id="messagesContainer">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </div>
+                    <div class="message-input-area">
+                        <input type="text" class="message-input" id="messageInput" 
+                               placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') sendMessage()">
+                        <button class="btn btn-primary" onclick="sendMessage()">إرسال</button>
+                    </div>
+                </div>
+                
+                <!-- Progress Tab -->
+                <div id="progressTab" class="tab-content">
+                    <div class="progress-details">
+                        <div class="progress-chart">
+                            <h3 style="margin-bottom: 1rem;">معدل الالتزام بالممارسات</h3>
+                            <canvas id="progressChart" width="400" height="200"></canvas>
+                        </div>
+                        
+                        <div class="engagement-metrics">
+                            <div class="metric-card">
+                                <h4>معدل الحضور</h4>
+                                <div class="metric-value" id="attendanceRate">100%</div>
+                            </div>
+                            <div class="metric-card">
+                                <h4>الممارسات المكتملة</h4>
+                                <div class="metric-value" id="practicesCompleted">0</div>
+                            </div>
+                            <div class="metric-card">
+                                <h4>معدل التفاعل</h4>
+                                <div class="metric-value" id="engagementRate">85%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label>ملاحظات التقدم:</label>
+                            <textarea id="progressNotes" rows="4" placeholder="اكتب ملاحظاتك عن تقدم العميل..."></textarea>
+                            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="saveProgressNotes()">
+                                حفظ الملاحظات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Schedule Session Modal -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>جدولة جلسة جديدة</h2>
+                <span class="close" onclick="closeScheduleModal()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>التاريخ:</label>
+                    <input type="date" id="sessionDate" min="">
+                </div>
+                
+                <div class="form-group">
+                    <label>الوقت:</label>
+                    <input type="time" id="sessionTime">
+                </div>
+                
+                <div class="form-group">
+                    <label>نوع الجلسة:</label>
+                    <select id="sessionType">
+                        <option value="online">أونلاين (Zoom)</option>
+                        <option value="phone">مكالمة هاتفية</option>
+                        <option value="inperson">حضوري</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>رابط الجلسة (للأونلاين):</label>
+                    <input type="text" id="sessionLink" placeholder="https://zoom.us/j/...">
+                </div>
+                
+                <div class="form-group">
+                    <label>ملاحظات:</label>
+                    <textarea id="sessionNotes" rows="3" placeholder="ملاحظات إضافية..."></textarea>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="closeScheduleModal()">إلغاء</button>
+                    <button class="btn btn-success" onclick="confirmSchedule()">تأكيد الجدولة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        // Initialize
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        let allJourneys = [];
+        let filteredJourneys = [];
+        let currentJourney = null;
+        let currentView = 'grid';
+        let selectedPractices = new Set();
+        let selectedResources = new Set();
+        
+        // Check authentication on load
+        window.onload = function() {
+            checkAuth();
+            setMinDates();
+            checkUrlParams();
+        };
+        
+        // Check authentication
+        function checkAuth() {
+            const authToken = sessionStorage.getItem('adminAuth');
+            const authTime = sessionStorage.getItem('authTime');
+            const oneHour = 60 * 60 * 1000;
+            
+            if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
+                document.getElementById('authCheck').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                loadJourneys();
+                // Refresh every 30 seconds
+                setInterval(loadJourneys, 30000);
+            } else {
+                document.getElementById('authCheck').style.display = 'flex';
+                document.getElementById('mainContent').style.display = 'none';
+            }
+        }
+        
+        // Check URL parameters
+        function checkUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const journeyId = params.get('journey');
+            
+            if (journeyId) {
+                // Wait for data to load then open journey
+                setTimeout(() => {
+                    const journey = allJourneys.find(j => j.id === journeyId);
+                    if (journey) {
+                        openJourneyManagement(journey);
+                    }
+                }, 2000);
+            }
+        }
+        
+        // Logout
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                sessionStorage.clear();
+                window.location.href = 'admin-dashboard.html';
+            }
+        }
+        
+        // Set minimum dates
+        function setMinDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                input.min = today;
+            });
+        }
+        
+        // Load journeys
+        async function loadJourneys() {
+            showLoading(true);
+            
+            try {
+                const snapshot = await db.collection('journeys')
+                    .orderBy('startDate', 'desc')
+                    .get();
+                
+                allJourneys = [];
+                
+                for (const doc of snapshot.docs) {
+                    const journeyData = doc.data();
+                    
+                    // Get phases subcollection
+                    const phasesSnapshot = await doc.ref.collection('phases')
+                        .orderBy('order')
+                        .get();
+                    
+                    const phases = [];
+                    phasesSnapshot.forEach(phaseDoc => {
+                        phases.push({
+                            id: phaseDoc.id,
+                            ...phaseDoc.data()
+                        });
+                    });
+                    
+                    allJourneys.push({
+                        id: doc.id,
+                        ...journeyData,
+                        phases: phases
+                    });
+                }
+                
+                // Update stats
+                updateStats();
+                
+                // Apply filters and display
+                applyFilters();
+                
+                // Update badge
+                const activeCount = allJourneys.filter(j => j.status === 'active').length;
+                document.getElementById('activeJourneysCount').textContent = activeCount;
+                document.getElementById('activeJourneysCount').style.display = activeCount > 0 ? 'inline' : 'none';
+                
+            } catch (error) {
+                console.error('Error loading journeys:', error);
+                showNotification('خطأ في تحميل البيانات', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Update stats
+        function updateStats() {
+            const stats = {
+                active: 0,
+                clarity: 0,
+                discovery: 0,
+                transformation: 0,
+                completed: 0
+            };
+            
+            allJourneys.forEach(journey => {
+                if (journey.status === 'active') {
+                    stats.active++;
+                    
+                    switch(journey.program) {
+                        case 'clarity':
+                            stats.clarity++;
+                            break;
+                        case 'discovery':
+                            stats.discovery++;
+                            break;
+                        case 'transformation':
+                            stats.transformation++;
+                            break;
+                    }
+                } else if (journey.status === 'completed') {
+                    stats.completed++;
+                }
+            });
+            
+            document.getElementById('activeCount').textContent = stats.active;
+            document.getElementById('clarityCount').textContent = stats.clarity;
+            document.getElementById('discoveryCount').textContent = stats.discovery;
+            document.getElementById('transformationCount').textContent = stats.transformation;
+            document.getElementById('completedCount').textContent = stats.completed;
+        }
+        
+        // Apply filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const programFilter = document.getElementById('programFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const phaseFilter = document.getElementById('phaseFilter').value;
+            
+            filteredJourneys = allJourneys.filter(journey => {
+                // Search filter
+                if (searchTerm) {
+                    const searchableText = [
+                        journey.clientName,
+                        journey.clientEmail,
+                        journey.clientPhone
+                    ].join(' ').toLowerCase();
+                    
+                    if (!searchableText.includes(searchTerm)) {
+                        return false;
+                    }
+                }
+                
+                // Program filter
+                if (programFilter && journey.program !== programFilter) {
+                    return false;
+                }
+                
+                // Status filter
+                if (statusFilter && journey.status !== statusFilter) {
+                    return false;
+                }
+                
+                // Phase filter
+                if (phaseFilter && journey.currentPhase?.toString() !== phaseFilter) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            displayJourneys();
+        }
+        
+        // Display journeys
+        function displayJourneys() {
+            if (currentView === 'grid') {
+                displayGridView();
+            } else {
+                displayTableView();
+            }
+        }
+        
+        // Display grid view
+        function displayGridView() {
+            const container = document.getElementById('gridView');
+            
+            if (filteredJourneys.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">🗺️</div>
+                        <p>لا توجد رحلات تطابق معايير البحث</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            filteredJourneys.forEach(journey => {
+                const progress = journey.progress || 0;
+                const currentPhase = journey.currentPhase || 1;
+                const totalPhases = journey.totalPhases || getProgramPhases(journey.program).length;
+                const completedSessions = journey.completedSessions || 0;
+                const totalSessions = journey.totalSessions || getProgramSessions(journey.program);
+                
+                html += `
+                    <div class="journey-card" onclick="openJourneyManagement(${JSON.stringify(journey).replace(/"/g, '&quot;')})">
+                        <div class="journey-header">
+                            <div class="client-info">
+                                <div class="client-avatar">${getInitial(journey.clientName)}</div>
+                                <div class="client-details">
+                                    <h3>${journey.clientName || 'غير محدد'}</h3>
+                                    <p>${journey.clientEmail}</p>
+                                </div>
+                            </div>
+                            <span class="journey-status">${getStatusName(journey.status)}</span>
+                        </div>
+                        
+                        <div class="journey-body">
+                            <div class="program-info">
+                                <div class="program-name">${getProgramName(journey.program)}</div>
+                                <div class="phase-indicator">
+                                    <span>📍</span>
+                                    <span>المرحلة ${currentPhase} من ${totalPhases}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-section">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${progress}%"></div>
+                                </div>
+                                <div class="progress-text">
+                                    <span>التقدم العام</span>
+                                    <span>${progress}%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="journey-meta">
+                                <div class="meta-item">
+                                    <div class="meta-value">${completedSessions}/${totalSessions}</div>
+                                    <div class="meta-label">الجلسات</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-value">${journey.assignedPractices?.length || 0}</div>
+                                    <div class="meta-label">الممارسات</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-value">${journey.assignedResources?.length || 0}</div>
+                                    <div class="meta-label">الموارد</div>
+                                </div>
+                            </div>
+                            
+                            <div class="journey-actions">
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); openJourneyManagement(${JSON.stringify(journey).replace(/"/g, '&quot;')})">
+                                    إدارة الرحلة
+                                </button>
+                                <button class="btn btn-whatsapp" onclick="event.stopPropagation(); openWhatsApp('${journey.clientPhone}', '${journey.clientName}')">
+                                    واتساب
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Display table view
+        function displayTableView() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (filteredJourneys.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div class="empty-state-icon">🗺️</div>
+                            <p>لا توجد رحلات تطابق معايير البحث</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let html = '';
+            filteredJourneys.forEach(journey => {
+                const progress = journey.progress || 0;
+                const currentPhase = journey.currentPhase || 1;
+                const totalPhases = journey.totalPhases || getProgramPhases(journey.program).length;
+                const completedSessions = journey.completedSessions || 0;
+                const totalSessions = journey.totalSessions || getProgramSessions(journey.program);
+                const lastActivity = journey.lastUpdated?.toDate ? 
+                    formatDate(journey.lastUpdated.toDate()) : 'لا يوجد';
+                
+                html += `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="client-avatar" style="width: 40px; height: 40px; font-size: 1rem;">
+                                    ${getInitial(journey.clientName)}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">${journey.clientName || 'غير محدد'}</div>
+                                    <div style="font-size: 0.85rem; color: #666;">${journey.clientEmail}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${getProgramName(journey.program)}</td>
+                        <td>${currentPhase} من ${totalPhases}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="progress-bar" style="width: 100px;">
+                                    <div class="progress-fill" style="width: ${progress}%"></div>
+                                </div>
+                                <span>${progress}%</span>
+                            </div>
+                        </td>
+                        <td>${completedSessions}/${totalSessions}</td>
+                        <td>${lastActivity}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick='openJourneyManagement(${JSON.stringify(journey).replace(/'/g, "\\'")})'>
+                                    إدارة
+                                </button>
+                                <button class="btn btn-whatsapp" onclick="openWhatsApp('${journey.clientPhone}', '${journey.clientName}')">
+                                    واتساب
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        // Switch view
+        function switchView(view) {
+            currentView = view;
+            
+            // Update buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show/hide views
+            if (view === 'grid') {
+                document.getElementById('gridView').style.display = 'grid';
+                document.getElementById('tableView').style.display = 'none';
+            } else {
+                document.getElementById('gridView').style.display = 'none';
+                document.getElementById('tableView').style.display = 'block';
+            }
+            
+            displayJourneys();
+        }
+        
+        // Refresh data
+        function refreshData() {
+            loadJourneys();
+            showNotification('تم تحديث البيانات', 'success');
+        }
+        
+        // Open journey management
+        function openJourneyManagement(journey) {
+            currentJourney = typeof journey === 'string' ? JSON.parse(journey) : journey;
+            
+            // Update modal title
+            document.getElementById('modalTitle').textContent = 
+                `إدارة رحلة ${currentJourney.clientName} - ${getProgramName(currentJourney.program)}`;
+            
+            // Reset tabs
+            switchTab('overview');
+            
+            // Load journey data
+            loadJourneyDetails();
+            
+            // Show modal
+            document.getElementById('journeyModal').style.display = 'block';
+        }
+        
+        // Load journey details
+        async function loadJourneyDetails() {
+            if (!currentJourney) return;
+            
+            // Update client info
+            document.getElementById('clientAvatar').textContent = getInitial(currentJourney.clientName);
+            document.getElementById('clientName').textContent = currentJourney.clientName || 'غير محدد';
+            document.getElementById('clientEmail').textContent = currentJourney.clientEmail;
+            document.getElementById('clientPhone').textContent = currentJourney.clientPhone;
+            document.getElementById('clientProgram').textContent = getProgramName(currentJourney.program);
+            
+            // Update stats
+            const completedSessions = currentJourney.completedSessions || 0;
+            const totalSessions = currentJourney.totalSessions || getProgramSessions(currentJourney.program);
+            const currentPhase = currentJourney.currentPhase || 1;
+            const totalPhases = currentJourney.totalPhases || getProgramPhases(currentJourney.program).length;
+            const progress = currentJourney.progress || 0;
+            const practicesCount = currentJourney.assignedPractices?.length || 0;
+            
+            document.getElementById('sessionsCompleted').textContent = `${completedSessions}/${totalSessions}`;
+            document.getElementById('currentPhaseDisplay').textContent = `${currentPhase}/${totalPhases}`;
+            document.getElementById('progressPercentage').textContent = `${progress}%`;
+            document.getElementById('practicesCount').textContent = practicesCount;
+            
+            // Load timeline
+            loadTimeline();
+            
+            // Initialize practices and resources selections
+            selectedPractices = new Set(currentJourney.assignedPractices?.map(p => p.practiceId) || []);
+            selectedResources = new Set(currentJourney.assignedResources?.map(r => r.resourceId) || []);
+        }
+        
+        // Load timeline
+        function loadTimeline() {
+            const timeline = document.getElementById('journeyTimeline');
+            
+            if (!currentJourney.phases || currentJourney.phases.length === 0) {
+                timeline.innerHTML = '<p>لا توجد مراحل محددة</p>';
+                return;
+            }
+            
+            let html = '';
+            currentJourney.phases.forEach((phase, index) => {
+                const isCompleted = phase.status === 'completed';
+                const isCurrent = phase.status === 'in_progress';
+                
+                let dateStr = 'لم تبدأ';
+                if (phase.startDate) {
+                    const date = phase.startDate.toDate ? phase.startDate.toDate() : new Date(phase.startDate);
+                    dateStr = date.toLocaleDateString('ar-EG');
+                }
+                
+                html += `
+                    <div class="timeline-item ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-title">المرحلة ${phase.order}: ${phase.name}</span>
+                                <span class="timeline-date">${dateStr}</span>
+                            </div>
+                            <p>${phase.description || ''}</p>
+                            ${isCurrent ? '<span style="color: var(--warning); font-weight: 600;">المرحلة الحالية</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            timeline.innerHTML = html;
+        }
+        
+        // Switch tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target?.classList.add('active');
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Load tab content
+            switch(tabName) {
+                case 'sessions':
+                    loadSessionsTab();
+                    break;
+                case 'practices':
+                    loadPracticesTab();
+                    break;
+                case 'resources':
+                    loadResourcesTab();
+                    break;
+                case 'messages':
+                    loadMessagesTab();
+                    break;
+                case 'progress':
+                    loadProgressTab();
+                    break;
+            }
+        }
+        
+        // Load sessions tab
+        async function loadSessionsTab() {
+            const container = document.getElementById('sessionsList');
+            
+            try {
+                // Get bookings for this journey
+                const bookingsSnapshot = await db.collection('bookings')
+                    .where('journeyId', '==', currentJourney.id)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                if (bookingsSnapshot.empty) {
+                    container.innerHTML = '<p>لا توجد جلسات محجوزة بعد</p>';
+                    return;
+                }
+                
+                let html = '';
+                let sessionNumber = 1;
+                
+                bookingsSnapshot.forEach(doc => {
+                    const booking = doc.data();
+                    let sessionDate = 'لم يحدد';
+                    let sessionStatus = 'pending';
+                    
+                    if (booking.appointmentDate) {
+                        const date = booking.appointmentDate.toDate ? 
+                            booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
+                        sessionDate = date.toLocaleDateString('ar-EG');
+                        
+                        if (booking.appointmentTime) {
+                            sessionDate += ' - ' + booking.appointmentTime;
+                        }
+                        
+                        // Determine status
+                        if (date < new Date()) {
+                            sessionStatus = 'completed';
+                        } else {
+                            sessionStatus = 'scheduled';
+                        }
+                    }
+                    
+                    html += `
+                        <div class="session-card">
+                            <div class="session-info">
+                                <h4>جلسة ${sessionNumber}</h4>
+                                <p>📅 ${sessionDate}</p>
+                                <p>📍 ${getSessionTypeName(booking.sessionType)}</p>
+                                <span class="session-status ${sessionStatus}">${getSessionStatusName(sessionStatus)}</span>
+                            </div>
+                            <div>
+                                ${booking.sessionLink && sessionStatus === 'scheduled' ? 
+                                    `<button class="btn btn-primary" onclick="window.open('${booking.sessionLink}', '_blank')">رابط الجلسة</button>` : ''}
+                                ${sessionStatus === 'completed' ? 
+                                    `<button class="btn btn-info" onclick="addSessionSummary('${doc.id}')">إضافة ملخص</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    sessionNumber++;
+                });
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+                container.innerHTML = '<p>خطأ في تحميل الجلسات</p>';
+            }
+        }
+        
+        // Load practices tab
+        function loadPracticesTab() {
+            const container = document.getElementById('practicesList');
+            
+            const allPractices = [
+                {
+                    id: 'practice_1',
+                    title: 'المثلث القلبي',
+                    description: 'ممارسة يومية للانفتاح والحضور والتحرك القلبي',
+                    category: 'daily',
+                    programs: ['all']
+                },
+                {
+                    id: 'practice_2',
+                    title: 'دفتر الامتنان',
+                    description: 'سجل 3 أشياء تشعر بالامتنان لها يومياً',
+                    category: 'daily',
+                    programs: ['all']
+                },
+                {
+                    id: 'practice_3',
+                    title: 'تأمل الحضور',
+                    description: '10 دقائق من التأمل اليومي',
+                    category: 'daily',
+                    programs: ['discovery', 'transformation']
+                },
+                {
+                    id: 'practice_4',
+                    title: 'تمرين الهوية الصباحي',
+                    description: 'تجسيد هويتك الجديدة كل صباح',
+                    category: 'daily',
+                    programs: ['transformation']
+                },
+                {
+                    id: 'practice_5',
+                    title: 'يوميات القائد الحكيم',
+                    description: 'تسجيل يومي لإنجازاتك وتحدياتك',
+                    category: 'daily',
+                    programs: ['transformation']
+                },
+                {
+                    id: 'practice_6',
+                    title: 'تمرين الوضوح الصباحي',
+                    description: '5 دقائق لتحديد هدفك اليومي',
+                    category: 'daily',
+                    programs: ['clarity']
+                }
+            ];
+            
+            // Filter practices based on program
+            const programPractices = allPractices.filter(p => 
+                p.programs.includes('all') || p.programs.includes(currentJourney.program)
+            );
+            
+            let html = '';
+            programPractices.forEach(practice => {
+                const isAssigned = selectedPractices.has(practice.id);
+                
+                html += `
+                    <div class="practice-item ${isAssigned ? 'assigned' : ''}" 
+                         onclick="togglePractice('${practice.id}')">
+                        <h4>${practice.title}</h4>
+                        <p>${practice.description}</p>
+                        <small>التكرار: ${practice.category === 'daily' ? 'يومياً' : 'أسبوعياً'}</small>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Load resources tab
+        function loadResourcesTab() {
+            const container = document.getElementById('resourcesList');
+            
+            const allResources = [
+                {
+                    id: 'resource_1',
+                    title: 'كيف تحدد أهدافك بوضوح',
+                    type: 'article',
+                    icon: '📄',
+                    programs: ['clarity']
+                },
+                {
+                    id: 'resource_2',
+                    title: 'قوة الوعي الذاتي',
+                    type: 'video',
+                    icon: '🎥',
+                    programs: ['discovery']
+                },
+                {
+                    id: 'resource_3',
+                    title: 'ورقة عمل التوازن',
+                    type: 'worksheet',
+                    icon: '📝',
+                    programs: ['discovery']
+                },
+                {
+                    id: 'resource_4',
+                    title: 'قوة الآن',
+                    type: 'book',
+                    icon: '📚',
+                    programs: ['transformation']
+                },
+                {
+                    id: 'resource_5',
+                    title: 'تأملات التحول',
+                    type: 'meditation',
+                    icon: '🧘',
+                    programs: ['transformation']
+                },
+                {
+                    id: 'resource_6',
+                    title: 'دليل الممارسات اليومية',
+                    type: 'guide',
+                    icon: '📖',
+                    programs: ['all']
+                }
+            ];
+            
+            // Filter resources based on program
+            const programResources = allResources.filter(r => 
+                r.programs.includes('all') || r.programs.includes(currentJourney.program)
+            );
+            
+            let html = '';
+            programResources.forEach(resource => {
+                const isAssigned = selectedResources.has(resource.id);
+                
+                html += `
+                    <div class="resource-item ${isAssigned ? 'assigned' : ''}" 
+                         onclick="toggleResource('${resource.id}')">
+                        <div class="resource-icon">${resource.icon}</div>
+                        <h4>${resource.title}</h4>
+                        <p>${getResourceTypeName(resource.type)}</p>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Load messages tab
+        function loadMessagesTab() {
+            const container = document.getElementById('messagesContainer');
+            
+// Sample messages (in real app, load from database)
+            const messages = [
+                {
+                    from: 'coach',
+                    content: 'مرحباً! كيف حالك مع الممارسات؟',
+                    time: new Date(Date.now() - 86400000)
+                },
+                {
+                    from: 'client',
+                    content: 'الحمد لله، أشعر بتحسن ملحوظ',
+                    time: new Date(Date.now() - 82800000)
+                },
+                {
+                    from: 'coach',
+                    content: 'ممتاز! استمر وسنناقش تقدمك في الجلسة القادمة',
+                    time: new Date(Date.now() - 3600000)
+                }
+            ];
+            
+            let html = '';
+            messages.forEach(message => {
+                const isFromCoach = message.from === 'coach';
+                
+                html += `
+                    <div class="message-item ${isFromCoach ? 'from-coach' : ''}">
+                        <div class="message-avatar">${isFromCoach ? 'م' : getInitial(currentJourney.clientName)}</div>
+                        <div class="message-content ${isFromCoach ? 'from-coach' : ''}">
+                            <div>${message.content}</div>
+                            <div class="message-time">${formatTime(message.time)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            messagesContainer.innerHTML = html;
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Load progress tab
+        function loadProgressTab() {
+            // Load progress notes
+            document.getElementById('progressNotes').value = currentJourney.progressNotes || '';
+            
+            // Update metrics
+            updateProgressMetrics();
+            
+            // Draw progress chart
+            drawProgressChart();
+        }
+        
+        // Update progress metrics
+        function updateProgressMetrics() {
+            if (!currentJourney) return;
+            
+            // Calculate attendance rate
+            const completedSessions = currentJourney.progress?.sessionsCompleted || 0;
+            const scheduledSessions = currentJourney.progress?.scheduledSessions || 0;
+            const attendanceRate = scheduledSessions > 0 ? 
+                Math.round((completedSessions / scheduledSessions) * 100) : 100;
+            
+            document.getElementById('attendanceRate').textContent = attendanceRate + '%';
+            
+            // Calculate practices completion
+            const practicesCompleted = currentJourney.progress?.practicesCompleted || 0;
+            document.getElementById('practicesCompleted').textContent = practicesCompleted;
+            
+            // Calculate engagement rate
+            const engagementRate = calculateEngagementRate();
+            document.getElementById('engagementRate').textContent = engagementRate + '%';
+        }
+        
+        // Calculate engagement rate
+        function calculateEngagementRate() {
+            let score = 0;
+            let factors = 0;
+            
+            // Session attendance
+            if (currentJourney.progress?.sessionsCompleted > 0) {
+                const attendanceScore = (currentJourney.progress.sessionsCompleted / 
+                    currentJourney.progress.totalSessions) * 100;
+                score += attendanceScore;
+                factors++;
+            }
+            
+            // Practices completion
+            if (currentJourney.assignedPractices?.length > 0) {
+                let practiceScore = 0;
+                currentJourney.assignedPractices.forEach(practice => {
+                    if (practice.completions?.length > 0) {
+                        practiceScore += (practice.completions.length / 7) * 100; // Assuming weekly
+                    }
+                });
+                score += practiceScore / currentJourney.assignedPractices.length;
+                factors++;
+            }
+            
+            // Messages interaction
+            if (currentJourney.lastMessageDate) {
+                const daysSinceLastMessage = Math.floor(
+                    (Date.now() - currentJourney.lastMessageDate.toDate()) / (1000 * 60 * 60 * 24)
+                );
+                if (daysSinceLastMessage < 7) {
+                    score += 100;
+                } else if (daysSinceLastMessage < 14) {
+                    score += 50;
+                }
+                factors++;
+            }
+            
+            return factors > 0 ? Math.round(score / factors) : 50;
+        }
+        
+        // Draw progress chart
+        function drawProgressChart() {
+            const canvas = document.getElementById('progressChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Sample data for practices completion over time
+            const data = [
+                { day: 'السبت', completed: 3 },
+                { day: 'الأحد', completed: 2 },
+                { day: 'الإثنين', completed: 3 },
+                { day: 'الثلاثاء', completed: 1 },
+                { day: 'الأربعاء', completed: 3 },
+                { day: 'الخميس', completed: 2 },
+                { day: 'الجمعة', completed: 3 }
+            ];
+            
+            const chartWidth = canvas.width - 60;
+            const chartHeight = canvas.height - 60;
+            const barWidth = chartWidth / data.length * 0.6;
+            const maxValue = Math.max(...data.map(d => d.completed));
+            
+            // Draw axes
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(40, 20);
+            ctx.lineTo(40, chartHeight + 20);
+            ctx.lineTo(chartWidth + 40, chartHeight + 20);
+            ctx.stroke();
+            
+            // Draw bars
+            data.forEach((item, index) => {
+                const x = 40 + (index * (chartWidth / data.length)) + (chartWidth / data.length - barWidth) / 2;
+                const barHeight = (item.completed / maxValue) * chartHeight;
+                const y = chartHeight + 20 - barHeight;
+                
+                // Bar
+                ctx.fillStyle = '#2C5530';
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                // Value on top
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.completed, x + barWidth / 2, y - 5);
+                
+                // Day label
+                ctx.fillText(item.day, x + barWidth / 2, chartHeight + 35);
+            });
+            
+            // Y-axis labels
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= maxValue; i++) {
+                const y = chartHeight + 20 - (i / maxValue * chartHeight);
+                ctx.fillText(i, 35, y + 5);
+            }
+        }
+        
+        // Toggle practice assignment
+        function togglePractice(practiceId) {
+            const practiceElement = document.querySelector(`[data-practice-id="${practiceId}"]`);
+            
+            if (selectedPractices.has(practiceId)) {
+                selectedPractices.delete(practiceId);
+                practiceElement.classList.remove('assigned');
+            } else {
+                selectedPractices.add(practiceId);
+                practiceElement.classList.add('assigned');
+            }
+        }
+        
+        // Toggle resource assignment
+        function toggleResource(resourceId) {
+            const resourceElement = document.querySelector(`[data-resource-id="${resourceId}"]`);
+            
+            if (selectedResources.has(resourceId)) {
+                selectedResources.delete(resourceId);
+                resourceElement.classList.remove('assigned');
+            } else {
+                selectedResources.add(resourceId);
+                resourceElement.classList.add('assigned');
+            }
+        }
+        
+        // Save practices assignment
+        async function savePracticesAssignment() {
+            if (!currentJourney) return;
+            
+            showLoading(true);
+            
+            try {
+                const practices = Array.from(selectedPractices).map(id => ({
+                    practiceId: id,
+                    assignedDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    frequency: 'daily',
+                    completions: []
+                }));
+                
+                await db.collection('journeys').doc(currentJourney.id).update({
+                    assignedPractices: practices,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('تم حفظ الممارسات المخصصة', 'success');
+                
+                // Send notification to client
+                await sendClientNotification('practices_assigned', {
+                    count: practices.length,
+                    journeyId: currentJourney.id
+                });
+                
+                // Reload journey data
+                await loadJourneyData(currentJourney.id);
+                loadPracticesTab();
+                
+            } catch (error) {
+                console.error('Error saving practices:', error);
+                showNotification('خطأ في حفظ الممارسات', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Save resources assignment
+        async function saveResourcesAssignment() {
+            if (!currentJourney) return;
+            
+            showLoading(true);
+            
+            try {
+                const resources = Array.from(selectedResources).map(id => ({
+                    resourceId: id,
+                    assignedDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    viewed: false,
+                    notes: ''
+                }));
+                
+                await db.collection('journeys').doc(currentJourney.id).update({
+                    assignedResources: resources,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('تم حفظ الموارد المخصصة', 'success');
+                
+                // Send notification to client
+                await sendClientNotification('resources_assigned', {
+                    count: resources.length,
+                    journeyId: currentJourney.id
+                });
+                
+                // Reload journey data
+                await loadJourneyData(currentJourney.id);
+                loadResourcesTab();
+                
+            } catch (error) {
+                console.error('Error saving resources:', error);
+                showNotification('خطأ في حفظ الموارد', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentJourney) return;
+            
+            try {
+                // Add message to journey
+                const messageData = {
+                    type: 'message',
+                    from: 'coach',
+                    content: message,
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                };
+                
+                await db.collection('journeys').doc(currentJourney.id).update({
+                    messages: firebase.firestore.FieldValue.arrayUnion(messageData),
+                    lastMessageDate: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Clear input
+                input.value = '';
+                
+                // Send notification
+                await sendClientNotification('new_message', {
+                    message: message,
+                    journeyId: currentJourney.id
+                });
+                
+                // Reload messages
+                loadMessagesTab();
+                
+                showNotification('تم إرسال الرسالة', 'success');
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showNotification('خطأ في إرسال الرسالة', 'error');
+            }
+        }
+        
+        // Save progress notes
+        async function saveProgressNotes() {
+            const notes = document.getElementById('progressNotes').value;
+            
+            if (!currentJourney) return;
+            
+            showLoading(true);
+            
+            try {
+                await db.collection('journeys').doc(currentJourney.id).update({
+                    progressNotes: notes,
+                    progressNotesUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('تم حفظ الملاحظات', 'success');
+                
+            } catch (error) {
+                console.error('Error saving notes:', error);
+                showNotification('خطأ في حفظ الملاحظات', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Schedule new session
+        function scheduleNewSession() {
+            document.getElementById('scheduleModal').style.display = 'block';
+        }
+        
+        // Confirm session schedule
+        async function confirmSchedule() {
+            const date = document.getElementById('sessionDate').value;
+            const time = document.getElementById('sessionTime').value;
+            const type = document.getElementById('sessionType').value;
+            const link = document.getElementById('sessionLink').value;
+            const notes = document.getElementById('sessionNotes').value;
+            
+            if (!date || !time) {
+                showNotification('من فضلك أدخل التاريخ والوقت', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Create session booking
+                const sessionData = {
+                    journeyId: currentJourney.id,
+                    userId: currentJourney.userId,
+                    clientName: currentJourney.clientName,
+                    clientEmail: currentJourney.clientEmail,
+                    clientPhone: currentJourney.clientPhone,
+                    program: currentJourney.program,
+                    sessionNumber: (currentJourney.progress?.sessionsCompleted || 0) + 1,
+                    appointmentDate: new Date(date + ' ' + time),
+                    appointmentTime: time,
+                    sessionType: type,
+                    sessionLink: link,
+                    notes: notes,
+                    status: 'scheduled',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const sessionRef = await db.collection('sessions').add(sessionData);
+                
+                // Update journey
+                await db.collection('journeys').doc(currentJourney.id).update({
+                    nextSessionId: sessionRef.id,
+                    nextSessionDate: sessionData.appointmentDate,
+                    'progress.scheduledSessions': firebase.firestore.FieldValue.increment(1)
+                });
+                
+                // Send confirmation to client
+                await sendSessionConfirmation(sessionData);
+                
+                showNotification('تم جدولة الجلسة بنجاح', 'success');
+                closeScheduleModal();
+                
+                // Reload sessions
+                loadSessionsTab();
+                
+            } catch (error) {
+                console.error('Error scheduling session:', error);
+                showNotification('خطأ في جدولة الجلسة', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Complete session
+        async function completeSession(sessionId) {
+            if (!confirm('هل تريد تحديد هذه الجلسة كمكتملة؟')) return;
+            
+            showLoading(true);
+            
+            try {
+                // Update session status
+                await db.collection('sessions').doc(sessionId).update({
+                    status: 'completed',
+                    completedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update journey progress
+                await db.collection('journeys').doc(currentJourney.id).update({
+                    'progress.sessionsCompleted': firebase.firestore.FieldValue.increment(1),
+                    'progress.lastSessionDate': firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update overall progress
+                await updateJourneyProgress();
+                
+                showNotification('تم تحديث حالة الجلسة', 'success');
+                
+                // Reload data
+                await loadJourneyData(currentJourney.id);
+                loadSessionsTab();
+                
+            } catch (error) {
+                console.error('Error completing session:', error);
+                showNotification('خطأ في تحديث الجلسة', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Update journey progress
+        async function updateJourneyProgress() {
+            if (!currentJourney) return;
+            
+            const totalSessions = currentJourney.progress?.totalSessions || 
+                getProgramSessions(currentJourney.program);
+            const completedSessions = currentJourney.progress?.sessionsCompleted || 0;
+            const overallProgress = Math.round((completedSessions / totalSessions) * 100);
+            
+            // Check if phase completed
+            let currentPhase = currentJourney.currentPhase || 1;
+            const phases = getProgramPhases(currentJourney.program);
+            const sessionsPerPhase = Math.ceil(totalSessions / phases.length);
+            
+            if (completedSessions >= sessionsPerPhase * currentPhase && currentPhase < phases.length) {
+                currentPhase++;
+                
+                // Update phase status
+                await db.collection('journeys').doc(currentJourney.id).update({
+                    currentPhase: currentPhase,
+                    [`phases.${currentPhase - 2}.status`]: 'completed',
+                    [`phases.${currentPhase - 2}.completedDate`]: firebase.firestore.FieldValue.serverTimestamp(),
+                    [`phases.${currentPhase - 1}.status`]: 'in_progress',
+                    [`phases.${currentPhase - 1}.startDate`]: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            // Update overall progress
+            await db.collection('journeys').doc(currentJourney.id).update({
+                'progress.overall': overallProgress,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Check if journey completed
+            if (overallProgress >= 100) {
+                await completeJourney();
+            }
+        }
+        
+        // Complete journey
+        async function completeJourney() {
+            await db.collection('journeys').doc(currentJourney.id).update({
+                status: 'completed',
+                completedDate: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            showNotification('🎉 تهانينا! تم إكمال الرحلة بنجاح', 'success');
+            
+            // Send completion notification
+            await sendClientNotification('journey_completed', {
+                journeyId: currentJourney.id,
+                program: currentJourney.program
+            });
+        }
+        
+        // Send client notification
+        async function sendClientNotification(type, data) {
+            try {
+                const notification = {
+                    userId: currentJourney.userId || currentJourney.clientEmail,
+                    type: type,
+                    data: data,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                };
+                
+                await db.collection('notifications').add(notification);
+                
+            } catch (error) {
+                console.error('Error sending notification:', error);
+            }
+        }
+        
+        // Send session confirmation
+        async function sendSessionConfirmation(sessionData) {
+            const dateStr = sessionData.appointmentDate.toLocaleDateString('ar-EG', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            let message = `تأكيد موعد جلستك\n\n`;
+            message += `التاريخ: ${dateStr}\n`;
+            message += `الوقت: ${sessionData.appointmentTime}\n`;
+            message += `نوع الجلسة: ${getSessionTypeName(sessionData.sessionType)}\n`;
+            
+            if (sessionData.sessionType === 'online' && sessionData.sessionLink) {
+                message += `رابط الجلسة: ${sessionData.sessionLink}\n`;
+            }
+            
+            message += `\nأراك في الموعد بإذن الله`;
+            
+            // Open WhatsApp
+            const phone = sessionData.clientPhone.replace(/\D/g, '');
+            const fullPhone = phone.startsWith('2') ? phone : '2' + phone;
+            window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+        
+        // Export journey report
+        function exportJourneyReport() {
+            // Generate report content
+            let report = `تقرير رحلة: ${currentJourney.clientName}\n`;
+            report += `البرنامج: ${getProgramName(currentJourney.program)}\n`;
+            report += `تاريخ البداية: ${formatDate(currentJourney.startDate)}\n`;
+            report += `التقدم: ${currentJourney.progress?.overall || 0}%\n\n`;
+            
+            report += `الجلسات:\n`;
+            report += `- مكتملة: ${currentJourney.progress?.sessionsCompleted || 0}\n`;
+            report += `- إجمالي: ${currentJourney.progress?.totalSessions || 0}\n\n`;
+            
+            report += `الممارسات المخصصة: ${currentJourney.assignedPractices?.length || 0}\n`;
+            report += `الموارد المخصصة: ${currentJourney.assignedResources?.length || 0}\n\n`;
+            
+            if (currentJourney.progressNotes) {
+                report += `ملاحظات التقدم:\n${currentJourney.progressNotes}\n`;
+            }
+            
+            // Download as text file
+            const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `تقرير_${currentJourney.clientName}_${new Date().toLocaleDateString('en-GB')}.txt`;
+            link.click();
+            
+            showNotification('تم تحميل التقرير', 'success');
+        }
+        
+        // Helper functions
+        function getProgramName(program) {
+            const names = {
+                clarity: 'جلسة الوضوح',
+                discovery: 'رحلة الاكتشاف',
+                transformation: 'رحلة التحول'
+            };
+            return names[program] || program;
+        }
+        
+        function getProgramSessions(program) {
+            const sessions = {
+                clarity: 1,
+                discovery: 3,
+                transformation: 6
+            };
+            return sessions[program] || 1;
+        }
+        
+        function getProgramPhases(program) {
+            const phases = {
+                clarity: [
+                    { name: 'جلسة الوضوح', description: 'جلسة واحدة مكثفة' }
+                ],
+                discovery: [
+                    { name: 'اكتشاف الذات', description: 'فهم الأنماط والقيم' },
+                    { name: 'بناء الوعي', description: 'تحديد نقاط القوة' },
+                    { name: 'خطة العمل', description: 'رسم خارطة التغيير' }
+                ],
+                transformation: [
+                    { name: 'الإنبات', description: 'كشف الجذور' },
+                    { name: 'النمو', description: 'بناء الهوية' },
+                    { name: 'الازدهار', description: 'دمج التغيير' }
+                ]
+            };
+            return phases[program] || [];
+        }
+        
+        function getStatusName(status) {
+            const names = {
+                active: 'نشطة',
+                paused: 'متوقفة',
+                completed: 'مكتملة',
+                cancelled: 'ملغية'
+            };
+            return names[status] || status;
+        }
+        
+        function getSessionTypeName(type) {
+            const names = {
+                online: 'أونلاين',
+                phone: 'هاتفي',
+                inperson: 'حضوري'
+            };
+            return names[type] || type;
+        }
+        
+        function formatDate(timestamp) {
+            if (!timestamp) return 'غير محدد';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('ar-EG');
+        }
+        
+        function formatTime(date) {
+            return date.toLocaleTimeString('ar-EG', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function getInitial(name) {
+            return name ? name.charAt(0).toUpperCase() : '؟';
+        }
+        
+        function showLoading(show) {
+            document.querySelector('.loading-overlay').style.display = show ? 'flex' : 'none';
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 10);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        function closeModal() {
+            document.getElementById('journeyModal').style.display = 'none';
+            currentJourney = null;
+            selectedPractices.clear();
+            selectedResources.clear();
+        }
+        
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').style.display = 'none';
+            document.getElementById('scheduleForm').reset();
+        }
+        
+        // Initialize when DOM loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                    closeScheduleModal();
+                }
+            });
+            
+            // Click outside modal to close
+            window.onclick = function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
