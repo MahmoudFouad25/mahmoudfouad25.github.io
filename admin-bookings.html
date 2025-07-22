@@ -1478,13 +1478,28 @@
             loadBookings(true);
         }
         
-        // Open WhatsApp
-        function openWhatsApp(phone, name) {
-            const cleanPhone = phone.replace(/\D/g, '');
-            const fullPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
-            const message = `مرحباً ${name || 'عميلنا العزيز'}، معك محمود فؤاد...`;
-            window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
-        }
+// Open WhatsApp
+function openWhatsApp(phone, name) {
+    // تأكد من وجود رقم الهاتف
+    if (!phone || phone === 'undefined' || phone === undefined) {
+        console.error('Phone number is missing:', phone);
+        alert('رقم الهاتف غير موجود');
+        return;
+    }
+    
+    // تنظيف رقم الهاتف - تحويله لـ string أولاً
+    const phoneStr = String(phone);
+    const cleanPhone = phoneStr.replace(/\D/g, '');
+    
+    if (!cleanPhone) {
+        alert('رقم الهاتف غير صحيح');
+        return;
+    }
+    
+    const fullPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
+    const message = `مرحباً ${name || 'عميلنا العزيز'}، معك محمود فؤاد...`;
+    window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
+}
         
         // Show notes modal
         async function showNotes(bookingId) {
