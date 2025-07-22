@@ -1126,30 +1126,33 @@
             try {
                 const bookingNumber = 'BK' + Date.now().toString().slice(-8);
                 
+                // التأكد من وجود كل البيانات
+                console.log('Form data before submission:', formData);
+                
                 // Create booking data
                 const bookingData = {
                     // User info
                     userId: currentUser.uid,
                     email: currentUser.email,
-                    name: formData.name,
-                    phone: formData.phone, // الآن نضمن وجود رقم الهاتف
+                    name: formData.name || 'غير محدد',
+                    phone: formData.phone || '',
                     
                     // Journey info
                     program: formData.program,
-                    contactMethod: formData.contactMethod,
+                    contactMethod: formData.contactMethod || 'zoom',
                     
                     // Assessment data
-                    currentSituation: formData.currentSituation,
-                    needs: formData.needs,
-                    desiredOutcome: formData.desiredOutcome,
+                    currentSituation: formData.currentSituation || '',
+                    needs: formData.needs || [],
+                    desiredOutcome: formData.desiredOutcome || '',
                     
                     // Additional info
-                    preferredTimes: formData.preferredTimes,
-                    additionalNotes: formData.additionalNotes,
+                    preferredTimes: formData.preferredTimes || '',
+                    additionalNotes: formData.additionalNotes || '',
                     
                     // Journey history
                     isNewJourney: true,
-                    previousJourneys: userJourneys.map(j => j.program),
+                    previousJourneys: userJourneys.map(j => j.program) || [],
                     
                     // Metadata
                     bookingNumber: bookingNumber,
@@ -1160,11 +1163,13 @@
                     accountCreated: true
                 };
                 
+                console.log('Booking data to save:', bookingData);
+                
                 // Save to Firestore
                 await db.collection('bookings').add(bookingData);
                 
                 // Update user phone if changed
-                if (userData.phone !== formData.phone) {
+                if (userData.phone !== formData.phone && formData.phone) {
                     await db.collection('users').doc(currentUser.uid).update({
                         phone: formData.phone
                     });
@@ -1196,23 +1201,36 @@
         
         // Send admin notification
         function sendAdminNotification(bookingData) {
-            const message = `طلب رحلة جديدة من عميل حالي 🌟
+            // بناء الرسالة بشكل صحيح
+            const programName = getProgramName(bookingData.program);
+            const previousJourneysText = bookingData.previousJourneys && bookingData.previousJourneys.length > 0 
+                ? bookingData.previousJourneys.map(p => getProgramName(p)).join(', ') 
+                : 'لا يوجد';
             
+            const message = `طلب رحلة جديدة من عميل حالي 🌟
+
 الاسم: ${bookingData.name}
 البريد: ${bookingData.email}
 الهاتف: ${bookingData.phone}
-البرنامج المطلوب: ${getProgramName(bookingData.program)}
-الرحلات السابقة: ${bookingData.previousJourneys.map(p => getProgramName(p)).join(', ') || 'لا يوجد'}
+البرنامج المطلوب: ${programName}
+الرحلات السابقة: ${previousJourneysText}
 
 الوضع الحالي: ${bookingData.currentSituation}
 النتيجة المرجوة: ${bookingData.desiredOutcome}
-الأوقات المفضلة: ${bookingData.preferredTimes}
+الأوقات المفضلة: ${bookingData.preferredTimes || 'غير محدد'}
 
 رقم الطلب: ${bookingData.bookingNumber}
 
 رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
             
-            window.open(`https://wa.me/201224938330?text=${encodeURIComponent(message)}`, '_blank');
+            // التأكد من أن الرسالة ليست فارغة
+            console.log('WhatsApp message:', message);
+            
+            // إنشاء رابط WhatsApp
+            const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(message)}`;
+            
+            // فتح الرابط
+            window.open(whatsappUrl, '_blank');
         }
         
         // Input formatting
