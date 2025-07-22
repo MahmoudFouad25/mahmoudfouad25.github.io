@@ -1422,6 +1422,7 @@ async function checkExistingUser(email) {
 }
 
 // Continue as guest
+// أيضاً دالة continueAsGuest للعملاء الموجودين
 async function continueAsGuest() {
     showLoading(true);
     
@@ -1441,19 +1442,24 @@ async function continueAsGuest() {
         
         const docRef = await db.collection('bookings').add(bookingData);
         
-        // Send to admin
-        const adminMessage = `حجز جديد رقم ${bookingNumber}
+        // Send to admin - نسخة محسنة
+        const programName = getProgramName(formData.program);
+        const name = formData.name || 'غير محدد';
+        const email = formData.email || '';
+        const phone = formData.phone || '';
         
-العميل: ${formData.name}
-البريد: ${formData.email}
-الهاتف: ${formData.phone}
-البرنامج: ${getProgramName(formData.program)}
-
-⚠️ عميل قديم - له حساب بالفعل
-
-رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
+        let adminMessage = `حجز جديد رقم ${bookingNumber}\n\n`;
+        adminMessage += `العميل: ${name}\n`;
+        adminMessage += `البريد: ${email}\n`;
+        adminMessage += `الهاتف: ${phone}\n`;
+        adminMessage += `البرنامج: ${programName}\n`;
+        adminMessage += `عميل قديم - له حساب بالفعل\n`;
+        adminMessage += `\nرابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
         
-        window.open(`https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`, '_blank');
+        console.log('WhatsApp message:', adminMessage);
+        
+        const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`;
+        window.open(whatsappUrl, '_blank');
         
         // Show success
         showLoading(false);
@@ -1487,8 +1493,9 @@ async function continueAsGuest() {
         showAlert('حدث خطأ، من فضلك حاول مرة أخرى', 'error');
     }
 }
-
 // Process new booking
+// في ملف booking.html - استبدل دالة processNewBooking بهذه النسخة المحدثة
+
 async function processNewBooking() {
     console.log('Starting processNewBooking...');
     console.log('Form data:', formData);
@@ -1566,21 +1573,38 @@ async function processNewBooking() {
         const docRef = await db.collection('bookings').add(bookingData);
         console.log('Booking saved:', docRef.id);
         
-        // Send to admin
-        const adminMessage = `حجز جديد رقم ${bookingNumber}
+        // Send to admin - نسخة محسنة
+        const programName = getProgramName(formData.program);
+        const name = formData.name || 'غير محدد';
+        const email = formData.email || '';
+        const phone = formData.phone || '';
         
-العميل: ${formData.name}
-البريد: ${formData.email}
-الهاتف: ${formData.phone}
-البرنامج: ${getProgramName(formData.program)}
-
-✅ تم إنشاء حساب جديد
-${googleUser ? '🔵 باستخدام Google' : '📧 باستخدام البريد الإلكتروني'}
-${(accountType === 'auto' && !googleUser) ? `🔑 كلمة المرور المؤقتة: ${userPassword}` : ''}
-
-رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
+        let adminMessage = `حجز جديد رقم ${bookingNumber}\n\n`;
+        adminMessage += `العميل: ${name}\n`;
+        adminMessage += `البريد: ${email}\n`;
+        adminMessage += `الهاتف: ${phone}\n`;
+        adminMessage += `البرنامج: ${programName}\n`;
+        adminMessage += `تم إنشاء حساب جديد\n`;
         
-        window.open(`https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`, '_blank');
+        if (googleUser) {
+            adminMessage += `باستخدام Google\n`;
+        } else {
+            adminMessage += `باستخدام البريد الإلكتروني\n`;
+            if (accountType === 'auto' && !googleUser) {
+                adminMessage += `كلمة المرور المؤقتة: ${userPassword}\n`;
+            }
+        }
+        
+        adminMessage += `\nرابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
+        
+        // Log the message for debugging
+        console.log('WhatsApp message:', adminMessage);
+        
+        // Create WhatsApp URL
+        const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`;
+        
+        // Open WhatsApp
+        window.open(whatsappUrl, '_blank');
         
         // Show success
         showLoading(false);
@@ -1623,6 +1647,7 @@ ${(accountType === 'auto' && !googleUser) ? `🔑 كلمة المرور المؤ
         throw error;
     }
 }
+
 
 // Handle form submission
 document.getElementById('bookingForm')?.addEventListener('submit', async (e) => {
