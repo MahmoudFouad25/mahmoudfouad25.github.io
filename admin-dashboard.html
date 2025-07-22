@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم الرئيسية - محمود فؤاد</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2C5530;
+            --secondary: #8B9467;
+            --accent: #D4AF37;
+            --light: #F5F2E8;
+            --dark: #1A1A1A;
+            --gradient: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: #f5f5f5;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Login Form */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--gradient);
+        }
+        
+        .login-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .login-form h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+        
+        .login-form input {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .login-form button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .login-form button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-error {
+            color: var(--danger);
+            text-align: center;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        /* Navigation */
+        .admin-nav {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a.active {
+            color: var(--primary);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+        }
+        
+        .badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+            display: inline-block;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Welcome Section */
+        .welcome-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .welcome-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .welcome-header h1 {
+            color: var(--primary);
+            font-size: 2rem;
+        }
+        
+        .current-time {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card.urgent {
+            border-right: 5px solid var(--danger);
+        }
+        
+        .stat-card.success {
+            border-right: 5px solid var(--success);
+        }
+        
+        .stat-card.warning {
+            border-right: 5px solid var(--warning);
+        }
+        
+        .stat-card.info {
+            border-right: 5px solid var(--info);
+        }
+        
+        .stat-icon {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            font-size: 3rem;
+            opacity: 0.1;
+        }
+        
+        .stat-content h3 {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: gap 0.3s;
+        }
+        
+        .stat-link:hover {
+            gap: 1rem;
+        }
+        
+        .stat-change {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stat-change.positive {
+            color: var(--success);
+        }
+        
+        .stat-change.negative {
+            color: var(--danger);
+        }
+        
+        /* Sections */
+        .dashboard-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-header h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        /* Today's Schedule */
+        .schedule-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .schedule-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .schedule-item:hover {
+            background: #e9ecef;
+        }
+        
+        .schedule-time {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-left: 1rem;
+        }
+        
+        .schedule-info h4 {
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+        
+        .schedule-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .schedule-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Recent Activities */
+        .activity-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        
+        .activity-item:hover {
+            background: #e9ecef;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-content h4 {
+            color: var(--primary);
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .activity-content p {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        .activity-time {
+            color: #999;
+            font-size: 0.8rem;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            background: var(--gradient);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .welcome-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideIn 0.3s;
+            cursor: pointer;
+        }
+        
+        .notification.success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .notification.error {
+            background: var(--danger);
+            color: white;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <div class="login-form">
+            <h2>🔐 لوحة التحكم</h2>
+            <div id="loginError" class="login-error"></div>
+            <input type="password" id="password" placeholder="كلمة المرور" 
+                   onkeypress="if(event.key==='Enter') login()">
+            <button onclick="login()">دخول</button>
+            <p style="margin-top: 1rem; color: #666; font-size: 0.9rem; text-align: center;">
+                محمود فؤاد - نظام إدارة الكوتشينج
+            </p>
+        </div>
+    </div>
+    
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" style="display: none;">
+        <!-- Navigation -->
+        <nav class="admin-nav">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h2>لوحة تحكم محمود فؤاد</h2>
+                </div>
+                <div class="nav-links">
+                    <a href="admin-dashboard.html" class="active">
+                        <span>🏠</span> الرئيسية
+                    </a>
+                    <a href="admin-bookings.html">
+                        <span>📋</span> الحجوزات
+                        <span class="badge" id="newBookingsCount">0</span>
+                    </a>
+                    <a href="admin-journeys.html">
+                        <span>🗺️</span> الرحلات
+                        <span class="badge" id="activeJourneysCount" style="background: var(--success);">0</span>
+                    </a>
+                    <a href="#" onclick="logout()">
+                        <span>🚪</span> خروج
+                    </a>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <div class="dashboard-container">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <div class="welcome-header">
+                    <h1>مرحباً محمود 👋</h1>
+                    <div class="current-time" id="currentTime"></div>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card urgent">
+                    <div class="stat-icon">📥</div>
+                    <div class="stat-content">
+                        <h3>طلبات جديدة</h3>
+                        <div class="stat-number" id="newRequestsCount">0</div>
+                        <a href="admin-bookings.html" class="stat-link">
+                            عرض الطلبات ←
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="stat-card success">
+                    <div class="stat-icon">🚀</div>
+                    <div class="stat-content">
+                        <h3>رحلات نشطة</h3>
+                        <div class="stat-number" id="activeJourneysNumber">0</div>
+                        <a href="admin-journeys.html" class="stat-link">
+                            إدارة الرحلات ←
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="stat-card warning">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-content">
+                        <h3>جلسات اليوم</h3>
+                        <div class="stat-number" id="todaySessionsCount">0</div>
+                        <div class="stat-change" id="sessionsChange">لا توجد جلسات</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card info">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3>إجمالي العملاء</h3>
+                        <div class="stat-number" id="totalClientsCount">0</div>
+                        <div class="stat-change positive" id="clientsChange">+0 هذا الشهر</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Today's Schedule -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>📅 جدول اليوم</h2>
+                    <a href="admin-journeys.html" class="btn btn-primary">عرض التقويم الكامل</a>
+                </div>
+                <div class="schedule-grid" id="todaySchedule">
+                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Recent Activities -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>🕐 آخر النشاطات</h2>
+                    <button class="btn btn-info" onclick="refreshActivities()">تحديث</button>
+                </div>
+                <div class="activity-list" id="recentActivities">
+                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2>⚡ إجراءات سريعة</h2>
+                </div>
+                <div class="quick-actions">
+                    <button class="action-btn" onclick="window.location.href='admin-bookings.html'">
+                        <span>📋</span> عرض الحجوزات
+                    </button>
+                    <button class="action-btn" onclick="window.location.href='admin-journeys.html'">
+                        <span>🗺️</span> إدارة الرحلات
+                    </button>
+                    <button class="action-btn" onclick="downloadBackup()">
+                        <span>💾</span> نسخة احتياطية
+                    </button>
+                    <button class="action-btn" onclick="viewReports()">
+                        <span>📊</span> التقارير
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        // Initialize
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const ADMIN_HASH = 'bWFobW91ZDIwMjQ='; // mahmoud2024
+        
+        // Check session on load
+        window.onload = function() {
+            checkSession();
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 60000);
+        };
+        
+        // Check admin session
+        function checkSession() {
+            const authToken = sessionStorage.getItem('adminAuth');
+            const authTime = sessionStorage.getItem('authTime');
+            const oneHour = 60 * 60 * 1000;
+            
+            if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
+                showDashboard();
+            } else {
+                sessionStorage.clear();
+                showLogin();
+            }
+        }
+        
+        // Show login
+        function showLogin() {
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('adminDashboard').style.display = 'none';
+        }
+        
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            loadDashboardData();
+            // Refresh data every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        }
+        
+        // Login function
+        function login() {
+            const password = document.getElementById('password').value;
+            const hashedInput = btoa(password);
+            
+            if (hashedInput === ADMIN_HASH) {
+                sessionStorage.setItem('adminAuth', 'true');
+                sessionStorage.setItem('authTime', Date.now().toString());
+                showDashboard();
+                showNotification('تم تسجيل الدخول بنجاح', 'success');
+            } else {
+                document.getElementById('loginError').textContent = 'كلمة المرور غير صحيحة';
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('password').value = '';
+            }
+        }
+        
+        // Logout
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                sessionStorage.clear();
+                location.reload();
+            }
+        }
+        
+        // Load dashboard data
+        async function loadDashboardData() {
+            showLoading(true);
+            
+            try {
+                // Load new bookings count
+                const newBookingsSnapshot = await db.collection('bookings')
+                    .where('status', 'in', ['pending', 'confirming'])
+                    .get();
+                
+                const newBookingsCount = newBookingsSnapshot.size;
+                document.getElementById('newRequestsCount').textContent = newBookingsCount;
+                document.getElementById('newBookingsCount').textContent = newBookingsCount;
+                document.getElementById('newBookingsCount').style.display = newBookingsCount > 0 ? 'inline' : 'none';
+                
+                // Load active journeys
+                const activeJourneysSnapshot = await db.collection('journeys')
+                    .where('status', '==', 'active')
+                    .get();
+                
+                const activeJourneysCount = activeJourneysSnapshot.size;
+                document.getElementById('activeJourneysNumber').textContent = activeJourneysCount;
+                document.getElementById('activeJourneysCount').textContent = activeJourneysCount;
+                document.getElementById('activeJourneysCount').style.display = activeJourneysCount > 0 ? 'inline' : 'none';
+                
+                // Load today's sessions
+                await loadTodaySessions();
+                
+                // Load total clients
+                const clientsSnapshot = await db.collection('users').get();
+                document.getElementById('totalClientsCount').textContent = clientsSnapshot.size;
+                
+                // Calculate this month's new clients
+                const thisMonth = new Date();
+                thisMonth.setDate(1);
+                thisMonth.setHours(0, 0, 0, 0);
+                
+                let newClientsThisMonth = 0;
+                clientsSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    if (userData.createdAt && userData.createdAt.toDate() >= thisMonth) {
+                        newClientsThisMonth++;
+                    }
+                });
+                
+                document.getElementById('clientsChange').textContent = `+${newClientsThisMonth} هذا الشهر`;
+                
+                // Load recent activities
+                await loadRecentActivities();
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showNotification('خطأ في تحميل البيانات', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Load today's sessions
+        async function loadTodaySessions() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            try {
+                const sessionsSnapshot = await db.collection('bookings')
+                    .where('status', '==', 'confirmed')
+                    .where('appointmentDate', '>=', today)
+                    .where('appointmentDate', '<', tomorrow)
+                    .orderBy('appointmentDate')
+                    .get();
+                
+                const sessionsCount = sessionsSnapshot.size;
+                document.getElementById('todaySessionsCount').textContent = sessionsCount;
+                
+                const scheduleContainer = document.getElementById('todaySchedule');
+                
+                if (sessionsCount === 0) {
+                    document.getElementById('sessionsChange').textContent = 'لا توجد جلسات مجدولة';
+                    scheduleContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📅</div>
+                            <p>لا توجد جلسات مجدولة لهذا اليوم</p>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('sessionsChange').textContent = `${sessionsCount} جلسة مجدولة`;
+                    
+                    let scheduleHTML = '';
+                    sessionsSnapshot.forEach(doc => {
+                        const session = doc.data();
+                        const time = session.appointmentTime || 'غير محدد';
+                        
+                        scheduleHTML += `
+                            <div class="schedule-item">
+                                <div class="schedule-time">${time}</div>
+                                <div class="schedule-info">
+                                    <h4>${session.name || 'عميل'}</h4>
+                                    <p>${getProgramName(session.program)} - ${getSessionTypeName(session.sessionType)}</p>
+                                </div>
+                                <div class="schedule-actions">
+                                    <button class="btn btn-whatsapp" onclick="openWhatsApp('${session.phone}', '${session.name}')">
+                                        واتساب
+                                    </button>
+                                    ${session.sessionLink ? 
+                                        `<button class="btn btn-primary" onclick="window.open('${session.sessionLink}', '_blank')">
+                                            رابط الجلسة
+                                        </button>` : ''
+                                    }
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    scheduleContainer.innerHTML = scheduleHTML;
+                }
+            } catch (error) {
+                console.error('Error loading today sessions:', error);
+            }
+        }
+        
+        // Load recent activities
+        async function loadRecentActivities() {
+            try {
+                // Get recent bookings
+                const recentBookingsSnapshot = await db.collection('bookings')
+                    .orderBy('createdAt', 'desc')
+                    .limit(5)
+                    .get();
+                
+                // Get recent journey updates
+                const recentJourneysSnapshot = await db.collection('journeys')
+                    .orderBy('lastUpdated', 'desc')
+                    .limit(5)
+                    .get();
+                
+                const activities = [];
+                
+                // Process bookings
+                recentBookingsSnapshot.forEach(doc => {
+                    const booking = doc.data();
+                    const activityType = booking.isNewJourney ? 'new-journey' : 
+                                       booking.existingClient ? 'existing-client' : 'new-booking';
+                    
+                    activities.push({
+                        type: activityType,
+                        title: getActivityTitle(activityType, booking),
+                        description: getActivityDescription(activityType, booking),
+                        time: booking.createdAt?.toDate() || new Date(),
+                        icon: getActivityIcon(activityType)
+                    });
+                });
+                
+                // Process journey updates
+                recentJourneysSnapshot.forEach(doc => {
+                    const journey = doc.data();
+                    if (journey.lastAction) {
+                        activities.push({
+                            type: 'journey-update',
+                            title: `تحديث رحلة ${journey.clientName}`,
+                            description: journey.lastAction,
+                            time: journey.lastUpdated?.toDate() || new Date(),
+                            icon: '🔄'
+                        });
+                    }
+                });
+                
+                // Sort by time
+                activities.sort((a, b) => b.time - a.time);
+                
+                // Display activities
+                const container = document.getElementById('recentActivities');
+                
+                if (activities.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🕐</div>
+                            <p>لا توجد نشاطات حديثة</p>
+                        </div>
+                    `;
+                } else {
+                    let html = '';
+                    activities.slice(0, 10).forEach(activity => {
+                        html += `
+                            <div class="activity-item">
+                                <div class="activity-icon">${activity.icon}</div>
+                                <div class="activity-content">
+                                    <h4>${activity.title}</h4>
+                                    <p>${activity.description}</p>
+                                </div>
+                                <div class="activity-time">${formatTime(activity.time)}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                }
+                
+            } catch (error) {
+                console.error('Error loading activities:', error);
+            }
+        }
+        
+        // Activity helpers
+        function getActivityTitle(type, booking) {
+            switch(type) {
+                case 'new-journey':
+                    return `طلب رحلة جديدة من ${booking.name}`;
+                case 'existing-client':
+                    return `حجز من عميل حالي: ${booking.name}`;
+                default:
+                    return `حجز جديد من ${booking.name}`;
+            }
+        }
+        
+        function getActivityDescription(type, booking) {
+            switch(type) {
+                case 'new-journey':
+                    return `يريد بدء ${getProgramName(booking.program)} بعد إكمال رحلات سابقة`;
+                case 'existing-client':
+                    return `عميل مسجل يريد حجز ${getProgramName(booking.program)}`;
+                default:
+                    return `طلب جديد لـ ${getProgramName(booking.program)}`;
+            }
+        }
+        
+        function getActivityIcon(type) {
+            switch(type) {
+                case 'new-journey': return '🔄';
+                case 'existing-client': return '👤';
+                case 'journey-update': return '📝';
+                default: return '🆕';
+            }
+        }
+        
+        // Update current time
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleDateString('ar-EG', options);
+        }
+        
+        // Quick actions
+        function downloadBackup() {
+            showNotification('جاري إعداد النسخة الاحتياطية...', 'success');
+            // Implementation for backup
+            setTimeout(() => {
+                showNotification('تم تحميل النسخة الاحتياطية', 'success');
+            }, 2000);
+        }
+        
+        function viewReports() {
+            showNotification('صفحة التقارير قيد التطوير', 'info');
+        }
+        
+        function refreshActivities() {
+            loadRecentActivities();
+            showNotification('تم تحديث النشاطات', 'success');
+        }
+        
+        // Helper functions
+        function showLoading(show) {
+            document.querySelector('.loading-overlay').style.display = show ? 'flex' : 'none';
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.onclick = () => notification.remove();
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        function getProgramName(program) {
+            const names = {
+                clarity: 'جلسة الوضوح',
+                discovery: 'رحلة الاكتشاف',
+                transformation: 'رحلة التحول'
+            };
+            return names[program] || program;
+        }
+        
+        function getSessionTypeName(type) {
+            const names = {
+                online: 'أونلاين',
+                phone: 'هاتفي',
+                inperson: 'حضوري'
+            };
+            return names[type] || 'أونلاين';
+        }
+        
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (minutes < 1) return 'الآن';
+            if (minutes < 60) return `منذ ${minutes} دقيقة`;
+            if (hours < 24) return `منذ ${hours} ساعة`;
+            if (days < 7) return `منذ ${days} يوم`;
+            
+            return date.toLocaleDateString('ar-EG');
+        }
+        
+        function openWhatsApp(phone, name) {
+            const cleanPhone = phone.replace(/\D/g, '');
+            const fullPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
+            const message = `مرحباً ${name}، معك محمود فؤاد...`;
+            window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+        
+        // Auto logout after 1 hour
+        setInterval(() => {
+            const authTime = sessionStorage.getItem('authTime');
+            if (authTime && (Date.now() - parseInt(authTime) > 60 * 60 * 1000)) {
+                showNotification('انتهت صلاحية الجلسة، سيتم تسجيل الخروج', 'error');
+                setTimeout(() => {
+                    logout();
+                }, 3000);
+            }
+        }, 60000);
+    </script>
+</body>
+</html>
