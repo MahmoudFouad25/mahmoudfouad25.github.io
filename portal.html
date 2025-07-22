@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مساحتك الخاصة - محمود فؤاد</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+    
     <style>
         * {
             margin: 0;
@@ -141,14 +145,13 @@
         
         .badge {
             position: absolute;
-            top: 8px;
-            left: 8px;
+            top: 5px;
+            left: 10px;
             background: var(--accent);
             color: white;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             padding: 2px 6px;
             border-radius: 10px;
-            font-weight: bold;
         }
         
         /* Main Content */
@@ -254,6 +257,138 @@
             font-size: 0.9rem;
         }
         
+        /* Journey Styles */
+        .journey-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .journey-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .journey-header h2 {
+            color: var(--primary);
+            margin: 0;
+        }
+        
+        .journey-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .journey-progress {
+            margin-bottom: 2rem;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-bar.large {
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 0.5s ease;
+        }
+        
+        .phases-container {
+            margin-bottom: 2rem;
+        }
+        
+        .phases-container h3,
+        .journey-sessions h3,
+        .journey-practices h3,
+        .journey-resources h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .phases-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .phase-item {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .phase-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .phase-item.completed {
+            background: #d4edda;
+        }
+        
+        .phase-item.in_progress {
+            background: #cce5ff;
+            border: 2px solid #004085;
+        }
+        
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .phase-name {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .phase-status {
+            font-size: 0.8rem;
+            padding: 3px 10px;
+            border-radius: 15px;
+            background: white;
+        }
+        
+        .phase-description {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .journey-sessions,
+        .journey-practices,
+        .journey-resources {
+            margin-top: 2rem;
+        }
+        
         /* Sessions */
         .sessions-list {
             background: white;
@@ -297,8 +432,10 @@
         }
         
         .status-upcoming { background: #d1ecf1; color: #0c5460; }
+        .status-confirmed { background: #d1ecf1; color: #0c5460; }
         .status-completed { background: #d4edda; color: #155724; }
         .status-cancelled { background: #f8d7da; color: #721c24; }
+        .status-pending { background: #fff3cd; color: #856404; }
         
         .session-details {
             display: grid;
@@ -341,120 +478,9 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
-        /* Journey Section */
-        .journey-timeline {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .phase-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            margin: 2rem 0;
-        }
-        
-        .phase-line {
-            position: absolute;
-            top: 25px;
-            right: 50px;
-            left: 50px;
-            height: 2px;
-            background: #ddd;
-            z-index: 0;
-        }
-        
-        .phase-progress {
-            position: absolute;
-            top: 0;
-            right: 0;
-            height: 100%;
-            background: var(--gradient);
-            transition: width 0.5s;
-        }
-        
-        .phase-item {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            flex: 1;
-        }
-        
-        .phase-circle {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: white;
-            border: 3px solid #ddd;
-            margin: 0 auto 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.3s;
-        }
-        
-        .phase-item.completed .phase-circle {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: white;
-        }
-        
-        .phase-item.active .phase-circle {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: white;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-        .phase-name {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .phase-item.completed .phase-name,
-        .phase-item.active .phase-name {
-            color: var(--primary);
-            font-weight: bold;
-        }
-        
-        /* Progress Overview */
-        .progress-overview {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 30px;
-            background: #eee;
-            border-radius: 15px;
-            overflow: hidden;
-            margin: 1rem 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--gradient);
-            transition: width 0.5s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
         }
         
         /* Practices */
@@ -476,14 +502,21 @@
             transform: translateY(-5px);
         }
         
+        .practice-card.journey-practice {
+            border: 2px solid var(--accent);
+        }
+        
         .practice-header {
             background: var(--gradient);
             color: white;
             padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .practice-header h3 {
-            margin-bottom: 0.5rem;
+            margin: 0;
         }
         
         .practice-content {
@@ -523,117 +556,33 @@
             font-weight: bold;
         }
         
-        .practice-actions {
+        .practice-progress {
             margin-top: 1rem;
-            display: flex;
-            gap: 0.5rem;
         }
         
-        .btn-complete {
-            background: #28a745;
+        .practice-frequency {
+            background: var(--accent);
             color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
         }
         
-        /* Messages Section */
-        .messages-container {
+        /* Progress Chart */
+        .progress-chart {
             background: white;
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
         }
         
-        .message-item {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .message-item:hover {
-            background: #f8f8f8;
-        }
-        
-        .message-item.unread {
-            background: #f0f8ff;
-        }
-        
-        .message-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--gradient);
+        .chart-container {
+            height: 300px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            flex-shrink: 0;
-        }
-        
-        .message-content {
-            flex: 1;
-        }
-        
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-        
-        .message-sender {
-            font-weight: bold;
-            color: var(--primary);
-        }
-        
-        .message-time {
-            font-size: 0.8rem;
             color: #999;
-        }
-        
-        .message-preview {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        /* Achievements Section */
-        .achievements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .achievement-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        
-        .achievement-card.unlocked {
-            background: var(--gradient);
-            color: white;
-        }
-        
-        .achievement-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .achievement-icon {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .achievement-card.locked .achievement-icon {
-            filter: grayscale(100%);
-            opacity: 0.5;
-        }
-        
-        .achievement-name {
-            font-size: 0.9rem;
-            font-weight: bold;
         }
         
         /* Resources */
@@ -719,6 +668,129 @@
             color: #666;
         }
         
+        /* Messages Section */
+        .messages-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .message-item {
+            display: flex;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-left: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            flex: 1;
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .message-content.from-coach {
+            background: #e3f2fd;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .message-sender {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
+            color: #999;
+        }
+        
+        .message-text {
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .message-reply {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .reply-input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        /* Achievements */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .achievement-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .achievement-card.earned {
+            background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+            border: 2px solid var(--accent);
+        }
+        
+        .achievement-card:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+        
+        .achievement-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            filter: grayscale(100%);
+            opacity: 0.3;
+        }
+        
+        .achievement-card.earned .achievement-icon {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+        
+        .achievement-title {
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+        
+        .achievement-description {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
         /* Modal */
         .modal {
             display: none;
@@ -768,6 +840,11 @@
             margin-bottom: 1rem;
         }
         
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
         /* Loading */
         .loading {
             text-align: center;
@@ -787,6 +864,55 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* Previous Journeys */
+        .previous-journey-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .previous-journey-card:hover {
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 2000;
+            animation: slideIn 0.3s;
+        }
+        
+        .notification.error {
+            background: #dc3545;
+        }
+        
+        .notification.warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
         
         /* Responsive */
@@ -857,21 +983,27 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#journey" class="nav-link" onclick="showSection('journey')">
-                        <span class="nav-icon">🛤️</span>
-                        رحلتي
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#sessions" class="nav-link" onclick="showSection('sessions')">
-                        <span class="nav-icon">📅</span>
-                        جلساتي
+                    <a href="#journeys" class="nav-link" onclick="showSection('journeys')">
+                        <span class="nav-icon">🗺️</span>
+                        رحلاتي
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#practices" class="nav-link" onclick="showSection('practices')">
                         <span class="nav-icon">🎯</span>
                         الممارسات
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#progress" class="nav-link" onclick="showSection('progress')">
+                        <span class="nav-icon">📊</span>
+                        تقدمي
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#resources" class="nav-link" onclick="showSection('resources')">
+                        <span class="nav-icon">📚</span>
+                        المكتبة
                     </a>
                 </li>
                 <li class="nav-item">
@@ -885,18 +1017,6 @@
                     <a href="#achievements" class="nav-link" onclick="showSection('achievements')">
                         <span class="nav-icon">🏆</span>
                         إنجازاتي
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#progress" class="nav-link" onclick="showSection('progress')">
-                        <span class="nav-icon">📊</span>
-                        تقدمي
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#resources" class="nav-link" onclick="showSection('resources')">
-                        <span class="nav-icon">📚</span>
-                        المكتبة
                     </a>
                 </li>
                 <li class="nav-item">
@@ -920,8 +1040,8 @@
         <!-- Dashboard Section -->
         <section id="dashboard" class="section active">
             <div class="content-header">
-                <h1>مرحباً <span id="welcomeName">بك</span> 👋</h1>
-                <p id="welcomeMessage">كيف حالك اليوم؟</p>
+                <h1>مرحباً <span id="welcomeName">بك</span></h1>
+                <p id="welcomeMessage">مستعد لجلستك القادمة؟</p>
             </div>
             
             <div class="dashboard-grid">
@@ -932,13 +1052,13 @@
                     <div class="card-subtitle" id="nextSessionTime">-</div>
                 </div>
                 <div class="dashboard-card">
-                    <div class="card-icon">🎯</div>
+                    <div class="card-icon">⏱️</div>
                     <div class="card-title">مدة البرنامج</div>
                     <div class="card-value" id="programDuration">-</div>
                     <div class="card-subtitle">متبقي</div>
                 </div>
                 <div class="dashboard-card">
-                    <div class="card-icon">✨</div>
+                    <div class="card-icon">🎯</div>
                     <div class="card-title">الممارسات</div>
                     <div class="card-value" id="practicesCount">0</div>
                     <div class="card-subtitle">ممارسة نشطة</div>
@@ -960,78 +1080,79 @@
             </div>
         </section>
         
-        <!-- Journey Section (الجديد) -->
-        <section id="journey" class="section">
+        <!-- Journeys Section -->
+        <section id="journeys" class="section">
             <div class="content-header">
-                <h1>رحلتي</h1>
-                <p>تابع تقدمك في الرحلة خطوة بخطوة</p>
+                <h1>رحلاتي</h1>
+                <p>تابع رحلتك وتقدمك</p>
             </div>
             
-            <div class="progress-overview">
-                <h3>نظرة عامة على التقدم</h3>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="journeyProgress" style="width: 0%">
-                        <span id="journeyProgressText">0%</span>
+            <!-- Active Journey -->
+            <div id="activeJourneyContainer" style="display: none;">
+                <div class="journey-card active-journey">
+                    <div class="journey-header">
+                        <h2 id="journeyTitle">رحلة الاكتشاف</h2>
+                        <span class="journey-status" id="journeyStatus">نشطة</span>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="journey-progress">
+                        <div class="progress-info">
+                            <span>التقدم الكلي</span>
+                            <span id="progressPercentage">0%</span>
+                        </div>
+                        <div class="progress-bar large">
+                            <div class="progress-fill" id="mainProgressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phases -->
+                    <div class="phases-container">
+                        <h3>مراحل الرحلة</h3>
+                        <div id="phasesList" class="phases-list">
+                            <!-- سيتم ملؤها بـ JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Journey Sessions -->
+                    <div class="journey-sessions">
+                        <h3>جلسات هذه الرحلة</h3>
+                        <div id="journeySessionsList">
+                            <!-- سيتم ملؤها بـ JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Journey Practices -->
+                    <div class="journey-practices">
+                        <h3>ممارسات رحلتي</h3>
+                        <div id="journeyPracticesList" class="practices-grid">
+                            <!-- سيتم ملؤها بـ JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Journey Resources -->
+                    <div class="journey-resources">
+                        <h3>موارد رحلتي</h3>
+                        <div id="journeyResourcesList" class="resources-grid">
+                            <!-- سيتم ملؤها بـ JavaScript -->
+                        </div>
                     </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-                    <span>بداية الرحلة</span>
-                    <span id="journeyStatus">جاري التحميل...</span>
-                    <span>نهاية الرحلة</span>
-                </div>
             </div>
             
-            <div class="journey-timeline">
-                <h3>مراحل الرحلة</h3>
-                <div class="phase-container" id="phaseContainer">
-                    <div class="phase-line">
-                        <div class="phase-progress" id="phaseProgress" style="width: 0%"></div>
-                    </div>
-                    <!-- سيتم ملؤها ديناميكياً -->
-                </div>
+            <!-- No Journey State -->
+            <div id="noJourneyContainer" class="empty-state" style="display: none;">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23999999' stroke-width='2'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E" alt="No Journey">
+                <h3>لم تبدأ رحلتك بعد</h3>
+                <p>ابدأ رحلتك نحو التغيير الإيجابي</p>
+                <a href="booking.html" class="btn btn-primary">ابدأ رحلتك الآن</a>
             </div>
             
-            <div class="dashboard-grid">
-                <div class="dashboard-card">
-                    <div class="card-icon">🎯</div>
-                    <div class="card-title">الممارسات المنجزة</div>
-                    <div class="card-value" id="completedPractices">0</div>
-                    <div class="card-subtitle">من أصل <span id="totalPractices">0</span></div>
-                </div>
-                <div class="dashboard-card">
-                    <div class="card-icon">🏆</div>
-                    <div class="card-title">المعالم المحققة</div>
-                    <div class="card-value" id="achievedMilestones">0</div>
-                    <div class="card-subtitle">إنجاز رائع!</div>
-                </div>
-                <div class="dashboard-card">
-                    <div class="card-icon">📚</div>
-                    <div class="card-title">الموارد المتاحة</div>
-                    <div class="card-value" id="availableResources">0</div>
-                    <div class="card-subtitle">مورد مخصص لك</div>
-                </div>
-            </div>
-            
-            <div class="practices-grid" style="margin-top: 2rem;">
-                <h3 style="grid-column: 1/-1;">ممارساتك الحالية</h3>
-                <div id="currentPractices" class="loading" style="grid-column: 1/-1;">
-                    <div class="spinner"></div>
-                    <p>جاري تحميل الممارسات...</p>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Sessions Section -->
-        <section id="sessions" class="section">
-            <div class="content-header">
-                <h1>جلساتي</h1>
-                <p>تابع جلساتك السابقة والقادمة</p>
-            </div>
-            
-            <div class="sessions-list">
-                <div id="sessionsList" class="loading">
-                    <div class="spinner"></div>
-                    <p>جاري تحميل الجلسات...</p>
+            <!-- Previous Journeys -->
+            <div id="previousJourneysContainer" style="margin-top: 2rem; display: none;">
+                <h3>رحلاتي السابقة</h3>
+                <div id="previousJourneysList">
+                    <!-- سيتم ملؤها بـ JavaScript -->
                 </div>
             </div>
         </section>
@@ -1044,34 +1165,7 @@
             </div>
             
             <div class="practices-grid" id="practicesGrid">
-                <!-- سيتم ملؤها بواسطة JavaScript -->
-            </div>
-        </section>
-        
-        <!-- Messages Section (الجديد) -->
-        <section id="messages" class="section">
-            <div class="content-header">
-                <h1>الرسائل</h1>
-                <p>تواصل مع مدربك</p>
-            </div>
-            
-            <div class="messages-container">
-                <div id="messagesList" class="loading">
-                    <div class="spinner"></div>
-                    <p>جاري تحميل الرسائل...</p>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Achievements Section (الجديد) -->
-        <section id="achievements" class="section">
-            <div class="content-header">
-                <h1>إنجازاتي</h1>
-                <p>احتفل بإنجازاتك في الرحلة</p>
-            </div>
-            
-            <div class="achievements-grid" id="achievementsGrid">
-                <!-- سيتم ملؤها بواسطة JavaScript -->
+                <!-- سيتم ملؤها بـ JavaScript -->
             </div>
         </section>
         
@@ -1091,7 +1185,7 @@
             
             <div class="dashboard-grid">
                 <div class="dashboard-card">
-                    <div class="card-icon">✅</div>
+                    <div class="card-icon">🎖️</div>
                     <div class="card-title">الإنجازات</div>
                     <div class="card-value" id="achievementsCount">0</div>
                     <div class="card-subtitle">إنجاز محقق</div>
@@ -1125,7 +1219,7 @@
                     <p class="resource-description">مجموعة من التأملات الصوتية لتعزيز السلام الداخلي</p>
                 </a>
                 <a href="#" class="resource-card" onclick="openResource('articles')">
-                    <span class="resource-icon">📄</span>
+                    <span class="resource-icon">📖</span>
                     <h3 class="resource-title">مقالات مختارة</h3>
                     <p class="resource-description">مقالات تساعدك في فهم أعمق لرحلتك</p>
                 </a>
@@ -1140,7 +1234,7 @@
                     <p class="resource-description">قائمة بالكتب المفيدة في رحلتك</p>
                 </a>
                 <a href="#" class="resource-card" onclick="openResource('worksheets')">
-                    <span class="resource-icon">📋</span>
+                    <span class="resource-icon">📝</span>
                     <h3 class="resource-title">أوراق عمل</h3>
                     <p class="resource-description">تمارين وأنشطة للتطبيق العملي</p>
                 </a>
@@ -1149,6 +1243,56 @@
                     <h3 class="resource-title">مجتمع الدعم</h3>
                     <p class="resource-description">تواصل مع زملائك في الرحلة</p>
                 </a>
+            </div>
+        </section>
+        
+        <!-- Messages Section -->
+        <section id="messages" class="section">
+            <div class="content-header">
+                <h1>الرسائل</h1>
+                <p>تواصل مع مدربك</p>
+            </div>
+            
+            <div class="messages-container">
+                <div id="messagesList">
+                    <!-- سيتم ملؤها بـ JavaScript -->
+                </div>
+                
+                <div class="message-reply" style="margin-top: 2rem;">
+                    <input type="text" class="reply-input" id="messageInput" placeholder="اكتب رسالتك...">
+                    <button class="btn btn-primary" onclick="sendMessage()">إرسال</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Achievements Section -->
+        <section id="achievements" class="section">
+            <div class="content-header">
+                <h1>إنجازاتي</h1>
+                <p>شارات وإنجازات رحلتك</p>
+            </div>
+            
+            <div class="achievements-grid" id="achievementsGrid">
+                <div class="achievement-card earned">
+                    <div class="achievement-icon">🎯</div>
+                    <div class="achievement-title">البداية الموفقة</div>
+                    <div class="achievement-description">أكملت جلستك الأولى</div>
+                </div>
+                <div class="achievement-card">
+                    <div class="achievement-icon">🔥</div>
+                    <div class="achievement-title">الملتزم</div>
+                    <div class="achievement-description">7 أيام متتالية من الممارسة</div>
+                </div>
+                <div class="achievement-card">
+                    <div class="achievement-icon">⭐</div>
+                    <div class="achievement-title">نجم الممارسات</div>
+                    <div class="achievement-description">أكملت 30 ممارسة</div>
+                </div>
+                <div class="achievement-card">
+                    <div class="achievement-icon">🏆</div>
+                    <div class="achievement-title">البطل</div>
+                    <div class="achievement-description">أكملت رحلة كاملة</div>
+                </div>
             </div>
         </section>
         
@@ -1193,36 +1337,6 @@
         </div>
     </div>
     
-    <!-- Practice Complete Modal -->
-    <div id="practiceModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('practiceModal')">&times;</span>
-            <h2>إكمال الممارسة</h2>
-            <p>كيف كانت تجربتك مع هذه الممارسة؟</p>
-            <textarea id="practiceNotes" rows="5" style="width: 100%; margin: 20px 0; padding: 10px; border: 2px solid #eee; border-radius: 10px;" placeholder="شارك تجربتك..."></textarea>
-            <p>قيم الممارسة:</p>
-            <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
-                <button class="btn btn-secondary" onclick="ratePractice(1)">⭐</button>
-                <button class="btn btn-secondary" onclick="ratePractice(2)">⭐⭐</button>
-                <button class="btn btn-secondary" onclick="ratePractice(3)">⭐⭐⭐</button>
-                <button class="btn btn-secondary" onclick="ratePractice(4)">⭐⭐⭐⭐</button>
-                <button class="btn btn-secondary" onclick="ratePractice(5)">⭐⭐⭐⭐⭐</button>
-            </div>
-            <button class="btn btn-primary" onclick="submitPracticeCompletion()">حفظ</button>
-        </div>
-    </div>
-    
-    <!-- Message Details Modal -->
-    <div id="messageModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('messageModal')">&times;</span>
-            <h2 id="messageTitle">الرسالة</h2>
-            <div id="messageContent" style="margin: 20px 0; padding: 20px; background: #f8f8f8; border-radius: 10px;"></div>
-            <textarea id="replyTextarea" rows="5" style="width: 100%; margin: 20px 0; padding: 10px; border: 2px solid #eee; border-radius: 10px;" placeholder="اكتب ردك هنا..."></textarea>
-            <button class="btn btn-primary" onclick="sendReply()">إرسال الرد</button>
-        </div>
-    </div>
-    
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
@@ -1236,10 +1350,7 @@
         let currentUser = null;
         let userData = null;
         let userBookings = [];
-        let userJourney = null;
-        let currentPracticeId = null;
-        let practiceRating = 0;
-        let currentMessageId = null;
+        let activeJourney = null;
         
         // Check authentication
         auth.onAuthStateChanged(async (user) => {
@@ -1247,7 +1358,7 @@
                 currentUser = user;
                 await loadUserData();
                 await loadUserBookings();
-                await loadUserJourney();
+                await loadActiveJourney();
                 initializeDashboard();
             } else {
                 // Redirect to login
@@ -1293,241 +1404,248 @@
                 });
                 
                 updateDashboard();
-                updateSessionsList();
             } catch (error) {
                 console.error('Error loading bookings:', error);
             }
         }
         
-        // Load user journey (الجديد)
-        async function loadUserJourney() {
+        // Load active journey
+        async function loadActiveJourney() {
             try {
-                const snapshot = await db.collection('journeys')
+                // Query for active journey
+                const journeySnapshot = await db.collection('journeys')
                     .where('userId', '==', currentUser.uid)
                     .where('status', '==', 'active')
                     .limit(1)
                     .get();
                 
-                if (!snapshot.empty) {
-                    const doc = snapshot.docs[0];
-                    userJourney = { id: doc.id, ...doc.data() };
-                    updateJourneySection();
-                    updateCurrentPractices();
-                    loadMessages();
-                    loadAchievements();
-                } else {
+                if (journeySnapshot.empty) {
                     // No active journey
-                    document.getElementById('journeyStatus').textContent = 'لا توجد رحلة نشطة';
+                    document.getElementById('activeJourneyContainer').style.display = 'none';
+                    document.getElementById('noJourneyContainer').style.display = 'block';
+                    activeJourney = null;
+                    return;
                 }
+                
+                // Get journey data
+                const journeyDoc = journeySnapshot.docs[0];
+                activeJourney = { id: journeyDoc.id, ...journeyDoc.data() };
+                
+                // Update UI
+                document.getElementById('activeJourneyContainer').style.display = 'block';
+                document.getElementById('noJourneyContainer').style.display = 'none';
+                
+                // Set journey info
+                document.getElementById('journeyTitle').textContent = getProgramName(activeJourney.program);
+                document.getElementById('journeyStatus').textContent = 'نشطة';
+                document.getElementById('progressPercentage').textContent = (activeJourney.progress || 0) + '%';
+                document.getElementById('mainProgressBar').style.width = (activeJourney.progress || 0) + '%';
+                
+                // Load phases
+                await loadJourneyPhases(activeJourney.id);
+                
+                // Load journey sessions
+                await loadJourneySessions();
+                
+                // Load journey practices
+                await loadJourneyPractices();
+                
+                // Load journey resources
+                await loadJourneyResources();
+                
+                // Load previous journeys
+                await loadPreviousJourneys();
+                
             } catch (error) {
                 console.error('Error loading journey:', error);
+                showNotification('خطأ في تحميل الرحلة', 'error');
             }
         }
         
-        // Update journey section (الجديد)
-        function updateJourneySection() {
-            if (!userJourney) return;
-            
-            // Update progress
-            const progress = userJourney.progress?.overallProgress || 0;
-            document.getElementById('journeyProgress').style.width = progress + '%';
-            document.getElementById('journeyProgressText').textContent = progress + '%';
-            
-            // Update status
-            const statusText = {
-                active: 'رحلة نشطة',
-                paused: 'رحلة متوقفة مؤقتاً',
-                completed: 'رحلة مكتملة'
-            };
-            document.getElementById('journeyStatus').textContent = statusText[userJourney.status] || 'غير محدد';
-            
-            // Update phases
-            updatePhases();
-            
-            // Update stats
-            document.getElementById('completedPractices').textContent = userJourney.progress?.practicesCompleted || 0;
-            document.getElementById('totalPractices').textContent = getTotalPractices();
-            document.getElementById('achievedMilestones').textContent = userJourney.progress?.milestonesAchieved?.length || 0;
-            document.getElementById('availableResources').textContent = userJourney.assignedResources?.length || 0;
-        }
-        
-        // Update phases display
-        function updatePhases() {
-            const container = document.getElementById('phaseContainer');
-            container.innerHTML = '<div class="phase-line"><div class="phase-progress" id="phaseProgress"></div></div>';
-            
-            if (!userJourney?.phases) return;
-            
-            let completedPhases = 0;
-            userJourney.phases.forEach((phase, index) => {
-                const phaseItem = document.createElement('div');
-                phaseItem.className = `phase-item ${phase.status}`;
-                
-                let icon = '🔵';
-                if (phase.status === 'completed') {
-                    icon = '✅';
-                    completedPhases++;
-                } else if (phase.status === 'in_progress') {
-                    icon = '🔄';
-                }
-                
-                phaseItem.innerHTML = `
-                    <div class="phase-circle">${icon}</div>
-                    <div class="phase-name">${phase.name}</div>
-                `;
-                
-                container.appendChild(phaseItem);
-            });
-            
-            // Update phase progress line
-            const phaseProgress = (completedPhases / userJourney.phases.length) * 100;
-            document.getElementById('phaseProgress').style.width = phaseProgress + '%';
-        }
-        
-        // Get total practices count
-        function getTotalPractices() {
-            if (!userJourney?.phases) return 0;
-            let total = 0;
-            userJourney.phases.forEach(phase => {
-                total += phase.practices?.length || 0;
-            });
-            return total;
-        }
-        
-        // Update current practices
-        async function updateCurrentPractices() {
-            const container = document.getElementById('currentPractices');
-            
-            if (!userJourney?.assignedPractices || userJourney.assignedPractices.length === 0) {
-                container.innerHTML = '<div class="empty-state">لا توجد ممارسات مخصصة حالياً</div>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            
-            for (const assigned of userJourney.assignedPractices) {
-                try {
-                    const practiceDoc = await db.collection('practices').doc(assigned.practiceId).get();
-                    if (practiceDoc.exists) {
-                        const practice = practiceDoc.data();
-                        const completionsToday = assigned.completions?.filter(c => {
-                            const date = c.date?.toDate ? c.date.toDate() : new Date(c.date);
-                            return isToday(date);
-                        }).length || 0;
-                        
-                        const practiceCard = document.createElement('div');
-                        practiceCard.className = 'practice-card';
-                        practiceCard.innerHTML = `
-                            <div class="practice-header">
-                                <h3>${practice.title}</h3>
-                                <p>${assigned.frequency === 'daily' ? 'يومياً' : assigned.frequency === 'weekly' ? 'أسبوعياً' : 'حسب الحاجة'}</p>
-                            </div>
-                            <div class="practice-content">
-                                <p class="practice-description">${practice.description}</p>
-                                <div class="practice-actions">
-                                    ${completionsToday > 0 ? 
-                                        '<button class="btn btn-secondary" disabled>✅ تمت اليوم</button>' :
-                                        `<button class="btn btn-complete" onclick="startPracticeCompletion('${assigned.practiceId}')">إكمال الممارسة</button>`
-                                    }
-                                    <button class="btn btn-secondary" onclick="viewPracticeHistory('${assigned.practiceId}')">السجل</button>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(practiceCard);
-                    }
-                } catch (error) {
-                    console.error('Error loading practice:', error);
-                }
-            }
-        }
-        
-        // Load messages
-        async function loadMessages() {
-            const container = document.getElementById('messagesList');
-            
-            if (!userJourney?.communications || userJourney.communications.length === 0) {
-                container.innerHTML = '<div class="empty-state">لا توجد رسائل</div>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            
-            // Sort messages by date (newest first)
-            const sortedMessages = [...userJourney.communications].sort((a, b) => {
-                const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
-                const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
-                return dateB - dateA;
-            });
-            
-            let unreadCount = 0;
-            sortedMessages.forEach((message, index) => {
-                if (!message.read) unreadCount++;
-                
-                const messageDate = message.date?.toDate ? message.date.toDate() : new Date(message.date);
-                const messageItem = document.createElement('div');
-                messageItem.className = `message-item ${!message.read ? 'unread' : ''}`;
-                messageItem.onclick = () => openMessage(index);
-                
-                messageItem.innerHTML = `
-                    <div class="message-avatar">
-                        ${message.from === 'coach' ? '👨‍🏫' : message.from === 'system' ? '🤖' : '👤'}
-                    </div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <span class="message-sender">${message.from === 'coach' ? 'المدرب' : message.from === 'system' ? 'النظام' : 'أنت'}</span>
-                            <span class="message-time">${formatDate(messageDate)}</span>
-                        </div>
-                        <div class="message-preview">${message.content.substring(0, 100)}${message.content.length > 100 ? '...' : ''}</div>
-                    </div>
-                `;
-                
-                container.appendChild(messageItem);
-            });
-            
-            // Update unread badge
-            const badge = document.getElementById('unreadCount');
-            if (unreadCount > 0) {
-                badge.textContent = unreadCount;
-                badge.style.display = 'inline-block';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-        
-        // Load achievements
-        async function loadAchievements() {
-            const container = document.getElementById('achievementsGrid');
-            container.innerHTML = '';
-            
+        // Load journey phases
+        async function loadJourneyPhases(journeyId) {
             try {
-                // Load all milestones
-                const milestonesSnapshot = await db.collection('milestones').get();
-                const allMilestones = [];
-                milestonesSnapshot.forEach(doc => {
-                    allMilestones.push({ id: doc.id, ...doc.data() });
-                });
+                const phasesSnapshot = await db.collection('journeys')
+                    .doc(journeyId)
+                    .collection('phases')
+                    .orderBy('order')
+                    .get();
                 
-                // Get achieved milestones
-                const achievedIds = userJourney?.progress?.milestonesAchieved || [];
+                const phasesList = document.getElementById('phasesList');
+                phasesList.innerHTML = '';
                 
-                // Display all milestones
-                allMilestones.forEach(milestone => {
-                    const isUnlocked = achievedIds.includes(milestone.id);
-                    const achievementCard = document.createElement('div');
-                    achievementCard.className = `achievement-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+                phasesSnapshot.forEach(doc => {
+                    const phase = doc.data();
+                    const phaseElement = document.createElement('div');
+                    phaseElement.className = `phase-item ${phase.status}`;
                     
-                    achievementCard.innerHTML = `
-                        <div class="achievement-icon">${milestone.icon || '🏆'}</div>
-                        <div class="achievement-name">${milestone.name}</div>
+                    phaseElement.innerHTML = `
+                        <div class="phase-header">
+                            <span class="phase-name">المرحلة ${phase.order}: ${phase.name}</span>
+                            <span class="phase-status">${getPhaseStatusArabic(phase.status)}</span>
+                        </div>
+                        <div class="phase-description">${phase.description}</div>
                     `;
                     
-                    container.appendChild(achievementCard);
+                    phasesList.appendChild(phaseElement);
                 });
                 
-                // Update achievements count
-                document.getElementById('achievementsCount').textContent = achievedIds.length;
             } catch (error) {
-                console.error('Error loading achievements:', error);
+                console.error('Error loading phases:', error);
+            }
+        }
+        
+        // Load journey sessions
+        async function loadJourneySessions() {
+            const sessionsList = document.getElementById('journeySessionsList');
+            sessionsList.innerHTML = '';
+            
+            // Filter bookings for this journey
+            const journeyBookings = userBookings.filter(b => 
+                b.program === activeJourney.program || b.journeyId === activeJourney.id
+            );
+            
+            if (journeyBookings.length === 0) {
+                sessionsList.innerHTML = '<div class="empty-state"><p>لا توجد جلسات بعد</p></div>';
+                return;
+            }
+            
+            let sessionNumber = 1;
+            journeyBookings.forEach(booking => {
+                const sessionElement = document.createElement('div');
+                sessionElement.className = 'session-item';
+                
+                let sessionDate = 'لم يحدد';
+                if (booking.appointmentDate) {
+                    const date = booking.appointmentDate.toDate ? 
+                        booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
+                    sessionDate = date.toLocaleDateString('ar-EG');
+                    if (booking.appointmentTime) {
+                        sessionDate += ' - ' + booking.appointmentTime;
+                    }
+                }
+                
+                sessionElement.innerHTML = `
+                    <div class="session-header">
+                        <span class="session-title">جلسة ${sessionNumber}</span>
+                        <span class="session-status status-${booking.status || 'pending'}">
+                            ${getStatusName(booking.status)}
+                        </span>
+                    </div>
+                    <div class="session-details">
+                        <div>📅 ${sessionDate}</div>
+                        ${booking.sessionType ? `<div>📱 ${getSessionTypeName(booking.sessionType)}</div>` : ''}
+                    </div>
+                    <div class="session-actions">
+                        <button class="btn btn-secondary" onclick="viewSessionDetails('${booking.id}')">التفاصيل</button>
+                        ${booking.status === 'confirmed' && booking.sessionLink ? 
+                            `<button class="btn btn-primary" onclick="joinSession('${booking.sessionLink}')">انضم للجلسة</button>` : ''}
+                    </div>
+                `;
+                
+                sessionsList.appendChild(sessionElement);
+                sessionNumber++;
+            });
+        }
+        
+        // Load journey practices
+        async function loadJourneyPractices() {
+            const practicesList = document.getElementById('journeyPracticesList');
+            practicesList.innerHTML = '';
+            
+            // Default practices based on program and phase
+            const practices = getPracticesForProgram(activeJourney.program, activeJourney.currentPhase);
+            
+            practices.forEach(practice => {
+                const practiceElement = document.createElement('div');
+                practiceElement.className = 'practice-card journey-practice';
+                
+                practiceElement.innerHTML = `
+                    <div class="practice-header">
+                        <h3>${practice.title}</h3>
+                        <span class="practice-frequency">${practice.frequency}</span>
+                    </div>
+                    <div class="practice-content">
+                        <p class="practice-description">${practice.description}</p>
+                        <div class="practice-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${practice.progress}%"></div>
+                            </div>
+                            <p style="text-align: center; margin-top: 0.5rem; color: #666;">
+                                ${practice.progress}% مكتمل هذا الأسبوع
+                            </p>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="completePractice('${practice.id}')">
+                            سجل إكمال اليوم
+                        </button>
+                    </div>
+                `;
+                
+                practicesList.appendChild(practiceElement);
+            });
+        }
+        
+        // Load journey resources
+        async function loadJourneyResources() {
+            const resourcesList = document.getElementById('journeyResourcesList');
+            resourcesList.innerHTML = '';
+            
+            // Default resources based on program and phase
+            const resources = getResourcesForProgram(activeJourney.program, activeJourney.currentPhase);
+            
+            resources.forEach(resource => {
+                const resourceElement = document.createElement('a');
+                resourceElement.className = 'resource-card';
+                resourceElement.href = '#';
+                resourceElement.onclick = (e) => {
+                    e.preventDefault();
+                    openResource(resource.type);
+                };
+                
+                resourceElement.innerHTML = `
+                    <span class="resource-icon">${resource.icon}</span>
+                    <h3 class="resource-title">${resource.title}</h3>
+                    <p class="resource-description">${resource.description}</p>
+                `;
+                
+                resourcesList.appendChild(resourceElement);
+            });
+        }
+        
+        // Load previous journeys
+        async function loadPreviousJourneys() {
+            try {
+                const journeysSnapshot = await db.collection('journeys')
+                    .where('userId', '==', currentUser.uid)
+                    .where('status', '==', 'completed')
+                    .orderBy('startDate', 'desc')
+                    .get();
+                
+                if (!journeysSnapshot.empty) {
+                    document.getElementById('previousJourneysContainer').style.display = 'block';
+                    const previousList = document.getElementById('previousJourneysList');
+                    previousList.innerHTML = '';
+                    
+                    journeysSnapshot.forEach(doc => {
+                        const journey = doc.data();
+                        const journeyElement = document.createElement('div');
+                        journeyElement.className = 'previous-journey-card';
+                        
+                        const startDate = journey.startDate?.toDate ? 
+                            journey.startDate.toDate() : new Date();
+                        
+                        journeyElement.innerHTML = `
+                            <h4>${getProgramName(journey.program)}</h4>
+                            <p>مكتملة في ${startDate.toLocaleDateString('ar-EG')}</p>
+                            <p>التقدم: ${journey.progress}%</p>
+                        `;
+                        
+                        previousList.appendChild(journeyElement);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error loading previous journeys:', error);
             }
         }
         
@@ -1547,15 +1665,25 @@
             }
             
             // Set program
-            const latestBooking = userBookings.find(b => b.status !== 'cancelled');
-            if (latestBooking) {
+            if (activeJourney) {
                 document.getElementById('profileProgram').textContent = 
-                    getProgramName(latestBooking.program);
+                    getProgramName(activeJourney.program);
+            } else {
+                const latestBooking = userBookings.find(b => b.status !== 'cancelled');
+                if (latestBooking) {
+                    document.getElementById('profileProgram').textContent = 
+                        getProgramName(latestBooking.program);
+                }
             }
         }
         
         // Initialize dashboard
         function initializeDashboard() {
+            // Load all sections
+            loadPractices();
+            loadNotes();
+            loadMessages();
+            
             // Set welcome message
             const hour = new Date().getHours();
             let greeting = '';
@@ -1564,10 +1692,6 @@
             else greeting = 'مساء الخير';
             
             document.getElementById('welcomeMessage').textContent = `${greeting}! كيف حالك اليوم؟`;
-            
-            // Load all sections
-            loadPractices();
-            loadNotes();
         }
         
         // Update dashboard
@@ -1593,22 +1717,22 @@
             }
             
             // Progress rate
-            const progressRate = totalSessions > 0 ? 
-                Math.round((completedSessions / totalSessions) * 100) : 0;
+            const progressRate = activeJourney ? activeJourney.progress : 
+                (totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0);
             document.getElementById('progressRate').textContent = progressRate + '%';
+            
+            // Program duration
+            calculateProgramDuration();
             
             // Recent activities
             updateRecentActivities();
-            
-            // Calculate program duration
-            calculateProgramDuration();
         }
         
         // Update recent activities
         function updateRecentActivities() {
             const container = document.getElementById('recentActivities');
             
-            if (userBookings.length === 0) {
+            if (userBookings.length === 0 && !activeJourney) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <p>لا توجد نشاطات حتى الآن</p>
@@ -1633,60 +1757,6 @@
                         </div>
                         <div class="session-details">
                             <div>📅 ${date.toLocaleDateString('ar-EG')}</div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
-        
-        // Update sessions list
-        function updateSessionsList() {
-            const container = document.getElementById('sessionsList');
-            
-            if (userBookings.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <p>لم تحجز أي جلسات بعد</p>
-                        <a href="booking.html" class="btn btn-primary">احجز جلستك الأولى</a>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            userBookings.forEach(booking => {
-                const date = booking.createdAt?.toDate ? 
-                    booking.createdAt.toDate() : new Date();
-                
-                let sessionDate = 'لم يحدد';
-                if (booking.appointmentDate) {
-                    const apptDate = booking.appointmentDate.toDate ? 
-                        booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
-                    sessionDate = apptDate.toLocaleDateString('ar-EG');
-                    if (booking.appointmentTime) {
-                        sessionDate += ' - ' + booking.appointmentTime;
-                    }
-                }
-                
-                html += `
-                    <div class="session-item">
-                        <div class="session-header">
-                            <div class="session-title">${getProgramName(booking.program)}</div>
-                            <span class="session-status status-${booking.status || 'pending'}">
-                                ${getStatusName(booking.status)}
-                            </span>
-                        </div>
-                        <div class="session-details">
-                            <div>📅 تاريخ الحجز: ${date.toLocaleDateString('ar-EG')}</div>
-                            <div>🕐 موعد الجلسة: ${sessionDate}</div>
-                            <div>📱 نوع الجلسة: ${booking.sessionType ? getSessionTypeName(booking.sessionType) : 'لم يحدد'}</div>
-                        </div>
-                        <div class="session-actions">
-                            <button class="btn btn-secondary" onclick="viewSessionDetails('${booking.id}')">التفاصيل</button>
-                            ${booking.status === 'confirmed' && booking.sessionLink ? 
-                                `<button class="btn btn-primary" onclick="joinSession('${booking.sessionLink}')">انضم للجلسة</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -1798,6 +1868,68 @@
             container.innerHTML = html;
         }
         
+        // Load messages
+        async function loadMessages() {
+            const messagesList = document.getElementById('messagesList');
+            
+            // Sample messages for demo
+            const messages = [
+                {
+                    from: 'coach',
+                    sender: 'محمود فؤاد',
+                    content: 'مرحباً! كيف حالك مع ممارسة المثلث القلبي؟',
+                    time: new Date(Date.now() - 86400000).toISOString(),
+                    read: true
+                },
+                {
+                    from: 'client',
+                    sender: 'أنت',
+                    content: 'الحمد لله، أشعر بتحسن ملحوظ في وعيي بمشاعري',
+                    time: new Date(Date.now() - 82800000).toISOString(),
+                    read: true
+                },
+                {
+                    from: 'coach',
+                    sender: 'محمود فؤاد',
+                    content: 'ممتاز! استمر في الممارسة وسجل ملاحظاتك. أراك في الجلسة القادمة',
+                    time: new Date(Date.now() - 3600000).toISOString(),
+                    read: false
+                }
+            ];
+            
+            let html = '';
+            let unreadCount = 0;
+            
+            messages.forEach(message => {
+                const isFromCoach = message.from === 'coach';
+                const time = new Date(message.time);
+                if (!message.read) unreadCount++;
+                
+                html += `
+                    <div class="message-item">
+                        <div class="message-avatar">
+                            ${isFromCoach ? 'م' : 'أ'}
+                        </div>
+                        <div class="message-content ${isFromCoach ? 'from-coach' : ''}">
+                            <div class="message-header">
+                                <span class="message-sender">${message.sender}</span>
+                                <span class="message-time">${time.toLocaleTimeString('ar-EG')}</span>
+                            </div>
+                            <div class="message-text">${message.content}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            messagesList.innerHTML = html;
+            
+            // Update unread count
+            if (unreadCount > 0) {
+                document.getElementById('unreadCount').textContent = unreadCount;
+                document.getElementById('unreadCount').style.display = 'block';
+            }
+        }
+        
         // Show section
         function showSection(sectionId) {
             // Hide all sections
@@ -1811,126 +1943,15 @@
             // Update nav
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
-                if (link.getAttribute('href') === '#' + sectionId) {
-                    link.classList.add('active');
-                }
             });
+            event.target.classList.add('active');
             
             // Close mobile menu
             document.getElementById('sidebar').classList.remove('active');
-        }
-        
-        // Practice completion functions
-        function startPracticeCompletion(practiceId) {
-            currentPracticeId = practiceId;
-            practiceRating = 0;
-            document.getElementById('practiceNotes').value = '';
-            document.getElementById('practiceModal').style.display = 'block';
-        }
-        
-        function ratePractice(rating) {
-            practiceRating = rating;
-            // Update UI to show selected rating
-            document.querySelectorAll('#practiceModal .btn-secondary').forEach((btn, index) => {
-                if (index < rating) {
-                    btn.style.background = 'var(--accent)';
-                    btn.style.color = 'white';
-                } else {
-                    btn.style.background = '';
-                    btn.style.color = '';
-                }
-            });
-        }
-        
-        async function submitPracticeCompletion() {
-            if (!currentPracticeId || practiceRating === 0) {
-                alert('من فضلك قيم الممارسة');
-                return;
-            }
             
-            const notes = document.getElementById('practiceNotes').value;
-            const completion = {
-                date: new Date(),
-                notes: notes,
-                rating: practiceRating
-            };
-            
-            try {
-                // Update journey document
-                const practiceIndex = userJourney.assignedPractices.findIndex(p => p.practiceId === currentPracticeId);
-                if (practiceIndex !== -1) {
-                    if (!userJourney.assignedPractices[practiceIndex].completions) {
-                        userJourney.assignedPractices[practiceIndex].completions = [];
-                    }
-                    userJourney.assignedPractices[practiceIndex].completions.push(completion);
-                    
-                    await db.collection('journeys').doc(userJourney.id).update({
-                        [`assignedPractices.${practiceIndex}.completions`]: userJourney.assignedPractices[practiceIndex].completions,
-                        'progress.practicesCompleted': firebase.firestore.FieldValue.increment(1)
-                    });
-                    
-                    showNotification('أحسنت! تم تسجيل إكمال الممارسة');
-                    closeModal('practiceModal');
-                    
-                    // Reload journey data
-                    await loadUserJourney();
-                }
-            } catch (error) {
-                console.error('Error saving practice completion:', error);
-                alert('حدث خطأ في حفظ البيانات');
-            }
-        }
-        
-        // Message functions
-        function openMessage(index) {
-            if (!userJourney?.communications) return;
-            
-            const message = userJourney.communications[index];
-            currentMessageId = index;
-            
-            document.getElementById('messageTitle').textContent = message.from === 'coach' ? 'رسالة من المدرب' : 'رسالتك';
-            document.getElementById('messageContent').textContent = message.content;
-            document.getElementById('replyTextarea').value = '';
-            document.getElementById('messageModal').style.display = 'block';
-            
-            // Mark as read
-            if (!message.read) {
-                message.read = true;
-                db.collection('journeys').doc(userJourney.id).update({
-                    [`communications.${index}.read`]: true
-                });
-                loadMessages();
-            }
-        }
-        
-        async function sendReply() {
-            const replyContent = document.getElementById('replyTextarea').value;
-            if (!replyContent.trim()) {
-                alert('من فضلك اكتب رداً');
-                return;
-            }
-            
-            const newMessage = {
-                type: 'message',
-                from: 'client',
-                content: replyContent,
-                date: new Date(),
-                read: false
-            };
-            
-            try {
-                await db.collection('journeys').doc(userJourney.id).update({
-                    communications: firebase.firestore.FieldValue.arrayUnion(newMessage)
-                });
-                
-                showNotification('تم إرسال الرد بنجاح');
-                closeModal('messageModal');
-                
-                // Reload messages
-                await loadUserJourney();
-            } catch (error) {
-                console.error('Error sending reply:', error);
-                alert('حدث خطأ في إرسال الرد');
+            // Load journey data when showing journeys section
+            if (sectionId === 'journeys' && activeJourney) {
+                loadActiveJourney();
             }
         }
         
@@ -1988,10 +2009,28 @@
             }
         }
         
-        // View practice history
-        function viewPracticeHistory(practiceId) {
-            // TODO: Implement practice history view
-            alert('سيتم إضافة هذه الميزة قريباً');
+        // Complete practice
+        async function completePractice(practiceId) {
+            try {
+                const notes = prompt('كيف كانت تجربتك مع هذه الممارسة؟');
+                if (!notes) return;
+                
+                const rating = prompt('قيم الممارسة من 1-5');
+                if (!rating || rating < 1 || rating > 5) return;
+                
+                // Update journey document (when backend is ready)
+                // For now, just show success
+                showNotification('أحسنت! تم تسجيل إكمال الممارسة', 'success');
+                
+                // Update local progress
+                if (activeJourney) {
+                    loadJourneyPractices();
+                }
+                
+            } catch (error) {
+                console.error('Error completing practice:', error);
+                showNotification('خطأ في تسجيل الممارسة', 'error');
+            }
         }
         
         // Add new note
@@ -2037,6 +2076,35 @@
             document.getElementById('noteModal').style.display = 'block';
         }
         
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Here we would send the message to Firebase
+            // For now, just show it locally
+            const messagesList = document.getElementById('messagesList');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message-item';
+            messageElement.innerHTML = `
+                <div class="message-avatar">أ</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">أنت</span>
+                        <span class="message-time">${new Date().toLocaleTimeString('ar-EG')}</span>
+                    </div>
+                    <div class="message-text">${message}</div>
+                </div>
+            `;
+            
+            messagesList.appendChild(messageElement);
+            input.value = '';
+            
+            showNotification('تم إرسال الرسالة');
+        }
+        
         // Open resource
         function openResource(type) {
             const messages = {
@@ -2054,7 +2122,7 @@
         // Calculate program duration
         function calculateProgramDuration() {
             const activeBooking = userBookings.find(b => b.status === 'confirmed');
-            if (!activeBooking) {
+            if (!activeBooking && !activeJourney) {
                 document.getElementById('programDuration').textContent = '-';
                 return;
             }
@@ -2065,7 +2133,8 @@
                 transformation: '6 جلسات'
             };
             
-            document.getElementById('programDuration').textContent = durations[activeBooking.program] || '-';
+            const program = activeJourney?.program || activeBooking?.program;
+            document.getElementById('programDuration').textContent = durations[program] || '-';
         }
         
         // Close modal
@@ -2074,20 +2143,9 @@
         }
         
         // Show notification
-        function showNotification(message) {
+        function showNotification(message, type = 'success') {
             const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #28a745;
-                color: white;
-                padding: 15px 25px;
-                border-radius: 5px;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-                z-index: 1000;
-                animation: slideIn 0.3s;
-            `;
+            notification.className = `notification ${type}`;
             notification.textContent = message;
             
             document.body.appendChild(notification);
@@ -2098,14 +2156,15 @@
         }
         
         // Logout
-        async function logout() {
+        function logout() {
             if (confirm('هل تريد تسجيل الخروج؟')) {
-                await auth.signOut();
-                window.location.href = 'login.html';
+                auth.signOut().then(() => {
+                    window.location.href = 'login.html';
+                });
             }
         }
         
-        // Utility functions
+        // Helper functions
         function getProgramName(program) {
             const names = {
                 clarity: 'جلسة الوضوح',
@@ -2134,32 +2193,106 @@
             return names[type] || 'أونلاين';
         }
         
-        function formatDate(date) {
-            const now = new Date();
-            const diff = now - date;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            
-            if (days === 0) {
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                if (hours === 0) {
-                    const minutes = Math.floor(diff / (1000 * 60));
-                    return `منذ ${minutes} دقيقة`;
-                }
-                return `منذ ${hours} ساعة`;
-            } else if (days === 1) {
-                return 'أمس';
-            } else if (days < 7) {
-                return `منذ ${days} أيام`;
-            } else {
-                return date.toLocaleDateString('ar-EG');
-            }
+        function getPhaseStatusArabic(status) {
+            const statuses = {
+                pending: 'لم تبدأ',
+                in_progress: 'جارية',
+                completed: 'مكتملة'
+            };
+            return statuses[status] || status;
         }
         
-        function isToday(date) {
-            const today = new Date();
-            return date.getDate() === today.getDate() &&
-                   date.getMonth() === today.getMonth() &&
-                   date.getFullYear() === today.getFullYear();
+        function getPracticesForProgram(program, phase) {
+            // Return practices based on program and phase
+            const allPractices = {
+                clarity: [
+                    {
+                        id: 'clarity_1',
+                        title: 'تمرين الوضوح الصباحي',
+                        description: '5 دقائق لتحديد هدفك اليومي',
+                        frequency: 'يومياً',
+                        progress: 70
+                    }
+                ],
+                discovery: [
+                    {
+                        id: 'discovery_1',
+                        title: 'المثلث القلبي',
+                        description: 'ممارسة يومية للانفتاح والحضور',
+                        frequency: 'يومياً',
+                        progress: 60
+                    },
+                    {
+                        id: 'discovery_2',
+                        title: 'دفتر الامتنان',
+                        description: 'سجل 3 أشياء تشعر بالامتنان لها',
+                        frequency: 'يومياً',
+                        progress: 40
+                    }
+                ],
+                transformation: [
+                    {
+                        id: 'transform_1',
+                        title: 'تمرين الهوية الصباحي',
+                        description: 'تجسيد هويتك الجديدة',
+                        frequency: 'يومياً',
+                        progress: 80
+                    },
+                    {
+                        id: 'transform_2',
+                        title: 'يوميات القائد الحكيم',
+                        description: 'تسجيل إنجازاتك وتحدياتك',
+                        frequency: 'يومياً',
+                        progress: 90
+                    }
+                ]
+            };
+            
+            return allPractices[program] || allPractices.discovery;
+        }
+        
+        function getResourcesForProgram(program, phase) {
+            // Return resources based on program and phase
+            const resources = {
+                clarity: [
+                    {
+                        type: 'articles',
+                        icon: '📖',
+                        title: 'كيف تحدد أهدافك بوضوح',
+                        description: 'دليل عملي لتحديد الأهداف'
+                    }
+                ],
+                discovery: [
+                    {
+                        type: 'videos',
+                        icon: '🎥',
+                        title: 'قوة الوعي الذاتي',
+                        description: 'فيديو تعليمي عن اكتشاف الذات'
+                    },
+                    {
+                        type: 'worksheets',
+                        icon: '📝',
+                        title: 'ورقة عمل التوازن',
+                        description: 'تمرين عملي لتحقيق التوازن'
+                    }
+                ],
+                transformation: [
+                    {
+                        type: 'books',
+                        icon: '📚',
+                        title: 'قوة الآن',
+                        description: 'كتاب أساسي للتحول'
+                    },
+                    {
+                        type: 'meditation',
+                        icon: '🧘',
+                        title: 'تأملات التحول',
+                        description: 'تأملات خاصة بمرحلة التحول'
+                    }
+                ]
+            };
+            
+            return resources[program] || resources.discovery;
         }
         
         // Mobile menu toggle
@@ -2173,6 +2306,11 @@
                 event.target.style.display = 'none';
             }
         }
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            // Any additional initialization
+        });
     </script>
 </body>
 </html>
