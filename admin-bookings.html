@@ -1434,11 +1434,7 @@
         // Generate action buttons
         function generateActions(booking) {
             function generateActions(booking) {
-    // تأكد من وجود booking.id
-    if (!booking || !booking.id) {
-        console.error('Booking ID is missing:', booking);
-        return '<span style="color: red;">خطأ في البيانات</span>';
-    }
+
 
             let html = `<button class="btn btn-whatsapp" onclick="openWhatsApp('${booking.phone}', '${booking.name}')">واتساب</button>`;
             html += `<button class="btn btn-info" onclick="showNotes('${booking.id}')">ملاحظات</button>`;
