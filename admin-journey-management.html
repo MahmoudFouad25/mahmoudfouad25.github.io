@@ -1,0 +1,3023 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الرحلة - محمود فؤاد</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2C5530;
+            --secondary: #8B9467;
+            --accent: #D4AF37;
+            --light: #F5F2E8;
+            --dark: #1A1A1A;
+            --gradient: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow: 0 5px 20px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: #f5f5f5;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            height: 100vh;
+            background: #f5f5f5;
+        }
+
+        /* Journeys List Sidebar */
+        .journeys-list {
+            width: 320px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s;
+        }
+
+        .journeys-list.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+
+        .list-header {
+            background: var(--gradient);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .list-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .search-box {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            color: white;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .journeys-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .journey-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .journey-item:hover {
+            background: white;
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .journey-item.active {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .journey-item.active::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+        }
+
+        .journey-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .client-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .client-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .client-details h4 {
+            font-size: 0.95rem;
+            color: var(--primary);
+            margin-bottom: 0.2rem;
+        }
+
+        .client-details p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .journey-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+
+        .journey-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 0.3s;
+        }
+
+        /* Journey Details */
+        .journey-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+        }
+
+        /* Header */
+        .details-header {
+            background: white;
+            box-shadow: var(--shadow);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-avatar {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: var(--shadow);
+        }
+
+        .header-details h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .header-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            min-width: auto;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 2rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(44, 85, 48, 0.1);
+            color: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Tabs Navigation */
+        .tabs-nav {
+            background: white;
+            padding: 0 2rem;
+            display: flex;
+            gap: 2rem;
+            border-bottom: 2px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 1rem 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 0.95rem;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .tab-badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Overview Tab */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .timeline-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .timeline {
+            position: relative;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .timeline-item:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            right: 18px;
+            top: 40px;
+            bottom: -20px;
+            width: 2px;
+            background: #e9ecef;
+        }
+
+        .timeline-icon {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #666;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .timeline-icon.success {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .timeline-icon.warning {
+            background: var(--warning);
+            color: white;
+            border-color: var(--warning);
+        }
+
+        .timeline-content {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .timeline-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .timeline-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .timeline-actions {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .timeline-action {
+            font-size: 0.8rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .timeline-action:hover {
+            text-decoration: underline;
+        }
+
+        /* Side Panels */
+        .side-panels {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+
+        .phase-card {
+            text-align: center;
+        }
+
+        .phase-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .phase-name {
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin: 0.5rem 0;
+        }
+
+        .phase-progress {
+            margin-top: 1rem;
+        }
+
+        .circular-progress {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--dark);
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Sessions Tab */
+        .sessions-container {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .session-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .session-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .session-header {
+            background: var(--gradient);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .session-number {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .session-status {
+            padding: 0.25rem 0.75rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .session-body {
+            padding: 1.5rem;
+        }
+
+        .session-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .session-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .session-section {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checklist-item:hover {
+            background: rgba(44, 85, 48, 0.05);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checklist-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .notes-area {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        /* Tools Tab */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .tool-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .tool-info h4 {
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-type {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .tool-options {
+            position: relative;
+        }
+
+        .options-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .tool-stats {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .tool-schedule {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .add-tool-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .add-tool-card:hover {
+            background: white;
+            border-color: var(--primary);
+            transform: none;
+        }
+
+        .add-tool-icon {
+            font-size: 3rem;
+            color: #dee2e6;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Communication Tab */
+        .communication-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            height: calc(100vh - 400px);
+        }
+
+        .chat-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 0.75rem;
+            max-width: 70%;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            background: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-radius: 15px;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.sent .message-content {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 15px;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .message.sent .message-time {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .chat-input {
+            padding: 1.5rem;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 25px;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .send-btn {
+            width: 45px;
+            height: 45px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: var(--secondary);
+            transform: scale(1.1);
+        }
+
+        /* Scheduled Messages */
+        .scheduled-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+
+        .scheduled-list {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .scheduled-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-right: 3px solid var(--primary);
+        }
+
+        .scheduled-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .scheduled-time {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .scheduled-channel {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .scheduled-preview {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Analytics Tab */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .chart-container {
+            height: 250px;
+            position: relative;
+        }
+
+        /* Notes Tab */
+        .notes-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            height: calc(100vh - 400px);
+        }
+
+        .notes-list {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .note-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .note-item:hover {
+            background: white;
+            border-color: var(--primary);
+        }
+
+        .note-item.active {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .note-date {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .note-preview {
+            font-size: 0.9rem;
+            color: var(--dark);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .note-editor {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .editor-textarea {
+            flex: 1;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Floating Action Button */
+        .fab-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 100;
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .fab-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            padding: 0.5rem;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s;
+        }
+
+        .fab-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .fab-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--dark);
+        }
+
+        .fab-item:hover {
+            background: #f8f9fa;
+            color: var(--primary);
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s;
+            max-width: 400px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-right: 4px solid var(--success);
+        }
+
+        .notification.error {
+            border-right: 4px solid var(--danger);
+        }
+
+        .notification.warning {
+            border-right: 4px solid var(--warning);
+        }
+
+        .notification.info {
+            border-right: 4px solid var(--info);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-size: 1.2rem;
+            padding: 0.25rem;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: modalIn 0.3s;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            background: var(--gradient);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            max-height: calc(90vh - 200px);
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .communication-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .scheduled-section {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .journeys-list {
+                width: 100%;
+                height: 200px;
+                order: 2;
+            }
+
+            .journey-details {
+                order: 1;
+                height: calc(100vh - 200px);
+            }
+
+            .header-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .tabs-nav {
+                padding: 0 1rem;
+                gap: 1rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .notes-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .notes-list {
+                display: none;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .journeys-list,
+            .tabs-nav,
+            .header-actions,
+            .fab-container {
+                display: none;
+            }
+
+            .journey-details {
+                box-shadow: none;
+            }
+
+            .tab-content {
+                display: block !important;
+                page-break-after: always;
+            }
+        }
+
+        /* Loading States */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-text {
+            height: 16px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-card {
+            height: 150px;
+            border-radius: 15px;
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+            bottom: calc(100% + 5px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Journeys List Sidebar -->
+        <aside class="journeys-list" id="journeysList">
+            <div class="list-header">
+                <div>
+                    <h2>الرحلات النشطة</h2>
+                    <input type="text" class="search-box" placeholder="بحث..." id="searchJourneys">
+                </div>
+                <div class="list-controls">
+                    <button class="btn btn-icon" onclick="toggleSidebar()">
+                        <span>⇄</span>
+                    </button>
+                </div>
+            </div>
+            <div class="journeys-container" id="journeysContainer">
+                <!-- Journey items will be loaded here -->
+            </div>
+        </aside>
+
+        <!-- Journey Details -->
+        <main class="journey-details" id="journeyDetails">
+            <!-- Header -->
+            <header class="details-header">
+                <div class="header-info">
+                    <div class="header-avatar" id="headerAvatar">م</div>
+                    <div>
+                        <h1 id="clientName">محمد أحمد</h1>
+                        <div class="header-meta">
+                            <span>📱 01234567890</span>
+                            <span>✉️ mohamed@email.com</span>
+                            <span>📅 بدأت: 15 يوليو 2024</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="openWhatsApp()">
+                        <span>💬</span>
+                        <span>واتساب</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="scheduleSession()">
+                        <span>📅</span>
+                        <span>جدولة جلسة</span>
+                    </button>
+                    <button class="btn btn-icon btn-secondary" onclick="exportReport()">
+                        <span>📊</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <div class="stat-icon">📅</div>
+                    <div>
+                        <div class="stat-value" id="sessionsCount">2/3</div>
+                        <div class="stat-label">الجلسات</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">🛠️</div>
+                    <div>
+                        <div class="stat-value" id="toolsCount">5</div>
+                        <div class="stat-label">الأدوات</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">📈</div>
+                    <div>
+                        <div class="stat-value" id="progressPercent">65%</div>
+                        <div class="stat-label">التقدم</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">⚡</div>
+                    <div>
+                        <div class="stat-value" id="engagementScore">85</div>
+                        <div class="stat-label">المشاركة</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <nav class="tabs-nav">
+                <button class="tab-btn active" onclick="switchTab('overview')">
+                    <span>🏠</span>
+                    <span>نظرة عامة</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('sessions')">
+                    <span>📅</span>
+                    <span>الجلسات</span>
+                    <span class="tab-badge">1</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('tools')">
+                    <span>🛠️</span>
+                    <span>الأدوات</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('communication')">
+                    <span>💬</span>
+                    <span>التواصل</span>
+                    <span class="tab-badge">3</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('analytics')">
+                    <span>📊</span>
+                    <span>التحليلات</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('notes')">
+                    <span>📝</span>
+                    <span>الملاحظات</span>
+                </button>
+            </nav>
+
+            <!-- Tab Contents -->
+            <div class="tab-content active" id="overviewTab">
+                <div class="overview-grid">
+                    <!-- Timeline Section -->
+                    <div class="timeline-section">
+                        <div class="section-header">
+                            <h3 class="section-title">النشاط والأحداث</h3>
+                            <select id="timelineFilter">
+                                <option value="all">كل النشاطات</option>
+                                <option value="sessions">الجلسات</option>
+                                <option value="tools">الممارسات</option>
+                                <option value="messages">الرسائل</option>
+                            </select>
+                        </div>
+                        <div class="timeline" id="timeline">
+                            <!-- Timeline items will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Side Panels -->
+                    <div class="side-panels">
+                        <!-- Current Phase -->
+                        <div class="panel phase-card">
+                            <h3 class="section-title">المرحلة الحالية</h3>
+                            <div class="phase-number" id="currentPhaseNumber">2</div>
+                            <div class="phase-name" id="currentPhaseName">بناء الوعي</div>
+                            <div class="phase-progress">
+                                <div class="circular-progress">
+                                    <svg width="120" height="120">
+                                        <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="10"/>
+                                        <circle cx="60" cy="60" r="50" fill="none" stroke="#2C5530" stroke-width="10"
+                                                stroke-dasharray="314" stroke-dashoffset="110" stroke-linecap="round"/>
+                                    </svg>
+                                    <div class="progress-text">65%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="panel">
+                            <h3 class="section-title">إجراءات سريعة</h3>
+                            <div class="quick-actions">
+                                <button class="action-btn" onclick="sendMotivation()">
+                                    <span>💪 رسالة تحفيز</span>
+                                </button>
+                                <button class="action-btn" onclick="checkProgress()">
+                                    <span>📊 متابعة التقدم</span>
+                                </button>
+                                <button class="action-btn" onclick="assignChallenge()">
+                                    <span>🎯 تحدي جديد</span>
+                                </button>
+                                <button class="action-btn" onclick="scheduleCheckIn()">
+                                    <span>☎️ مكالمة متابعة</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Events -->
+                        <div class="panel">
+                            <h3 class="section-title">الأحداث القادمة</h3>
+                            <div id="upcomingEvents">
+                                <!-- Upcoming events will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="sessionsTab">
+                <div class="sessions-container" id="sessionsContainer">
+                    <!-- Sessions will be loaded here -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="toolsTab">
+                <div class="tools-grid" id="toolsGrid">
+                    <!-- Tools will be loaded here -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="communicationTab">
+                <div class="communication-layout">
+                    <!-- Chat Section -->
+                    <div class="chat-section">
+                        <div class="chat-header">
+                            <h3 class="section-title">المحادثة</h3>
+                            <div>
+                                <button class="btn btn-icon" onclick="toggleChatInfo()">
+                                    <span>ℹ️</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Messages will be loaded here -->
+                        </div>
+                        <div class="chat-input">
+                            <textarea class="input-field" placeholder="اكتب رسالتك..." rows="1" id="messageInput"></textarea>
+                            <button class="send-btn" onclick="sendMessage()">
+                                <span>➤</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Scheduled Messages -->
+                    <div class="scheduled-section">
+                        <h3 class="section-title">الرسائل المجدولة</h3>
+                        <button class="btn btn-primary" onclick="scheduleMessage()">
+                            جدولة رسالة جديدة
+                        </button>
+                        <div class="scheduled-list" id="scheduledMessages">
+                            <!-- Scheduled messages will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="analyticsTab">
+                <div class="analytics-grid">
+                    <!-- Analytics charts will be loaded here -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="notesTab">
+                <div class="notes-layout">
+                    <!-- Notes List -->
+                    <div class="notes-list">
+                        <h3 class="section-title">الملاحظات</h3>
+                        <button class="btn btn-primary" onclick="createNewNote()">
+                            ملاحظة جديدة
+                        </button>
+                        <div id="notesList">
+                            <!-- Notes will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Note Editor -->
+                    <div class="note-editor">
+                        <div class="editor-header">
+                            <input type="text" placeholder="عنوان الملاحظة..." id="noteTitle">
+                            <button class="btn btn-primary" onclick="saveNote()">حفظ</button>
+                        </div>
+                        <textarea class="editor-textarea" id="noteContent" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab-container">
+        <button class="fab" onclick="toggleFabMenu()">
+            <span>⚡</span>
+        </button>
+        <div class="fab-menu" id="fabMenu">
+            <div class="fab-item" onclick="quickAction('message')">
+                <span>💬</span>
+                <span>رسالة سريعة</span>
+            </div>
+            <div class="fab-item" onclick="quickAction('tool')">
+                <span>🛠️</span>
+                <span>إضافة أداة</span>
+            </div>
+            <div class="fab-item" onclick="quickAction('note')">
+                <span>📝</span>
+                <span>ملاحظة سريعة</span>
+            </div>
+            <div class="fab-item" onclick="quickAction('reminder')">
+                <span>⏰</span>
+                <span>تذكير</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="sessionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">جدولة جلسة جديدة</h3>
+                <button class="modal-close" onclick="closeModal('sessionModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <!-- Session scheduling form -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('sessionModal')">إلغاء</button>
+                <button class="btn btn-primary" onclick="confirmScheduleSession()">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // Initialize Firebase
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // State Management
+        let currentJourney = null;
+        let currentTab = 'overview';
+        let journeys = [];
+        let messages = [];
+        let tools = [];
+        let sessions = [];
+        let notes = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadJourneys();
+            setupEventListeners();
+            checkUrlParams();
+        });
+
+        // Check authentication
+        function checkAuth() {
+            const authToken = sessionStorage.getItem('adminAuth');
+            if (!authToken) {
+                window.location.href = 'admin-dashboard.html';
+                return;
+            }
+        }
+
+        // Check URL parameters
+        function checkUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const journeyId = params.get('journey');
+            if (journeyId) {
+                setTimeout(() => {
+                    selectJourney(journeyId);
+                }, 1000);
+            }
+        }
+
+        // Load journeys list
+        async function loadJourneys() {
+            try {
+                showLoading(true);
+                const snapshot = await db.collection('journeys')
+                    .where('status', '==', 'active')
+                    .orderBy('lastUpdated', 'desc')
+                    .get();
+
+                journeys = [];
+                snapshot.forEach(doc => {
+                    journeys.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                displayJourneysList();
+                
+                // Select first journey if none selected
+                if (!currentJourney && journeys.length > 0) {
+                    selectJourney(journeys[0].id);
+                }
+            } catch (error) {
+                console.error('Error loading journeys:', error);
+                showNotification('خطأ في تحميل الرحلات', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Display journeys list
+        function displayJourneysList() {
+            const container = document.getElementById('journeysContainer');
+            
+            if (journeys.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">لا توجد رحلات نشطة</p>';
+                return;
+            }
+
+            let html = '';
+            journeys.forEach(journey => {
+                const isActive = currentJourney && currentJourney.id === journey.id;
+                const progress = journey.progress || 0;
+                
+                html += `
+                    <div class="journey-item ${isActive ? 'active' : ''}" onclick="selectJourney('${journey.id}')">
+                        <div class="journey-item-header">
+                            <div class="client-info">
+                                <div class="client-avatar">${getInitial(journey.clientName)}</div>
+                                <div class="client-details">
+                                    <h4>${journey.clientName}</h4>
+                                    <p>${getProgramName(journey.program)}</p>
+                                </div>
+                            </div>
+                            <div class="journey-status">
+                                <span class="status-indicator"></span>
+                            </div>
+                        </div>
+                        <div class="journey-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <span>${progress}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Select journey
+        async function selectJourney(journeyId) {
+            const journey = journeys.find(j => j.id === journeyId);
+            if (!journey) return;
+
+            currentJourney = journey;
+            displayJourneysList();
+            updateJourneyDetails();
+            
+            // Load journey data
+            await Promise.all([
+                loadSessions(),
+                loadTools(),
+                loadMessages(),
+                loadTimeline(),
+                loadNotes()
+            ]);
+
+            // Update URL
+            const url = new URL(window.location);
+            url.searchParams.set('journey', journeyId);
+            window.history.pushState({}, '', url);
+        }
+
+        // Update journey details
+        function updateJourneyDetails() {
+            if (!currentJourney) return;
+
+            // Update header
+            document.getElementById('headerAvatar').textContent = getInitial(currentJourney.clientName);
+            document.getElementById('clientName').textContent = currentJourney.clientName;
+            
+            // Update stats
+            const completedSessions = currentJourney.completedSessions || 0;
+            const totalSessions = getTotalSessions(currentJourney.program);
+            document.getElementById('sessionsCount').textContent = `${completedSessions}/${totalSessions}`;
+            document.getElementById('toolsCount').textContent = currentJourney.assignedTools?.length || 0;
+            document.getElementById('progressPercent').textContent = (currentJourney.progress || 0) + '%';
+            document.getElementById('engagementScore').textContent = currentJourney.engagementScore || 85;
+
+            // Update current phase
+            const currentPhase = currentJourney.currentPhase || 1;
+            const phases = getProgramPhases(currentJourney.program);
+            document.getElementById('currentPhaseNumber').textContent = currentPhase;
+            document.getElementById('currentPhaseName').textContent = phases[currentPhase - 1]?.name || 'المرحلة ' + currentPhase;
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.tab-btn').classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            // Load tab-specific data if needed
+            switch(tabName) {
+                case 'overview':
+                    loadTimeline();
+                    break;
+                case 'sessions':
+                    loadSessions();
+                    break;
+                case 'tools':
+                    loadTools();
+                    break;
+                case 'communication':
+                    loadMessages();
+                    break;
+                case 'analytics':
+                    loadAnalytics();
+                    break;
+                case 'notes':
+                    loadNotes();
+                    break;
+            }
+        }
+
+        // Load timeline
+        async function loadTimeline() {
+            if (!currentJourney) return;
+
+            const timeline = document.getElementById('timeline');
+            
+            // Sample timeline data (in real app, load from Firestore)
+            const events = [
+                {
+                    type: 'session',
+                    icon: '📅',
+                    title: 'جلسة مكتملة',
+                    description: 'تمت الجلسة الثانية - بناء الوعي',
+                    time: 'اليوم 5:00 م',
+                    status: 'success'
+                },
+                {
+                    type: 'tool',
+                    icon: '✅',
+                    title: 'ممارسة مكتملة',
+                    description: 'أكمل المثلث القلبي',
+                    time: 'اليوم 8:00 ص',
+                    status: 'success'
+                },
+                {
+                    type: 'message',
+                    icon: '💬',
+                    title: 'رسالة جديدة',
+                    description: 'شكراً على الجلسة، كانت مفيدة جداً',
+                    time: 'أمس 7:30 م',
+                    status: 'normal'
+                },
+                {
+                    type: 'tool',
+                    icon: '⚠️',
+                    title: 'ممارسة فائتة',
+                    description: 'لم يكمل دفتر الامتنان',
+                    time: 'أمس 9:00 م',
+                    status: 'warning'
+                }
+            ];
+
+            let html = '';
+            events.forEach(event => {
+                const iconClass = event.status === 'success' ? 'success' : 
+                                 event.status === 'warning' ? 'warning' : '';
+                
+                html += `
+                    <div class="timeline-item">
+                        <div class="timeline-icon ${iconClass}">${event.icon}</div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <div class="timeline-title">${event.title}</div>
+                                <div class="timeline-time">${event.time}</div>
+                            </div>
+                            <div class="timeline-description">${event.description}</div>
+                            ${event.type === 'tool' && event.status === 'warning' ? 
+                                '<div class="timeline-actions"><span class="timeline-action" onclick="sendReminder()">إرسال تذكير</span></div>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            timeline.innerHTML = html;
+        }
+
+        // Load sessions
+        async function loadSessions() {
+            if (!currentJourney) return;
+
+            const container = document.getElementById('sessionsContainer');
+            
+            try {
+                // Get sessions for this journey
+                const sessionsSnapshot = await db.collection('bookings')
+                    .where('journeyId', '==', currentJourney.id)
+                    .orderBy('appointmentDate', 'desc')
+                    .get();
+
+                sessions = [];
+                sessionsSnapshot.forEach(doc => {
+                    sessions.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Add session cards
+                let html = '';
+                let sessionNumber = sessions.length;
+                
+                sessions.forEach((session, index) => {
+                    const sessionDate = session.appointmentDate?.toDate ? 
+                        session.appointmentDate.toDate() : new Date(session.appointmentDate);
+                    const isPast = sessionDate < new Date();
+                    const status = isPast ? 'completed' : 'scheduled';
+                    
+                    html += `
+                        <div class="session-card">
+                            <div class="session-header">
+                                <h3 class="session-number">الجلسة ${sessionNumber - index}</h3>
+                                <span class="session-status">${status === 'completed' ? 'مكتملة' : 'مجدولة'}</span>
+                            </div>
+                            <div class="session-body">
+                                <div class="session-info">
+                                    <div class="info-item">
+                                        <span>📅</span>
+                                        <span>${formatDate(sessionDate)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>⏰</span>
+                                        <span>${session.appointmentTime || '5:00 م'}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>📍</span>
+                                        <span>${getSessionTypeName(session.sessionType)}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="session-sections">
+                                    ${status === 'scheduled' ? `
+                                        <div class="session-section">
+                                            <h4 class="section-title">
+                                                <span>📋</span>
+                                                <span>قبل الجلسة</span>
+                                            </h4>
+                                            <div class="checklist">
+                                                <div class="checklist-item">
+                                                    <input type="checkbox" id="prep1_${session.id}">
+                                                    <label for="prep1_${session.id}">إرسال تذكير للعميل</label>
+                                                </div>
+                                                <div class="checklist-item">
+                                                    <input type="checkbox" id="prep2_${session.id}">
+                                                    <label for="prep2_${session.id}">مراجعة الملاحظات السابقة</label>
+                                                </div>
+                                                <div class="checklist-item">
+                                                    <input type="checkbox" id="prep3_${session.id}">
+                                                    <label for="prep3_${session.id}">تحضير الأجندة</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ` : `
+                                        <div class="session-section">
+                                            <h4 class="section-title">
+                                                <span>📝</span>
+                                                <span>ملخص الجلسة</span>
+                                            </h4>
+                                            <textarea class="notes-area" placeholder="أضف ملخص الجلسة...">${session.summary || ''}</textarea>
+                                        </div>
+                                        <div class="session-section">
+                                            <h4 class="section-title">
+                                                <span>🎯</span>
+                                                <span>الواجبات والمتابعة</span>
+                                            </h4>
+                                            <textarea class="notes-area" placeholder="الواجبات والخطوات التالية...">${session.homework || ''}</textarea>
+                                        </div>
+                                    `}
+                                </div>
+                                
+                                <div class="session-actions">
+                                    ${status === 'scheduled' ? `
+                                        <button class="btn btn-primary" onclick="startSession('${session.id}')">بدء الجلسة</button>
+                                        <button class="btn btn-secondary" onclick="rescheduleSession('${session.id}')">إعادة جدولة</button>
+                                    ` : `
+                                        <button class="btn btn-primary" onclick="viewSessionDetails('${session.id}')">عرض التفاصيل</button>
+                                        <button class="btn btn-secondary" onclick="editSessionNotes('${session.id}')">تعديل الملاحظات</button>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Add new session button
+                html += `
+                    <div class="session-card add-tool-card" onclick="scheduleSession()">
+                        <div class="add-tool-icon">+</div>
+                        <h4>جدولة جلسة جديدة</h4>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+                container.innerHTML = '<p style="text-align: center; color: #999;">خطأ في تحميل الجلسات</p>';
+            }
+        }
+
+        // Load tools
+        async function loadTools() {
+            if (!currentJourney) return;
+
+            const container = document.getElementById('toolsGrid');
+            
+            // Get assigned tools
+            const assignedTools = currentJourney.assignedTools || [];
+            
+            let html = '';
+            
+            assignedTools.forEach(tool => {
+                // Get practice stats (mock data for now)
+                const completedDays = Math.floor(Math.random() * 7) + 1;
+                const totalDays = 7;
+                const completionRate = Math.round((completedDays / totalDays) * 100);
+                
+                html += `
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <div class="tool-info">
+                                <h4>${tool.toolName || 'أداة غير مسماة'}</h4>
+                                <span class="tool-type">${getToolTypeName(tool.toolType)}</span>
+                            </div>
+                            <button class="options-btn" onclick="showToolOptions('${tool.toolId}')">⋮</button>
+                        </div>
+                        
+                        <div class="tool-stats">
+                            <div class="stat">
+                                <div class="stat-value">${completedDays}/${totalDays}</div>
+                                <div class="stat-label">الأيام</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${completionRate}%</div>
+                                <div class="stat-label">الإكمال</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">4.5</div>
+                                <div class="stat-label">التقييم</div>
+                            </div>
+                        </div>
+                        
+                        <div class="tool-schedule">
+                            <span>⏰</span>
+                            <span>${getFrequencyName(tool.customSettings?.frequency)} - ${tool.customSettings?.reminderTime || '9:00 ص'}</span>
+                        </div>
+                        
+                        <div class="progress-bar" style="margin: 1rem 0;">
+                            <div class="progress-fill" style="width: ${completionRate}%"></div>
+                        </div>
+                        
+                        <div class="tool-actions">
+                            <button class="btn btn-sm btn-primary" onclick="viewToolProgress('${tool.toolId}')">عرض التقدم</button>
+                            <button class="btn btn-sm btn-secondary" onclick="editToolSettings('${tool.toolId}')">تعديل</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Add new tool button
+            html += `
+                <div class="tool-card add-tool-card" onclick="addNewTool()">
+                    <div class="add-tool-icon">+</div>
+                    <h4>إضافة أداة جديدة</h4>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // Load messages
+        async function loadMessages() {
+            if (!currentJourney) return;
+
+            const chatContainer = document.getElementById('chatMessages');
+            
+            try {
+                // Get messages for this journey
+                const messagesSnapshot = await db.collection('messages')
+                    .where('journeyId', '==', currentJourney.id)
+                    .orderBy('timestamp', 'asc')
+                    .limit(50)
+                    .get();
+
+                messages = [];
+                messagesSnapshot.forEach(doc => {
+                    messages.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Display messages
+                let html = '';
+                messages.forEach(message => {
+                    const isSent = message.sender === 'coach';
+                    const time = message.timestamp?.toDate ? 
+                        formatTime(message.timestamp.toDate()) : 'الآن';
+                    
+                    html += `
+                        <div class="message ${isSent ? 'sent' : 'received'}">
+                            <div class="message-avatar">${isSent ? 'أنت' : getInitial(currentJourney.clientName)}</div>
+                            <div class="message-content">
+                                <div class="message-text">${message.content}</div>
+                                <div class="message-time">${time}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                chatContainer.innerHTML = html;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                // Load scheduled messages
+                loadScheduledMessages();
+                
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                chatContainer.innerHTML = '<p style="text-align: center; color: #999;">خطأ في تحميل الرسائل</p>';
+            }
+        }
+
+        // Load scheduled messages
+        function loadScheduledMessages() {
+            const container = document.getElementById('scheduledMessages');
+            
+            // Mock scheduled messages
+            const scheduled = [
+                {
+                    time: 'غداً 9:00 ص',
+                    channel: 'واتساب',
+                    message: 'صباح الخير! تذكير بممارسة المثلث القلبي'
+                },
+                {
+                    time: 'بعد الجلسة',
+                    channel: 'إيميل',
+                    message: 'ملخص الجلسة والخطوات التالية'
+                }
+            ];
+
+            let html = '';
+            scheduled.forEach(item => {
+                html += `
+                    <div class="scheduled-item">
+                        <div class="scheduled-header">
+                            <span class="scheduled-time">${item.time}</span>
+                            <span class="scheduled-channel">${item.channel}</span>
+                        </div>
+                        <div class="scheduled-preview">${item.message}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Load analytics
+        function loadAnalytics() {
+            const container = document.querySelector('#analyticsTab .analytics-grid');
+            
+            // Create analytics cards
+            container.innerHTML = `
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">معدل إكمال الممارسات</h3>
+                        <select>
+                            <option>آخر 7 أيام</option>
+                            <option>آخر 30 يوم</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="practicesChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">مستوى الطاقة والمزاج</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="moodChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">التقدم العام</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">إحصائيات التواصل</h3>
+                    </div>
+                    <div style="padding: 2rem;">
+                        <div class="stat-item" style="margin-bottom: 1rem;">
+                            <span>الرسائل المرسلة:</span>
+                            <strong>47</strong>
+                        </div>
+                        <div class="stat-item" style="margin-bottom: 1rem;">
+                            <span>معدل الرد:</span>
+                            <strong>89%</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>وقت الرد المتوسط:</span>
+                            <strong>2.5 ساعة</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Initialize charts (using mock data)
+            setTimeout(() => {
+                initializeCharts();
+            }, 100);
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            // Practices completion chart
+            const practicesCtx = document.getElementById('practicesChart');
+            if (practicesCtx) {
+                // Here you would initialize actual chart using Chart.js or similar
+                // For now, just add placeholder
+                practicesCtx.parentElement.innerHTML = '<div style="text-align: center; padding: 3rem; color: #999;">الرسم البياني هنا</div>';
+            }
+
+            // Mood chart
+            const moodCtx = document.getElementById('moodChart');
+            if (moodCtx) {
+                moodCtx.parentElement.innerHTML = '<div style="text-align: center; padding: 3rem; color: #999;">الرسم البياني هنا</div>';
+            }
+
+            // Progress chart
+            const progressCtx = document.getElementById('progressChart');
+            if (progressCtx) {
+                progressCtx.parentElement.innerHTML = '<div style="text-align: center; padding: 3rem; color: #999;">الرسم البياني هنا</div>';
+            }
+        }
+
+        // Load notes
+        async function loadNotes() {
+            if (!currentJourney) return;
+
+            const container = document.getElementById('notesList');
+            
+            try {
+                // Get notes for this journey
+                const notesSnapshot = await db.collection('journeys')
+                    .doc(currentJourney.id)
+                    .collection('notes')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                notes = [];
+                notesSnapshot.forEach(doc => {
+                    notes.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Display notes list
+                let html = '';
+                notes.forEach(note => {
+                    const date = note.createdAt?.toDate ? 
+                        formatDate(note.createdAt.toDate()) : 'اليوم';
+                    
+                    html += `
+                        <div class="note-item" onclick="selectNote('${note.id}')">
+                            <div class="note-date">${date}</div>
+                            <div class="note-preview">${note.content?.substring(0, 100) || 'ملاحظة فارغة'}...</div>
+                        </div>
+                    `;
+                });
+
+                if (notes.length === 0) {
+                    html = '<p style="text-align: center; color: #999; margin-top: 2rem;">لا توجد ملاحظات بعد</p>';
+                }
+
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading notes:', error);
+            }
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Search journeys
+            document.getElementById('searchJourneys').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredJourneys = journeys.filter(j => 
+                    j.clientName.toLowerCase().includes(searchTerm) ||
+                    j.clientEmail.toLowerCase().includes(searchTerm)
+                );
+                displayFilteredJourneys(filteredJourneys);
+            });
+
+            // Message input auto-resize
+            const messageInput = document.getElementById('messageInput');
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+
+            // Send message on Enter
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Timeline filter
+            document.getElementById('timelineFilter').addEventListener('change', (e) => {
+                filterTimeline(e.target.value);
+            });
+        }
+
+        // Display filtered journeys
+        function displayFilteredJourneys(filteredJourneys) {
+            const container = document.getElementById('journeysContainer');
+            
+            if (filteredJourneys.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">لا توجد نتائج</p>';
+                return;
+            }
+
+            let html = '';
+            filteredJourneys.forEach(journey => {
+                const isActive = currentJourney && currentJourney.id === journey.id;
+                const progress = journey.progress || 0;
+                
+                html += `
+                    <div class="journey-item ${isActive ? 'active' : ''}" onclick="selectJourney('${journey.id}')">
+                        <div class="journey-item-header">
+                            <div class="client-info">
+                                <div class="client-avatar">${getInitial(journey.clientName)}</div>
+                                <div class="client-details">
+                                    <h4>${journey.clientName}</h4>
+                                    <p>${getProgramName(journey.program)}</p>
+                                </div>
+                            </div>
+                            <div class="journey-status">
+                                <span class="status-indicator"></span>
+                            </div>
+                        </div>
+                        <div class="journey-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <span>${progress}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentJourney) return;
+
+            try {
+                // Add message to Firestore
+                await db.collection('messages').add({
+                    journeyId: currentJourney.id,
+                    content: message,
+                    sender: 'coach',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                });
+
+                // Clear input
+                input.value = '';
+                input.style.height = 'auto';
+
+                // Reload messages
+                loadMessages();
+
+                // Show notification
+                showNotification('تم إرسال الرسالة', 'success');
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showNotification('خطأ في إرسال الرسالة', 'error');
+            }
+        }
+
+        // Schedule session
+        function scheduleSession() {
+            document.getElementById('sessionModal').classList.add('show');
+        }
+
+        // Add new tool
+        function addNewTool() {
+            // Save current context
+            sessionStorage.setItem('currentJourney', currentJourney.id);
+            sessionStorage.setItem('currentPhase', currentJourney.currentPhase || 1);
+            
+            // Navigate to tools customization page
+            window.location.href = `admin-journey-tools.html?journey=${currentJourney.id}`;
+        }
+
+        // Quick actions
+        function sendMotivation() {
+            const messages = [
+                'أنت تبلي بلاءً حسناً! استمر 💪',
+                'كل خطوة صغيرة تقربك من هدفك 🌟',
+                'فخور بتقدمك! واصل العمل الرائع 👏'
+            ];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            document.getElementById('messageInput').value = randomMessage;
+            document.getElementById('messageInput').focus();
+        }
+
+        function checkProgress() {
+            switchTab('analytics');
+        }
+
+        function assignChallenge() {
+            showNotification('قريباً: نظام التحديات', 'info');
+        }
+
+        function scheduleCheckIn() {
+            showNotification('قريباً: جدولة مكالمات المتابعة', 'info');
+        }
+
+        // FAB actions
+        function toggleFabMenu() {
+            document.getElementById('fabMenu').classList.toggle('show');
+        }
+
+        function quickAction(type) {
+            toggleFabMenu();
+            
+            switch(type) {
+                case 'message':
+                    switchTab('communication');
+                    document.getElementById('messageInput').focus();
+                    break;
+                case 'tool':
+                    addNewTool();
+                    break;
+                case 'note':
+                    switchTab('notes');
+                    createNewNote();
+                    break;
+                case 'reminder':
+                    showNotification('قريباً: نظام التذكيرات', 'info');
+                    break;
+            }
+        }
+
+        // Notes functions
+        function createNewNote() {
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteContent').value = '';
+            document.getElementById('noteTitle').focus();
+        }
+
+        async function saveNote() {
+            const title = document.getElementById('noteTitle').value;
+            const content = document.getElementById('noteContent').value;
+            
+            if (!content.trim()) return;
+
+            try {
+                await db.collection('journeys')
+                    .doc(currentJourney.id)
+                    .collection('notes')
+                    .add({
+                        title: title || 'ملاحظة بدون عنوان',
+                        content: content,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                showNotification('تم حفظ الملاحظة', 'success');
+                loadNotes();
+                createNewNote();
+                
+            } catch (error) {
+                console.error('Error saving note:', error);
+                showNotification('خطأ في حفظ الملاحظة', 'error');
+            }
+        }
+
+        function selectNote(noteId) {
+            const note = notes.find(n => n.id === noteId);
+            if (!note) return;
+
+            document.getElementById('noteTitle').value = note.title || '';
+            document.getElementById('noteContent').value = note.content || '';
+            
+            // Update active state
+            document.querySelectorAll('.note-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.note-item').classList.add('active');
+        }
+
+        // WhatsApp
+        function openWhatsApp() {
+            if (!currentJourney) return;
+            
+            const phone = currentJourney.clientPhone?.replace(/\D/g, '');
+            const message = encodeURIComponent(`مرحباً ${currentJourney.clientName}! كيف حالك اليوم؟`);
+            
+            window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+        }
+
+        // Export report
+        function exportReport() {
+            showNotification('قريباً: تصدير التقارير', 'info');
+        }
+
+        // Modal functions
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function confirmScheduleSession() {
+            showNotification('تم جدولة الجلسة بنجاح', 'success');
+            closeModal('sessionModal');
+            loadSessions();
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('show', show);
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            notification.innerHTML = `
+                <span class="notification-icon">${icons[type]}</span>
+                <div class="notification-content">
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('journeysList').classList.toggle('collapsed');
+        }
+
+        function getInitial(name) {
+            return name ? name.charAt(0).toUpperCase() : '؟';
+        }
+
+        function getProgramName(program) {
+            const names = {
+                clarity: 'جلسة الوضوح',
+                discovery: 'رحلة الاكتشاف',
+                transformation: 'رحلة التحول'
+            };
+            return names[program] || program;
+        }
+
+        function getTotalSessions(program) {
+            const sessions = {
+                clarity: 1,
+                discovery: 3,
+                transformation: 6
+            };
+            return sessions[program] || 1;
+        }
+
+        function getProgramPhases(program) {
+            const phases = {
+                clarity: [
+                    { name: 'جلسة الوضوح', order: 1 }
+                ],
+                discovery: [
+                    { name: 'اكتشاف الذات', order: 1 },
+                    { name: 'بناء الوعي', order: 2 },
+                    { name: 'خطة العمل', order: 3 }
+                ],
+                transformation: [
+                    { name: 'الإنبات', order: 1 },
+                    { name: 'النمو', order: 2 },
+                    { name: 'الازدهار', order: 3 }
+                ]
+            };
+            return phases[program] || [];
+        }
+
+        function getSessionTypeName(type) {
+            const names = {
+                online: 'أونلاين',
+                phone: 'هاتفي',
+                inperson: 'حضوري'
+            };
+            return names[type] || type;
+        }
+
+        function getToolTypeName(type) {
+            const names = {
+                practice: 'ممارسة',
+                meditation: 'تأمل',
+                game: 'لعبة',
+                challenge: 'تحدي',
+                reflection: 'تأمل كتابي',
+                voice: 'تمرين صوتي'
+            };
+            return names[type] || type;
+        }
+
+        function getFrequencyName(frequency) {
+            const names = {
+                daily: 'يومياً',
+                every2days: 'كل يومين',
+                weekly: 'أسبوعياً',
+                asneeded: 'حسب الحاجة'
+            };
+            return names[frequency] || frequency;
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('ar-EG', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function formatTime(date) {
+            return date.toLocaleTimeString('ar-EG', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Session functions
+        function startSession(sessionId) {
+            showNotification('جاري بدء الجلسة...', 'info');
+            // Here you would implement session start logic
+        }
+
+        function rescheduleSession(sessionId) {
+            showNotification('قريباً: إعادة جدولة الجلسات', 'info');
+        }
+
+        function viewSessionDetails(sessionId) {
+            showNotification('قريباً: تفاصيل الجلسة', 'info');
+        }
+
+        function editSessionNotes(sessionId) {
+            const session = sessions.find(s => s.id === sessionId);
+            if (!session) return;
+            
+            // Find the textarea and enable it
+            const card = document.querySelector(`[onclick="editSessionNotes('${sessionId}')"]`).closest('.session-card');
+            const textareas = card.querySelectorAll('textarea');
+            textareas.forEach(textarea => {
+                textarea.focus();
+            });
+        }
+
+        // Tool functions
+        function showToolOptions(toolId) {
+            showNotification('قريباً: خيارات الأداة', 'info');
+        }
+
+        function viewToolProgress(toolId) {
+            showNotification('قريباً: تقدم الأداة التفصيلي', 'info');
+        }
+
+        function editToolSettings(toolId) {
+            // Navigate to tool customization with context
+            sessionStorage.setItem('editToolId', toolId);
+            window.location.href = `admin-journey-tools.html?journey=${currentJourney.id}&edit=${toolId}`;
+        }
+
+        function sendReminder() {
+            showNotification('تم إرسال التذكير', 'success');
+        }
+
+        function filterTimeline(filter) {
+            // Implement timeline filtering
+            loadTimeline(); // For now, just reload
+        }
+
+        // Real-time updates
+        function setupRealtimeUpdates() {
+            if (!currentJourney) return;
+
+            // Listen for new messages
+            db.collection('messages')
+                .where('journeyId', '==', currentJourney.id)
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added' && change.doc.data().sender !== 'coach') {
+                            // New message from client
+                            showNotification(`رسالة جديدة من ${currentJourney.clientName}`, 'info');
+                            loadMessages();
+                        }
+                    });
+                });
+
+            // Listen for journey updates
+            db.collection('journeys')
+                .doc(currentJourney.id)
+                .onSnapshot(doc => {
+                    if (doc.exists) {
+                        currentJourney = {
+                            id: doc.id,
+                            ...doc.data()
+                        };
+                        updateJourneyDetails();
+                    }
+                });
+        }
+
+        // Initialize real-time updates when journey is selected
+        let unsubscribeUpdates = null;
+        function initializeRealtimeUpdates() {
+            // Unsubscribe from previous updates
+            if (unsubscribeUpdates) {
+                unsubscribeUpdates();
+            }
+            
+            // Setup new updates
+            setupRealtimeUpdates();
+        }
+
+        // Auto-save functionality
+        let autoSaveTimer = null;
+        function setupAutoSave() {
+            document.querySelectorAll('textarea').forEach(textarea => {
+                textarea.addEventListener('input', () => {
+                    clearTimeout(autoSaveTimer);
+                    autoSaveTimer = setTimeout(() => {
+                        // Auto-save logic here
+                        showNotification('تم الحفظ التلقائي', 'success');
+                    }, 2000);
+                });
+            });
+        }
+
+        // Initialize auto-save when content loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(setupAutoSave, 1000);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + S to save
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                if (currentTab === 'notes') {
+                    saveNote();
+                }
+            }
+            
+            // Ctrl/Cmd + Enter to send message
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                if (currentTab === 'communication') {
+                    sendMessage();
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 768) {
+                document.getElementById('journeysList').classList.add('collapsed');
+            }
+        });
+
+        // Initialize on mobile
+        if (window.innerWidth < 768) {
+            document.getElementById('journeysList').classList.add('collapsed');
+        }
+    </script>
+</body>
+</html>
