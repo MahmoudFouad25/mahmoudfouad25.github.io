@@ -1969,6 +1969,21 @@ async function convertToJourney(bookingId) {
             // إنشاء رحلة جديدة
             const newJourney = await createNewJourney(booking);
             
+            // إنشاء الجلسة الأولى مباشرة
+            await db.collection('sessions').add({
+                journeyId: newJourney.id,
+                sessionNumber: 1,
+                type: booking.sessionType,
+                status: 'scheduled',
+                scheduledDate: booking.appointmentDate,
+                scheduledTime: booking.appointmentTime || '10:00 AM',
+                duration: 90,
+                clientName: booking.name,
+                clientPhone: booking.phone,
+                phase: 1,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
             // فتح صفحة إدارة الرحلة الجديدة
             window.location.href = `admin-journey-management.html?journey=${newJourney.id}&tab=overview`;
         }
@@ -1980,7 +1995,6 @@ async function convertToJourney(bookingId) {
         showLoading(false);
     }
 }
-
         // دالة إنشاء رحلة جديدة
 async function createNewJourney(booking) {
     const journeyData = {
