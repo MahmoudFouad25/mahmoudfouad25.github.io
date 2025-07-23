@@ -1845,11 +1845,11 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
-            loadJourneys();
+            loadJourneys();      // تحميل قائمة الرحلات
             setupEventListeners();
             checkUrlParams();
         });
-
+        
         // Check authentication
         function checkAuth() {
             const authToken = sessionStorage.getItem('adminAuth');
@@ -1859,48 +1859,77 @@
             }
         }
 
-        // Check URL parameters
-        function checkUrlParams() {
-            const params = new URLSearchParams(window.location.search);
-            const journeyId = params.get('journey');
-            if (journeyId) {
-                setTimeout(() => {
-                    selectJourney(journeyId);
-                }, 1000);
-            }
+// ابحث عن دالة checkUrlParams واستبدلها بهذه:
+async function checkUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const journeyId = params.get('journey');
+    
+    if (!journeyId) {
+        showNotification('لم يتم تحديد رحلة', 'error');
+        setTimeout(() => {
+            window.location.href = 'central-dashboard.html';
+        }, 2000);
+        return;
+    }
+    
+    try {
+        showLoading(true);
+        
+        // جلب بيانات الرحلة من Firebase
+        const journeyDoc = await db.collection('journeys').doc(journeyId).get();
+        
+        if (!journeyDoc.exists) {
+            showNotification('الرحلة غير موجودة', 'error');
+            setTimeout(() => {
+                window.location.href = 'central-dashboard.html';
+            }, 2000);
+            return;
         }
-
-        // Load journeys list
-        async function loadJourneys() {
-            try {
-                showLoading(true);
-                const snapshot = await db.collection('journeys')
-                    .where('status', '==', 'active')
-                    .orderBy('lastUpdated', 'desc')
-                    .get();
-
-                journeys = [];
-                snapshot.forEach(doc => {
-                    journeys.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-
-                displayJourneysList();
-                
-                // Select first journey if none selected
-                if (!currentJourney && journeys.length > 0) {
-                    selectJourney(journeys[0].id);
+        
+        // حفظ بيانات الرحلة
+        currentJourney = {
+            id: journeyDoc.id,
+            ...journeyDoc.data()
+        };
+        
+        console.log('تم تحميل الرحلة:', currentJourney);
+        
+        // تحديث الواجهة بالبيانات
+        updateJourneyDetails();
+        
+        // تحميل البيانات الإضافية
+        await Promise.all([
+            loadSessions(),
+            loadTools(),
+            loadMessages(),
+            loadTimeline(),
+            loadNotes()
+        ]);
+        
+        // إضافة الرحلة لقائمة الرحلات في الـ sidebar
+        journeys = [currentJourney];
+        displayJourneysList();
+        
+        // فتح التبويب المطلوب إن وجد
+        const tab = params.get('tab');
+        if (tab) {
+            // البحث عن التبويب وتفعيله
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => {
+                if (btn.getAttribute('onclick').includes(tab)) {
+                    btn.click();
                 }
-            } catch (error) {
-                console.error('Error loading journeys:', error);
-                showNotification('خطأ في تحميل الرحلات', 'error');
-            } finally {
-                showLoading(false);
-            }
+            });
         }
-
+        
+    } catch (error) {
+        console.error('خطأ في تحميل الرحلة:', error);
+        showNotification('خطأ في تحميل بيانات الرحلة', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+        
         // Display journeys list
         function displayJourneysList() {
             const container = document.getElementById('journeysContainer');
@@ -1943,28 +1972,52 @@
         }
 
         // Select journey
-        async function selectJourney(journeyId) {
-            const journey = journeys.find(j => j.id === journeyId);
-            if (!journey) return;
-
-            currentJourney = journey;
-            displayJourneysList();
-            updateJourneyDetails();
-            
-            // Load journey data
-            await Promise.all([
-                loadSessions(),
-                loadTools(),
-                loadMessages(),
-                loadTimeline(),
-                loadNotes()
-            ]);
-
-            // Update URL
-            const url = new URL(window.location);
-            url.searchParams.set('journey', journeyId);
-            window.history.pushState({}, '', url);
+// عدل دالة selectJourney لتصبح:
+async function selectJourney(journeyId) {
+    // إذا كانت نفس الرحلة، لا تفعل شيء
+    if (currentJourney && currentJourney.id === journeyId) return;
+    
+    try {
+        showLoading(true);
+        
+        // جلب بيانات الرحلة
+        const journeyDoc = await db.collection('journeys').doc(journeyId).get();
+        
+        if (!journeyDoc.exists) {
+            showNotification('الرحلة غير موجودة', 'error');
+            return;
         }
+        
+        currentJourney = {
+            id: journeyDoc.id,
+            ...journeyDoc.data()
+        };
+        
+        // تحديث الـ URL
+        const url = new URL(window.location);
+        url.searchParams.set('journey', journeyId);
+        window.history.pushState({}, '', url);
+        
+        // تحديث الواجهة
+        displayJourneysList();
+        updateJourneyDetails();
+        
+        // تحميل البيانات
+        await Promise.all([
+            loadSessions(),
+            loadTools(),
+            loadMessages(),
+            loadTimeline(),
+            loadNotes()
+        ]);
+        
+    } catch (error) {
+        console.error('خطأ في تحديد الرحلة:', error);
+        showNotification('خطأ في تحميل الرحلة', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
 
         // Update journey details
         function updateJourneyDetails() {
