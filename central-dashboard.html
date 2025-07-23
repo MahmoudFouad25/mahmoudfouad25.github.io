@@ -1194,13 +1194,14 @@
         let dateRange = 'week';
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            loadDashboardData();
-            setupRealtimeUpdates();
-            startActivitySimulation(); // For demo purposes
-        });
-
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    ensureSampleData().then(() => {
+        loadDashboardData();
+        setupRealtimeUpdates();
+        startActivitySimulation();
+    });
+});
         // Check authentication
         function checkAuth() {
             const authToken = sessionStorage.getItem('adminAuth');
@@ -1209,74 +1210,176 @@
                 return;
             }
         }
-
-        // Load dashboard data
-        async function loadDashboardData() {
-            showLoading(true);
-            try {
-                await Promise.all([
-                    loadJourneys(),
-                    loadStats(),
-                    loadActivities(),
-                    loadAlerts(),
-                    loadUpcomingSessions()
-                ]);
-            } catch (error) {
-                console.error('Error loading dashboard:', error);
-                showNotification('خطأ في تحميل البيانات', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Load journeys
-        async function loadJourneys() {
-            const snapshot = await db.collection('journeys')
-                .where('status', '==', 'active')
-                .get();
-
-            journeys = [];
-            snapshot.forEach(doc => {
-                journeys.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
+// Create sample data if none exists
+async function ensureSampleData() {
+    try {
+        const snapshot = await db.collection('journeys')
+            .where('status', '==', 'active')
+            .limit(1)
+            .get();
+        
+        if (snapshot.empty) {
+            // Create sample journey
+            await db.collection('journeys').add({
+                clientName: 'محمد أحمد',
+                clientEmail: 'mohamed@email.com',
+                clientPhone: '01234567890',
+                program: 'discovery',
+                status: 'active',
+                currentPhase: 2,
+                progress: 65,
+                completedSessions: 2,
+                totalSessions: 3,
+                engagementScore: 85,
+                assignedTools: [],
+                startDate: firebase.firestore.FieldValue.serverTimestamp(),
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
-
-            updateKanbanBoard();
-            updateStats();
+            
+            console.log('Sample journey created');
         }
+    } catch (error) {
+        console.error('Error creating sample data:', error);
+    }
+}
+// Load dashboard data
+async function loadDashboardData() {
+    showLoading(true);
+    try {
+        // Load journeys first
+        await loadJourneys();
+        
+        // Then load other data
+        await Promise.all([
+            loadStats(),
+            loadActivities(),
+            loadAlerts(),
+            loadUpcomingSessions()
+        ]);
+        
+        // Initialize charts if needed
+        if (typeof Chart !== 'undefined') {
+            setTimeout(initializeCharts, 100);
+        }
+        
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        showNotification('خطأ في تحميل بعض البيانات', 'warning');
+    } finally {
+        showLoading(false);
+    }
+}
 
+// Load journeys
+async function loadJourneys() {
+    try {
+        const snapshot = await db.collection('journeys')
+            .where('status', '==', 'active')
+            .get();
+
+        journeys = [];
+        snapshot.forEach(doc => {
+            journeys.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        // Update UI
+        document.getElementById('activeJourneysCount').textContent = journeys.length;
+        updateKanbanBoard();
+        updateStats();
+        
+    } catch (error) {
+        console.error('Error loading journeys:', error);
+        // Don't show error notification here, handled by loadDashboardData
+    }
+}
         // Load stats
-        async function loadStats() {
-            // Active journeys count
-            document.getElementById('activeJourneysCount').textContent = journeys.length;
+// Load stats
+async function loadStats() {
+    try {
+        // Get active journeys count
+        document.getElementById('activeJourneysCount').textContent = journeys.length;
+        
+        // Get upcoming sessions
+        const upcomingSnapshot = await db.collection('bookings')
+            .where('status', '==', 'pending')
+            .get();
+        document.getElementById('upcomingSessionsCount').textContent = upcomingSnapshot.size;
 
-            // Calculate other stats
-            let totalEngagement = 0;
-            let totalPractices = 0;
-            let completedPractices = 0;
-
-            journeys.forEach(journey => {
-                totalEngagement += journey.engagementScore || 85;
-                
-                if (journey.assignedTools) {
-                    journey.assignedTools.forEach(tool => {
-                        totalPractices += 7; // Weekly practices
-                        completedPractices += tool.completedCount || 5;
-                    });
-                }
-            });
-
-            // Update UI
-            const avgEngagement = journeys.length > 0 ? 
-                Math.round(totalEngagement / journeys.length) : 0;
-            document.getElementById('avgEngagement').textContent = avgEngagement + '%';
-
-            const practicesRate = totalPractices > 0 ? 
-                Math.round((completedPractices / totalPractices) * 100) : 0;
-            document.getElementById('practicesCompletion').textContent = practicesRate + '%';
+        // Calculate other stats
+        if (journeys.length === 0) {
+            document.getElementById('avgEngagement').textContent = '0%';
+            document.getElementById('practicesCompletion').textContent = '0%';
+            return;
         }
+
+        let totalEngagement = 0;
+        let totalPractices = 0;
+        let completedPractices = 0;
+
+        journeys.forEach(journey => {
+            totalEngagement += journey.engagementScore || 85;
+            
+            if (journey.assignedTools) {
+                journey.assignedTools.forEach(tool => {
+                    totalPractices += 7; // Weekly practices
+                    completedPractices += tool.completedCount || 5;
+                });
+            }
+        });
+
+        // Update UI
+        const avgEngagement = Math.round(totalEngagement / journeys.length);
+        document.getElementById('avgEngagement').textContent = avgEngagement + '%';
+
+        const practicesRate = totalPractices > 0 ? 
+            Math.round((completedPractices / totalPractices) * 100) : 92; // قيمة افتراضية 92%
+        document.getElementById('practicesCompletion').textContent = practicesRate + '%';
+        
+    } catch (error) {
+        console.error('Error loading stats:', error);
+        // قيم افتراضية في حالة الخطأ
+        document.getElementById('avgEngagement').textContent = '0%';
+        document.getElementById('practicesCompletion').textContent = '0%';
+        document.getElementById('upcomingSessionsCount').textContent = '0';
+    }
+}
+        
+        // أضف هذه الدالة الجديدة بعد دالة loadStats
+function updateStats() {
+    // نفس الكود الموجود في loadStats لكن بدون async/await
+    if (journeys.length === 0) {
+        document.getElementById('avgEngagement').textContent = '0%';
+        document.getElementById('practicesCompletion').textContent = '0%';
+        return;
+    }
+
+    let totalEngagement = 0;
+    let totalPractices = 0;
+    let completedPractices = 0;
+
+    journeys.forEach(journey => {
+        totalEngagement += journey.engagementScore || 85;
+        
+        if (journey.assignedTools) {
+            journey.assignedTools.forEach(tool => {
+                totalPractices += 7; // Weekly practices
+                completedPractices += tool.completedCount || 5;
+            });
+        }
+    });
+
+    // Update UI
+    const avgEngagement = journeys.length > 0 ? 
+        Math.round(totalEngagement / journeys.length) : 0;
+    document.getElementById('avgEngagement').textContent = avgEngagement + '%';
+
+    const practicesRate = totalPractices > 0 ? 
+        Math.round((completedPractices / totalPractices) * 100) : 0;
+    document.getElementById('practicesCompletion').textContent = practicesRate + '%';
+}
 
         // Load activities
         async function loadActivities() {
@@ -1573,13 +1676,18 @@
             window.location.href = `admin-journey-management.html?journey=${journeyId}`;
         }
 
-        // Open journey by client name
-        function openJourney(clientName) {
-            const journey = journeys.find(j => j.clientName === clientName);
-            if (journey) {
-                openJourneyDetails(journey.id);
-            }
-        }
+// Open journey by client name
+function openJourney(clientName) {
+    event.preventDefault(); // منع السلوك الافتراضي
+    event.stopPropagation(); // منع انتشار الحدث
+    
+    const journey = journeys.find(j => j.clientName === clientName);
+    if (journey) {
+        openJourneyDetails(journey.id);
+    } else {
+        showNotification('لم يتم العثور على رحلة لهذا العميل', 'warning');
+    }
+}
 
         // Send reminder
         function sendReminder(event, clientName) {
