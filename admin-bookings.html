@@ -1124,87 +1124,109 @@
             });
         }
         
-        // Load bookings
-        async function loadBookings(forceRefresh = false) {
-            // Check cache first
-            if (!forceRefresh && cachedBookings && cacheTime && 
-                (Date.now() - cacheTime < 5 * 60 * 1000)) {
-                allBookings = cachedBookings;
-                filteredBookings = allBookings;
-                displayBookingsByCategory();
-                updateStats();
-                return;
-            }
+// في ملف admin-bookings.html
+// ابحث عن دالة loadBookings (حوالي السطر 380)
+// واستبدلها بالكود ده:
+
+async function loadBookings(forceRefresh = false) {
+    // Check cache first
+    if (!forceRefresh && cachedBookings && cacheTime && 
+        (Date.now() - cacheTime < 5 * 60 * 1000)) {
+        allBookings = cachedBookings;
+        filteredBookings = allBookings;
+        displayBookingsByCategory();
+        updateStats();
+        return;
+    }
+    
+    showLoading(true);
+    
+    try {
+        // Get all bookings without filter
+        const snapshot = await db.collection('bookings')
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        allBookings = [];
+        let newBookings = [];
+        let processingBookings = [];
+        let completedBookings = [];
+        let cancelledBookings = [];
+        
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const booking = { 
+                id: doc.id, 
+                ...data,
+                createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date()
+            };
             
-            showLoading(true);
+            allBookings.push(booking);
             
-            try {
-                // Get all bookings without filter
-                const snapshot = await db.collection('bookings')
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                allBookings = [];
-                let newBookings = [];
-                let processingBookings = [];
-                let completedBookings = [];
-                let cancelledBookings = [];
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const booking = { 
-                        id: doc.id, 
-                        ...data,
-                        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date()
-                    };
-                    
-                    allBookings.push(booking);
-                    
-                    // Categorize bookings
-                    switch(booking.status) {
-                        case 'pending':
-                            newBookings.push(booking);
-                            break;
-                        case 'confirming':
-                        case 'confirmed':
-                            processingBookings.push(booking);
-                            break;
-                        case 'completed':
-                        case 'converted':
-                            completedBookings.push(booking);
-                            break;
-                        case 'cancelled':
-                            cancelledBookings.push(booking);
-                            break;
-                        default:
-                            newBookings.push(booking);
-                    }
-                });
-                
-                // Cache the data
-                cachedBookings = allBookings;
-                cacheTime = Date.now();
-                
-                // Update stats
-                updateStats();
-                
-                // Update new bookings count in nav
-                const newCount = newBookings.length;
-                document.getElementById('newBookingsCount').textContent = newCount;
-                document.getElementById('newBookingsCount').style.display = newCount > 0 ? 'inline' : 'none';
-                
-                // Apply filters
-                applyFilters();
-                
-                showNotification(`تم تحميل ${allBookings.length} حجز`, 'success');
-                
-            } catch (error) {
-                console.error('Error loading bookings:', error);
-                showNotification('خطأ في تحميل البيانات', 'error');
-            } finally {
-                showLoading(false);
+            // Categorize bookings
+            switch(booking.status) {
+                case 'pending':
+                    newBookings.push(booking);
+                    break;
+                case 'confirming':
+                case 'confirmed':
+                    processingBookings.push(booking);
+                    break;
+                case 'completed':
+                case 'converted':
+                    completedBookings.push(booking);
+                    break;
+                case 'cancelled':
+                    cancelledBookings.push(booking);
+                    break;
+                default:
+                    newBookings.push(booking);
             }
+        });
+        
+        // Cache the data
+        cachedBookings = allBookings;
+        cacheTime = Date.now();
+        
+        // Update stats
+        updateStats();
+        
+        // احذف أو علق على الأسطر دي:
+        // const newCount = newBookings.length;
+        // document.getElementById('newBookingsCount').textContent = newCount;
+        // document.getElementById('newBookingsCount').style.display = newCount > 0 ? 'inline' : 'none';
+        
+        // Apply filters
+        applyFilters();
+        
+        showNotification(`تم تحميل ${allBookings.length} حجز`, 'success');
+        
+    } catch (error) {
+        console.error('Error loading bookings:', error);
+        showNotification('خطأ في تحميل البيانات: ' + error.message, 'error');
+        
+        // عرض رسالة خطأ واضحة في الجدول
+        const tbody = document.getElementById('bookingsTableBody');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 50px;">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">⚠️</div>
+                            <h3>خطأ في تحميل البيانات</h3>
+                            <p style="color: #666; margin: 10px 0;">${error.message}</p>
+                            <button class="btn btn-primary" onclick="loadBookings(true)">
+                                إعادة المحاولة
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
         }
+    } finally {
+        showLoading(false);
+    }
+}
         
         // Update stats
         function updateStats() {
