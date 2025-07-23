@@ -1178,15 +1178,48 @@ function checkAuth() {
     const journeyId = urlParams.get('journey');
     
     if (!journeyId) {
-        showNotification('لم يتم تحديد رحلة', 'error');
-        setTimeout(() => {
-            window.location.href = 'admin-journeys.html';
-        }, 2000);
-        return;
+        // بدل ما يطلع error ويروح لصفحة قديمة
+        // هنخليه يسأل المستخدم عايز يعمل إيه
+        Swal.fire({
+            title: 'اختر طريقة العمل',
+            text: 'كيف تريد استخدام صفحة الأدوات؟',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'استعراض الأدوات فقط',
+            cancelButtonText: 'العودة للوحة القيادة'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // وضع الاستعراض - يشوف الأدوات بس من غير رحلة محددة
+                showBrowseMode();
+            } else {
+                // العودة للوحة القيادة الجديدة
+                window.location.href = 'admin-dashboard.html';
+            }
+        });
+    } else {
+        // لو فيه journey ID يبقى كل حاجة تمام
+        loadJourneyData(journeyId);
     }
+}
+
+    // دالة جديدة لوضع الاستعراض
+function showBrowseMode() {
+    // إخفاء الجزء الخاص بمعلومات الرحلة
+    document.querySelector('.journey-sidebar').style.display = 'none';
     
-    loadJourneyData(journeyId);
-};
+    // توسيع منطقة الأدوات
+    document.querySelector('.main-content').style.marginLeft = '0';
+    
+    // تغيير العنوان
+    document.querySelector('.page-title h1').textContent = 'استعراض الأدوات المتاحة';
+    document.querySelector('.page-title p').textContent = 'يمكنك استعراض كل الأدوات المتاحة في المكتبة';
+    
+    // إخفاء زر حفظ التخصيصات
+    document.querySelector('.btn-primary').style.display = 'none';
+    
+    // تحميل كل الأدوات بدون ربطها برحلة
+    loadTools(); // استخدم نفس الدالة الموجودة عندك
+}
 
 // Load journey data
 async function loadJourneyData(journeyId) {
