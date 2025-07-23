@@ -1,0 +1,2323 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة القيادة - محمود فؤاد</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2C5530;
+            --secondary: #8B9467;
+            --accent: #D4AF37;
+            --light: #F5F2E8;
+            --dark: #1A1A1A;
+            --gradient: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --shadow: 0 5px 20px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.15);
+            
+            /* Program Colors */
+            --clarity-color: #3498db;
+            --discovery-color: #e74c3c;
+            --transformation-color: #f39c12;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: #f0f2f5;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Navigation */
+        .admin-nav {
+            background: white;
+            box-shadow: var(--shadow);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        /* Main Container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Date Range Selector */
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: fit-content;
+            margin-top: 1rem;
+        }
+
+        .date-range select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: var(--gradient);
+            opacity: 0.1;
+            border-radius: 50%;
+            transform: translate(20px, -20px);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(44, 85, 48, 0.1);
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .trend-up {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .trend-down {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .stat-footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        /* Main Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        /* Live Activity Feed */
+        .activity-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .live-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+
+        .activity-filters {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.4rem 0.8rem;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: white;
+            border-color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .activity-feed {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .activity-item:hover {
+            background: #f8f9fa;
+            transform: translateX(-5px);
+        }
+
+        .activity-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .activity-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .activity-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .activity-action {
+            font-size: 0.85rem;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .activity-action:hover {
+            background: rgba(44, 85, 48, 0.1);
+        }
+
+        /* Alerts Panel */
+        .alerts-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .alert-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #fff3cd;
+            border-radius: 10px;
+            border-right: 4px solid var(--warning);
+        }
+
+        .alert-item.danger {
+            background: #f8d7da;
+            border-color: var(--danger);
+        }
+
+        .alert-item.info {
+            background: #d1ecf1;
+            border-color: var(--info);
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-desc {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .alert-action {
+            padding: 0.4rem 0.8rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .alert-action:hover {
+            background: var(--secondary);
+        }
+
+        /* Journeys Kanban */
+        .journeys-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            background: #f0f0f0;
+            padding: 0.25rem;
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .view-btn.active {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .kanban-column {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .column-title {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .column-count {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        .kanban-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-height: 200px;
+        }
+
+        .journey-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .journey-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .journey-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--clarity-color);
+            border-radius: 0 10px 10px 0;
+        }
+
+        .journey-card.discovery::before {
+            background: var(--discovery-color);
+        }
+
+        .journey-card.transformation::before {
+            background: var(--transformation-color);
+        }
+
+        .journey-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .client-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .journey-phase {
+            font-size: 0.8rem;
+            color: #666;
+            background: #f0f0f0;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+        }
+
+        .journey-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .journey-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Progress Overview */
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .progress-card {
+            text-align: center;
+        }
+
+        .circular-progress {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1rem;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .progress-label {
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Quick Actions FAB */
+        .fab-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 100;
+        }
+
+        .fab {
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .fab-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: 0.5rem;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s;
+        }
+
+        .fab-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .fab-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--dark);
+        }
+
+        .fab-item:hover {
+            background: #f8f9fa;
+            color: var(--primary);
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s;
+            max-width: 400px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-right: 4px solid var(--success);
+        }
+
+        .notification.error {
+            border-right: 4px solid var(--danger);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-size: 1.2rem;
+            padding: 0.25rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .alerts-panel {
+                order: -1;
+                flex-direction: row;
+                overflow-x: auto;
+            }
+
+            .alert-card {
+                min-width: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kanban-board {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .fab-container {
+                bottom: 1rem;
+                left: 1rem;
+            }
+        }
+
+        /* Loading States */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-text {
+            height: 16px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-card {
+            height: 120px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="admin-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h2>لوحة تحكم محمود فؤاد</h2>
+            </div>
+            <div class="nav-links">
+                <a href="admin-dashboard.html" class="active">
+                    <span>🏠</span>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="admin-journeys.html">
+                    <span>🚀</span>
+                    <span>الرحلات</span>
+                </a>
+                <a href="admin-tools.html">
+                    <span>🛠️</span>
+                    <span>الأدوات</span>
+                </a>
+                <a href="admin-bookings.html">
+                    <span>📅</span>
+                    <span>الحجوزات</span>
+                </a>
+                <a href="#" onclick="logout()">
+                    <span>🚪</span>
+                    <span>خروج</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">لوحة القيادة المركزية</h1>
+            <p class="page-subtitle">نظرة شاملة على جميع الرحلات والأنشطة</p>
+            <div class="date-range">
+                <span>📊</span>
+                <select id="dateRange" onchange="updateDateRange()">
+                    <option value="today">اليوم</option>
+                    <option value="week" selected>هذا الأسبوع</option>
+                    <option value="month">هذا الشهر</option>
+                    <option value="quarter">آخر 3 شهور</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">🚀</div>
+                    <div class="stat-trend trend-up">
+                        <span>↑</span>
+                        <span>12%</span>
+                    </div>
+                </div>
+                <div class="stat-value" id="activeJourneysCount">15</div>
+                <div class="stat-label">رحلة نشطة</div>
+                <div class="stat-footer">
+                    <span>3 جديدة هذا الأسبوع</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-trend trend-up">
+                        <span>↑</span>
+                        <span>8%</span>
+                    </div>
+                </div>
+                <div class="stat-value" id="upcomingSessionsCount">24</div>
+                <div class="stat-label">جلسة قادمة</div>
+                <div class="stat-footer">
+                    <span>5 جلسات اليوم</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-trend trend-up">
+                        <span>↑</span>
+                        <span>15%</span>
+                    </div>
+                </div>
+                <div class="stat-value" id="avgEngagement">87%</div>
+                <div class="stat-label">متوسط المشاركة</div>
+                <div class="stat-footer">
+                    <span>أعلى من الشهر الماضي</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-trend trend-down">
+                        <span>↓</span>
+                        <span>5%</span>
+                    </div>
+                </div>
+                <div class="stat-value" id="practicesCompletion">92%</div>
+                <div class="stat-label">إكمال الممارسات</div>
+                <div class="stat-footer">
+                    <span>يحتاج تحسين</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Live Activity Feed -->
+            <div class="activity-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <span class="live-indicator"></span>
+                        <span>النشاط المباشر</span>
+                    </h3>
+                    <div class="activity-filters">
+                        <button class="filter-btn active" onclick="filterActivity('all')">الكل</button>
+                        <button class="filter-btn" onclick="filterActivity('sessions')">جلسات</button>
+                        <button class="filter-btn" onclick="filterActivity('practices')">ممارسات</button>
+                        <button class="filter-btn" onclick="filterActivity('messages')">رسائل</button>
+                    </div>
+                </div>
+                <div class="activity-feed" id="activityFeed">
+                    <!-- Activity items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Alerts Panel -->
+            <div class="alerts-panel">
+                <!-- Smart Alerts -->
+                <div class="alert-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <span>⚠️</span>
+                            <span>تنبيهات ذكية</span>
+                        </h3>
+                    </div>
+                    <div class="alert-list" id="alertsList">
+                        <!-- Alerts will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Upcoming Sessions -->
+                <div class="alert-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <span>📅</span>
+                            <span>الجلسات القادمة</span>
+                        </h3>
+                    </div>
+                    <div id="upcomingSessions">
+                        <!-- Sessions will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="alert-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <span>📊</span>
+                            <span>إحصائيات سريعة</span>
+                        </h3>
+                    </div>
+                    <div id="quickStats">
+                        <!-- Quick stats will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journeys Kanban -->
+        <div class="journeys-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <span>🎯</span>
+                    <span>الرحلات حسب البرنامج</span>
+                </h3>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="switchView('kanban')">كانبان</button>
+                    <button class="view-btn" onclick="switchView('table')">جدول</button>
+                    <button class="view-btn" onclick="switchView('calendar')">تقويم</button>
+                </div>
+            </div>
+            <div class="kanban-board" id="kanbanBoard">
+                <!-- Kanban columns will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="progress-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <span>📈</span>
+                    <span>نظرة عامة على التقدم</span>
+                </h3>
+            </div>
+            <div class="progress-grid">
+                <div class="progress-card">
+                    <div class="circular-progress">
+                        <svg width="150" height="150">
+                            <circle cx="75" cy="75" r="65" fill="none" stroke="#e9ecef" stroke-width="15"/>
+                            <circle cx="75" cy="75" r="65" fill="none" stroke="#2C5530" stroke-width="15"
+                                    stroke-dasharray="408" stroke-dashoffset="102" stroke-linecap="round"/>
+                        </svg>
+                        <div class="progress-value">75%</div>
+                    </div>
+                    <h4 class="progress-label">معدل إكمال المراحل</h4>
+                    <p class="progress-desc">12 من 16 عميل أكملوا مرحلة واحدة على الأقل</p>
+                </div>
+
+                <div class="progress-card">
+                    <div class="circular-progress">
+                        <svg width="150" height="150">
+                            <circle cx="75" cy="75" r="65" fill="none" stroke="#e9ecef" stroke-width="15"/>
+                            <circle cx="75" cy="75" r="65" fill="none" stroke="#f39c12" stroke-width="15"
+                                    stroke-dasharray="408" stroke-dashoffset="163" stroke-linecap="round"/>
+                        </svg>
+                        <div class="progress-value">60%</div>
+                    </div>
+                    <h4 class="progress-label">الالتزام بالممارسات</h4>
+                    <p class="progress-desc">متوسط الالتزام اليومي بالممارسات المخصصة</p>
+                </div>
+
+                <div class="progress-card">
+                    <div class="circular-progress">
+                        <svg width="150" height="150">
+                            <circle cx="75" cy="75" r="65" fill="none" stroke="#e9ecef" stroke-width="15"/>
+                            <circle cx="75" cy="75" r="65" fill="none" stroke="#e74c3c" stroke-width="15"
+                                    stroke-dasharray="408" stroke-dashoffset="41" stroke-linecap="round"/>
+                        </svg>
+                        <div class="progress-value">90%</div>
+                    </div>
+                    <h4 class="progress-label">رضا العملاء</h4>
+                    <p class="progress-desc">بناءً على التقييمات والتفاعل</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab-container">
+        <button class="fab" onclick="toggleFabMenu()">
+            <span>⚡</span>
+        </button>
+        <div class="fab-menu" id="fabMenu">
+            <div class="fab-item" onclick="quickAction('broadcast')">
+                <span>📢</span>
+                <span>رسالة جماعية</span>
+            </div>
+            <div class="fab-item" onclick="quickAction('report')">
+                <span>📊</span>
+                <span>تقرير سريع</span>
+            </div>
+            <div class="fab-item" onclick="quickAction('challenge')">
+                <span>🎯</span>
+                <span>تحدي جماعي</span>
+            </div>
+            <div class="fab-item" onclick="quickAction('meeting')">
+                <span>👥</span>
+                <span>جلسة جماعية</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script>
+        // Initialize Firebase
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // State
+        let journeys = [];
+        let activities = [];
+        let alerts = [];
+        let currentFilter = 'all';
+        let currentView = 'kanban';
+        let dateRange = 'week';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadDashboardData();
+            setupRealtimeUpdates();
+            startActivitySimulation(); // For demo purposes
+        });
+
+        // Check authentication
+        function checkAuth() {
+            const authToken = sessionStorage.getItem('adminAuth');
+            if (!authToken) {
+                window.location.href = 'admin-dashboard.html';
+                return;
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            showLoading(true);
+            try {
+                await Promise.all([
+                    loadJourneys(),
+                    loadStats(),
+                    loadActivities(),
+                    loadAlerts(),
+                    loadUpcomingSessions()
+                ]);
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showNotification('خطأ في تحميل البيانات', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load journeys
+        async function loadJourneys() {
+            const snapshot = await db.collection('journeys')
+                .where('status', '==', 'active')
+                .get();
+
+            journeys = [];
+            snapshot.forEach(doc => {
+                journeys.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+
+            updateKanbanBoard();
+            updateStats();
+        }
+
+        // Load stats
+        async function loadStats() {
+            // Active journeys count
+            document.getElementById('activeJourneysCount').textContent = journeys.length;
+
+            // Calculate other stats
+            let totalEngagement = 0;
+            let totalPractices = 0;
+            let completedPractices = 0;
+
+            journeys.forEach(journey => {
+                totalEngagement += journey.engagementScore || 85;
+                
+                if (journey.assignedTools) {
+                    journey.assignedTools.forEach(tool => {
+                        totalPractices += 7; // Weekly practices
+                        completedPractices += tool.completedCount || 5;
+                    });
+                }
+            });
+
+            // Update UI
+            const avgEngagement = journeys.length > 0 ? 
+                Math.round(totalEngagement / journeys.length) : 0;
+            document.getElementById('avgEngagement').textContent = avgEngagement + '%';
+
+            const practicesRate = totalPractices > 0 ? 
+                Math.round((completedPractices / totalPractices) * 100) : 0;
+            document.getElementById('practicesCompletion').textContent = practicesRate + '%';
+        }
+
+        // Load activities
+        async function loadActivities() {
+            const feed = document.getElementById('activityFeed');
+            
+            // Mock activities for demo
+            activities = [
+                {
+                    type: 'practice',
+                    client: 'أحمد محمد',
+                    action: 'أكمل المثلث القلبي',
+                    time: 'الآن',
+                    avatar: 'أ'
+                },
+                {
+                    type: 'session',
+                    client: 'سارة أحمد',
+                    action: 'بدأت الجلسة الثانية',
+                    time: 'منذ 15 دقيقة',
+                    avatar: 'س'
+                },
+                {
+                    type: 'message',
+                    client: 'محمد علي',
+                    action: 'أرسل رسالة جديدة',
+                    time: 'منذ 30 دقيقة',
+                    avatar: 'م'
+                },
+                {
+                    type: 'practice',
+                    client: 'فاطمة حسن',
+                    action: 'لم تكمل دفتر الامتنان',
+                    time: 'منذ ساعة',
+                    avatar: 'ف',
+                    needsAttention: true
+                }
+            ];
+
+            displayActivities();
+        }
+
+        // Display activities
+        function displayActivities(filter = 'all') {
+            const feed = document.getElementById('activityFeed');
+            
+            const filteredActivities = filter === 'all' ? activities : 
+                activities.filter(a => a.type === filter.slice(0, -1));
+
+            let html = '';
+            filteredActivities.forEach(activity => {
+                html += `
+                    <div class="activity-item" onclick="openJourney('${activity.client}')">
+                        <div class="activity-avatar">${activity.avatar}</div>
+                        <div class="activity-content">
+                            <div class="activity-header">
+                                <div class="activity-title">${activity.client}</div>
+                                <div class="activity-time">${activity.time}</div>
+                            </div>
+                            <div class="activity-description">${activity.action}</div>
+                            ${activity.needsAttention ? `
+                                <div class="activity-actions">
+                                    <span class="activity-action" onclick="sendReminder(event, '${activity.client}')">إرسال تذكير</span>
+                                    <span class="activity-action" onclick="viewDetails(event, '${activity.client}')">عرض التفاصيل</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            feed.innerHTML = html || '<p style="text-align: center; color: #999;">لا يوجد نشاط حالياً</p>';
+        }
+
+        // Load alerts
+        function loadAlerts() {
+            const alertsList = document.getElementById('alertsList');
+            
+            // Generate smart alerts based on data
+            alerts = [
+                {
+                    type: 'danger',
+                    icon: '🚨',
+                    title: 'انخفاض مشاركة',
+                    desc: '3 عملاء لم يتفاعلوا منذ 3 أيام',
+                    action: 'عرض القائمة'
+                },
+                {
+                    type: 'warning',
+                    icon: '⚠️',
+                    title: 'جلسات فائتة',
+                    desc: 'عميل واحد لم يحضر آخر جلسة',
+                    action: 'متابعة'
+                },
+                {
+                    type: 'info',
+                    icon: '💡',
+                    title: 'فرصة للتقدم',
+                    desc: '5 عملاء جاهزون للمرحلة التالية',
+                    action: 'عرض'
+                }
+            ];
+
+            let html = '';
+            alerts.forEach(alert => {
+                html += `
+                    <div class="alert-item ${alert.type}">
+                        <div class="alert-icon">${alert.icon}</div>
+                        <div class="alert-content">
+                            <div class="alert-title">${alert.title}</div>
+                            <div class="alert-desc">${alert.desc}</div>
+                        </div>
+                        <button class="alert-action" onclick="handleAlert('${alert.type}')">${alert.action}</button>
+                    </div>
+                `;
+            });
+
+            alertsList.innerHTML = html;
+        }
+
+        // Load upcoming sessions
+        async function loadUpcomingSessions() {
+            const container = document.getElementById('upcomingSessions');
+            
+            // Mock data for demo
+            const sessions = [
+                {
+                    client: 'أحمد محمد',
+                    time: '5:00 م',
+                    type: 'online',
+                    phase: 'الجلسة الثانية'
+                },
+                {
+                    client: 'سارة أحمد',
+                    time: '7:00 م',
+                    type: 'online',
+                    phase: 'الجلسة الأولى'
+                }
+            ];
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
+            sessions.forEach(session => {
+                html += `
+                    <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; cursor: pointer;"
+                         onclick="openJourney('${session.client}')">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong>${session.client}</strong>
+                            <span style="color: #666; font-size: 0.9rem;">${session.time}</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #666;">
+                            ${session.phase} - ${session.type === 'online' ? 'أونلاين' : 'حضوري'}
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        // Update Kanban board
+        function updateKanbanBoard() {
+            const board = document.getElementById('kanbanBoard');
+            
+            if (currentView !== 'kanban') {
+                // Implement other views
+                return;
+            }
+
+            // Group journeys by program
+            const grouped = {
+                clarity: [],
+                discovery: [],
+                transformation: []
+            };
+
+            journeys.forEach(journey => {
+                if (grouped[journey.program]) {
+                    grouped[journey.program].push(journey);
+                }
+            });
+
+            let html = '';
+            
+            // Clarity column
+            html += `
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <div class="column-title">
+                            <span style="color: var(--clarity-color);">●</span>
+                            <span>جلسة الوضوح</span>
+                        </div>
+                        <span class="column-count">${grouped.clarity.length}</span>
+                    </div>
+                    <div class="kanban-cards">
+                        ${grouped.clarity.map(j => createJourneyCard(j, 'clarity')).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Discovery column
+            html += `
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <div class="column-title">
+                            <span style="color: var(--discovery-color);">●</span>
+                            <span>رحلة الاكتشاف</span>
+                        </div>
+                        <span class="column-count">${grouped.discovery.length}</span>
+                    </div>
+                    <div class="kanban-cards">
+                        ${grouped.discovery.map(j => createJourneyCard(j, 'discovery')).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Transformation column
+            html += `
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <div class="column-title">
+                            <span style="color: var(--transformation-color);">●</span>
+                            <span>رحلة التحول</span>
+                        </div>
+                        <span class="column-count">${grouped.transformation.length}</span>
+                    </div>
+                    <div class="kanban-cards">
+                        ${grouped.transformation.map(j => createJourneyCard(j, 'transformation')).join('')}
+                    </div>
+                </div>
+            `;
+
+            board.innerHTML = html;
+        }
+
+        // Create journey card
+        function createJourneyCard(journey, type) {
+            const phase = journey.currentPhase || 1;
+            const totalPhases = getProgramPhases(journey.program);
+            
+            return `
+                <div class="journey-card ${type}" onclick="openJourneyDetails('${journey.id}')">
+                    <div class="journey-header">
+                        <div class="client-name">${journey.clientName}</div>
+                        <div class="journey-phase">المرحلة ${phase}/${totalPhases}</div>
+                    </div>
+                    <div class="journey-stats">
+                        <div class="journey-stat">
+                            <span>📅</span>
+                            <span>${journey.completedSessions || 0} جلسة</span>
+                        </div>
+                        <div class="journey-stat">
+                            <span>📈</span>
+                            <span>${journey.progress || 0}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Activity filter
+        function filterActivity(type) {
+            currentFilter = type;
+            
+            // Update button states
+            document.querySelectorAll('.activity-filters .filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            displayActivities(type);
+        }
+
+        // Switch view
+        function switchView(view) {
+            currentView = view;
+            
+            // Update button states
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updateKanbanBoard();
+        }
+
+        // Date range update
+        function updateDateRange() {
+            dateRange = document.getElementById('dateRange').value;
+            loadDashboardData();
+        }
+
+        // Open journey details
+        function openJourneyDetails(journeyId) {
+            window.location.href = `admin-journey-management.html?journey=${journeyId}`;
+        }
+
+        // Open journey by client name
+        function openJourney(clientName) {
+            const journey = journeys.find(j => j.clientName === clientName);
+            if (journey) {
+                openJourneyDetails(journey.id);
+            }
+        }
+
+        // Send reminder
+        function sendReminder(event, clientName) {
+            event.stopPropagation();
+            showNotification(`تم إرسال تذكير لـ ${clientName}`, 'success');
+        }
+
+        // View details
+        function viewDetails(event, clientName) {
+            event.stopPropagation();
+            openJourney(clientName);
+        }
+
+        // Handle alert
+        function handleAlert(type) {
+            switch(type) {
+                case 'danger':
+                    // Show list of inactive clients
+                    showNotification('عرض قائمة العملاء غير النشطين', 'info');
+                    break;
+                case 'warning':
+                    // Show missed sessions
+                    showNotification('عرض الجلسات الفائتة', 'info');
+                    break;
+                case 'info':
+                    // Show clients ready for next phase
+                    showNotification('عرض العملاء الجاهزين للتقدم', 'info');
+                    break;
+            }
+        }
+
+        // FAB menu toggle
+        function toggleFabMenu() {
+            document.getElementById('fabMenu').classList.toggle('show');
+        }
+
+        // Quick actions
+        function quickAction(action) {
+            toggleFabMenu();
+            
+            switch(action) {
+                case 'broadcast':
+                    showBroadcastModal();
+                    break;
+                case 'report':
+                    generateQuickReport();
+                    break;
+                case 'challenge':
+                    createGroupChallenge();
+                    break;
+                case 'meeting':
+                    scheduleGroupMeeting();
+                    break;
+            }
+        }
+
+        // Show broadcast modal
+        function showBroadcastModal() {
+            showNotification('نافذة الرسائل الجماعية - قريباً', 'info');
+        }
+
+        // Generate quick report
+        function generateQuickReport() {
+            showNotification('جاري إنشاء التقرير...', 'info');
+            // Here you would generate and download a report
+        }
+
+        // Create group challenge
+        function createGroupChallenge() {
+            showNotification('إنشاء تحدي جماعي - قريباً', 'info');
+        }
+
+        // Schedule group meeting
+        function scheduleGroupMeeting() {
+            showNotification('جدولة جلسة جماعية - قريباً', 'info');
+        }
+
+        // Setup realtime updates
+        function setupRealtimeUpdates() {
+            // Listen for journey updates
+            db.collection('journeys')
+                .where('status', '==', 'active')
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'modified') {
+                            // Update local data and UI
+                            const index = journeys.findIndex(j => j.id === change.doc.id);
+                            if (index !== -1) {
+                                journeys[index] = {
+                                    id: change.doc.id,
+                                    ...change.doc.data()
+                                };
+                                updateKanbanBoard();
+                                updateStats();
+                            }
+                        }
+                    });
+                });
+        }
+
+        // Activity simulation for demo
+        function startActivitySimulation() {
+            // Simulate new activities every 30 seconds
+            setInterval(() => {
+                const newActivity = generateRandomActivity();
+                activities.unshift(newActivity);
+                if (activities.length > 10) activities.pop();
+                displayActivities(currentFilter);
+                
+                // Show notification for important activities
+                if (newActivity.needsAttention) {
+                    showNotification(`${newActivity.client}: ${newActivity.action}`, 'warning');
+                }
+            }, 30000);
+        }
+
+        // Generate random activity
+        function generateRandomActivity() {
+            const clients = ['أحمد محمد', 'سارة أحمد', 'محمد علي', 'فاطمة حسن', 'خالد إبراهيم'];
+            const actions = {
+                practice: ['أكمل المثلث القلبي', 'مارس التأمل الصباحي', 'سجل في دفتر الامتنان'],
+                session: ['بدأ الجلسة', 'أكمل الجلسة', 'حجز جلسة جديدة'],
+                message: ['أرسل رسالة', 'طرح سؤال', 'شارك تقدمه']
+            };
+            
+            const types = Object.keys(actions);
+            const type = types[Math.floor(Math.random() * types.length)];
+            const client = clients[Math.floor(Math.random() * clients.length)];
+            const action = actions[type][Math.floor(Math.random() * actions[type].length)];
+            
+            return {
+                type,
+                client,
+                action,
+                time: 'الآن',
+                avatar: client.charAt(0),
+                needsAttention: Math.random() > 0.8
+            };
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('show', show);
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            notification.innerHTML = `
+                <span class="notification-icon">${icons[type]}</span>
+                <div class="notification-content">
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                sessionStorage.clear();
+                window.location.href = 'admin-dashboard.html';
+            }
+        }
+
+        function getProgramPhases(program) {
+            const phases = {
+                clarity: 1,
+                discovery: 3,
+                transformation: 3
+            };
+            return phases[program] || 1;
+        }
+
+        // Initialize quick stats
+        function initializeQuickStats() {
+            const container = document.getElementById('quickStats');
+            
+            const stats = [
+                { label: 'أكثر العملاء نشاطاً', value: 'أحمد محمد', icon: '🌟' },
+                { label: 'أعلى معدل إكمال', value: '95%', icon: '🏆' },
+                { label: 'أطول سلسلة ممارسة', value: '21 يوم', icon: '🔥' }
+            ];
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 1rem;">';
+            stats.forEach(stat => {
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.5rem;">${stat.icon}</span>
+                            <span style="color: #666; font-size: 0.9rem;">${stat.label}</span>
+                        </div>
+                        <strong style="color: var(--primary);">${stat.value}</strong>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        // Initialize on load
+        initializeQuickStats();
+
+        // Handle clicks outside FAB
+        document.addEventListener('click', (e) => {
+            const fabContainer = document.querySelector('.fab-container');
+            const fabMenu = document.getElementById('fabMenu');
+            
+            if (!fabContainer.contains(e.target) && fabMenu.classList.contains('show')) {
+                fabMenu.classList.remove('show');
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Alt + D for dashboard refresh
+            if (e.altKey && e.key === 'd') {
+                e.preventDefault();
+                loadDashboardData();
+                showNotification('تم تحديث البيانات', 'success');
+            }
+            
+            // Alt + B for broadcast
+            if (e.altKey && e.key === 'b') {
+                e.preventDefault();
+                showBroadcastModal();
+            }
+            
+            // Alt + R for report
+            if (e.altKey && e.key === 'r') {
+                e.preventDefault();
+                generateQuickReport();
+            }
+        });
+
+        // Auto-refresh every 5 minutes
+        setInterval(() => {
+            loadDashboardData();
+        }, 5 * 60 * 1000);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 1200) {
+                // Adjust layout for smaller screens
+                currentView = 'table';
+                updateKanbanBoard();
+            }
+        });
+
+        // Export functions for charts
+        function initializeCharts() {
+            // Engagement trend chart
+            const engagementCtx = document.getElementById('engagementChart');
+            if (engagementCtx) {
+                new Chart(engagementCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+                        datasets: [{
+                            label: 'معدل المشاركة',
+                            data: [85, 87, 83, 89, 92, 88, 87],
+                            borderColor: '#2C5530',
+                            backgroundColor: 'rgba(44, 85, 48, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y + '%';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Program distribution chart
+            const programCtx = document.getElementById('programChart');
+            if (programCtx) {
+                const programCounts = {
+                    clarity: journeys.filter(j => j.program === 'clarity').length,
+                    discovery: journeys.filter(j => j.program === 'discovery').length,
+                    transformation: journeys.filter(j => j.program === 'transformation').length
+                };
+
+                new Chart(programCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['جلسة الوضوح', 'رحلة الاكتشاف', 'رحلة التحول'],
+                        datasets: [{
+                            data: [programCounts.clarity, programCounts.discovery, programCounts.transformation],
+                            backgroundColor: ['#3498db', '#e74c3c', '#f39c12'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Activity heatmap
+            const heatmapCtx = document.getElementById('activityHeatmap');
+            if (heatmapCtx) {
+                // Generate heatmap data
+                const hours = Array.from({length: 24}, (_, i) => i);
+                const days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+                
+                const heatmapData = [];
+                days.forEach((day, dayIndex) => {
+                    hours.forEach(hour => {
+                        const intensity = Math.random() * 100;
+                        heatmapData.push({
+                            x: hour,
+                            y: dayIndex,
+                            v: Math.round(intensity)
+                        });
+                    });
+                });
+
+                new Chart(heatmapCtx.getContext('2d'), {
+                    type: 'bubble',
+                    data: {
+                        datasets: [{
+                            label: 'نشاط العملاء',
+                            data: heatmapData,
+                            backgroundColor: function(context) {
+                                const value = context.parsed.v;
+                                const alpha = value / 100;
+                                return `rgba(44, 85, 48, ${alpha})`;
+                            },
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                min: 0,
+                                max: 23,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        return value + ':00';
+                                    }
+                                }
+                            },
+                            y: {
+                                type: 'linear',
+                                min: -0.5,
+                                max: 6.5,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        return days[value] || '';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `النشاط: ${context.parsed.v}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Advanced filtering
+        function advancedFilter(criteria) {
+            let filtered = [...journeys];
+            
+            if (criteria.program) {
+                filtered = filtered.filter(j => j.program === criteria.program);
+            }
+            
+            if (criteria.engagementMin) {
+                filtered = filtered.filter(j => (j.engagementScore || 0) >= criteria.engagementMin);
+            }
+            
+            if (criteria.phase) {
+                filtered = filtered.filter(j => j.currentPhase === criteria.phase);
+            }
+            
+            return filtered;
+        }
+
+        // Bulk actions
+        async function bulkAction(action, journeyIds) {
+            showLoading(true);
+            
+            try {
+                const batch = db.batch();
+                
+                switch(action) {
+                    case 'sendMessage':
+                        // Send bulk message
+                        journeyIds.forEach(id => {
+                            const messageRef = db.collection('messages').doc();
+                            batch.set(messageRef, {
+                                journeyId: id,
+                                content: 'رسالة جماعية',
+                                sender: 'coach',
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        });
+                        break;
+                        
+                    case 'assignTool':
+                        // Assign tool to multiple journeys
+                        journeyIds.forEach(id => {
+                            const journeyRef = db.collection('journeys').doc(id);
+                            batch.update(journeyRef, {
+                                assignedTools: firebase.firestore.FieldValue.arrayUnion({
+                                    toolId: 'new_tool',
+                                    assignedDate: new Date()
+                                })
+                            });
+                        });
+                        break;
+                        
+                    case 'scheduleSession':
+                        // Schedule sessions for multiple clients
+                        journeyIds.forEach(id => {
+                            const sessionRef = db.collection('bookings').doc();
+                            batch.set(sessionRef, {
+                                journeyId: id,
+                                appointmentDate: new Date(),
+                                status: 'scheduled'
+                            });
+                        });
+                        break;
+                }
+                
+                await batch.commit();
+                showNotification(`تم تنفيذ الإجراء على ${journeyIds.length} رحلة`, 'success');
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error in bulk action:', error);
+                showNotification('خطأ في تنفيذ الإجراء الجماعي', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Export dashboard data
+        function exportDashboardData(format = 'csv') {
+            const data = {
+                summary: {
+                    totalJourneys: journeys.length,
+                    avgEngagement: document.getElementById('avgEngagement').textContent,
+                    upcomingSessions: document.getElementById('upcomingSessionsCount').textContent,
+                    practicesCompletion: document.getElementById('practicesCompletion').textContent
+                },
+                journeys: journeys.map(j => ({
+                    clientName: j.clientName,
+                    program: getProgramName(j.program),
+                    phase: j.currentPhase,
+                    progress: j.progress,
+                    engagement: j.engagementScore
+                })),
+                alerts: alerts,
+                activities: activities
+            };
+
+            if (format === 'csv') {
+                // Convert to CSV
+                let csv = 'اسم العميل,البرنامج,المرحلة,التقدم,المشاركة\n';
+                data.journeys.forEach(j => {
+                    csv += `${j.clientName},${j.program},${j.phase},${j.progress}%,${j.engagement}%\n`;
+                });
+                
+                downloadFile(csv, 'dashboard-export.csv', 'text/csv');
+            } else if (format === 'json') {
+                downloadFile(JSON.stringify(data, null, 2), 'dashboard-export.json', 'application/json');
+            }
+        }
+
+        // Download file utility
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Smart suggestions
+        function generateSuggestions() {
+            const suggestions = [];
+            
+            // Low engagement clients
+            const lowEngagement = journeys.filter(j => (j.engagementScore || 0) < 70);
+            if (lowEngagement.length > 0) {
+                suggestions.push({
+                    type: 'engagement',
+                    priority: 'high',
+                    title: 'عملاء يحتاجون اهتمام خاص',
+                    description: `${lowEngagement.length} عميل لديهم معدل مشاركة منخفض`,
+                    action: () => {
+                        const ids = lowEngagement.map(j => j.id);
+                        bulkAction('sendMessage', ids);
+                    }
+                });
+            }
+            
+            // Ready for next phase
+            const readyForNext = journeys.filter(j => {
+                const phaseProgress = calculatePhaseProgress(j);
+                return phaseProgress >= 80;
+            });
+            
+            if (readyForNext.length > 0) {
+                suggestions.push({
+                    type: 'progress',
+                    priority: 'medium',
+                    title: 'عملاء جاهزون للمرحلة التالية',
+                    description: `${readyForNext.length} عميل أكملوا معظم المرحلة الحالية`,
+                    action: () => {
+                        readyForNext.forEach(j => {
+                            openJourneyDetails(j.id);
+                        });
+                    }
+                });
+            }
+            
+            // No sessions this week
+            const noSessions = journeys.filter(j => {
+                const lastSession = j.lastSessionDate?.toDate ? j.lastSessionDate.toDate() : null;
+                if (!lastSession) return true;
+                
+                const daysSince = (new Date() - lastSession) / (1000 * 60 * 60 * 24);
+                return daysSince > 7;
+            });
+            
+            if (noSessions.length > 0) {
+                suggestions.push({
+                    type: 'sessions',
+                    priority: 'high',
+                    title: 'عملاء بدون جلسات هذا الأسبوع',
+                    description: `${noSessions.length} عميل لم يحضروا جلسات مؤخراً`,
+                    action: () => {
+                        const ids = noSessions.map(j => j.id);
+                        bulkAction('scheduleSession', ids);
+                    }
+                });
+            }
+            
+            return suggestions;
+        }
+
+        // Calculate phase progress
+        function calculatePhaseProgress(journey) {
+            const totalSessions = getTotalSessions(journey.program);
+            const completedSessions = journey.completedSessions || 0;
+            const currentPhase = journey.currentPhase || 1;
+            const totalPhases = getProgramPhases(journey.program);
+            
+            const sessionsPerPhase = Math.ceil(totalSessions / totalPhases);
+            const phaseStartSession = (currentPhase - 1) * sessionsPerPhase;
+            const phaseEndSession = currentPhase * sessionsPerPhase;
+            
+            const sessionsInPhase = Math.min(completedSessions - phaseStartSession, sessionsPerPhase);
+            return Math.round((sessionsInPhase / sessionsPerPhase) * 100);
+        }
+
+        // Get total sessions for program
+        function getTotalSessions(program) {
+            const sessions = {
+                clarity: 1,
+                discovery: 3,
+                transformation: 6
+            };
+            return sessions[program] || 1;
+        }
+
+        // Get program name
+        function getProgramName(program) {
+            const names = {
+                clarity: 'جلسة الوضوح',
+                discovery: 'رحلة الاكتشاف',
+                transformation: 'رحلة التحول'
+            };
+            return names[program] || program;
+        }
+
+        // Initialize suggestions panel
+        function initializeSuggestions() {
+            const suggestions = generateSuggestions();
+            
+            if (suggestions.length > 0) {
+                // Create suggestions panel
+                const panel = document.createElement('div');
+                panel.className = 'alert-card';
+                panel.style.marginTop = '1rem';
+                
+                let html = `
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <span>💡</span>
+                            <span>اقتراحات ذكية</span>
+                        </h3>
+                    </div>
+                    <div class="alert-list">
+                `;
+                
+                suggestions.forEach(suggestion => {
+                    html += `
+                        <div class="alert-item ${suggestion.priority === 'high' ? 'warning' : 'info'}">
+                            <div class="alert-icon">💡</div>
+                            <div class="alert-content">
+                                <div class="alert-title">${suggestion.title}</div>
+                                <div class="alert-desc">${suggestion.description}</div>
+                            </div>
+                            <button class="alert-action" onclick="handleSuggestion('${suggestion.type}')">
+                                تنفيذ
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                panel.innerHTML = html;
+                
+                // Add to alerts panel
+                document.querySelector('.alerts-panel').appendChild(panel);
+            }
+        }
+
+        // Handle suggestion action
+        window.handleSuggestion = function(type) {
+            const suggestions = generateSuggestions();
+            const suggestion = suggestions.find(s => s.type === type);
+            if (suggestion && suggestion.action) {
+                suggestion.action();
+            }
+        };
+
+        // Performance monitoring
+        function monitorPerformance() {
+            const performanceData = {
+                loadTime: performance.timing.loadEventEnd - performance.timing.navigationStart,
+                journeyCount: journeys.length,
+                memoryUsage: performance.memory ? performance.memory.usedJSHeapSize / 1048576 : 0
+            };
+            
+            console.log('Dashboard Performance:', performanceData);
+            
+            // Send to analytics if needed
+            if (window.gtag) {
+                window.gtag('event', 'dashboard_performance', performanceData);
+            }
+        }
+
+        // Initialize performance monitoring
+        window.addEventListener('load', () => {
+            setTimeout(monitorPerformance, 1000);
+        });
+
+        // Error handling
+        window.addEventListener('error', (e) => {
+            console.error('Dashboard Error:', e);
+            showNotification('حدث خطأ في النظام', 'error');
+        });
+
+        // Initialize suggestions after data loads
+        setTimeout(initializeSuggestions, 2000);
+
+        // Public API for integration
+        window.DashboardAPI = {
+            refreshData: loadDashboardData,
+            filterJourneys: advancedFilter,
+            exportData: exportDashboardData,
+            bulkAction: bulkAction,
+            showNotification: showNotification
+        };
+    </script>
+</body>
+</html>
