@@ -620,7 +620,7 @@
                     
                     <div class="form-buttons">
                         <span></span>
-                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                        <button type="button" class="btn btn-primary" id="step1Next">التالي</button>
                     </div>
                 </div>
                 
@@ -772,8 +772,8 @@
                     </div>
                     
                     <div class="form-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
-                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                        <button type="button" class="btn btn-secondary" id="step2Prev">السابق</button>
+                        <button type="button" class="btn btn-primary" id="step2Next">التالي</button>
                     </div>
                 </div>
                 
@@ -840,8 +840,8 @@
                     </div>
                     
                     <div class="form-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
-                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                        <button type="button" class="btn btn-secondary" id="step3Prev">السابق</button>
+                        <button type="button" class="btn btn-primary" id="step3Next">التالي</button>
                     </div>
                 </div>
                 
@@ -927,8 +927,8 @@
                     </div>
                     
                     <div class="form-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
-                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                        <button type="button" class="btn btn-secondary" id="step4Prev">السابق</button>
+                        <button type="button" class="btn btn-primary" id="step4Next">التالي</button>
                     </div>
                 </div>
                 
@@ -1103,8 +1103,8 @@
                     </div>
                     
                     <div class="form-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
-                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                        <button type="button" class="btn btn-secondary" id="step5Prev">السابق</button>
+                        <button type="button" class="btn btn-primary" id="step5Next">التالي</button>
                     </div>
                 </div>
                 
@@ -1135,8 +1135,8 @@
                     </div>
                     
                     <div class="form-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
-                        <button type="button" class="btn btn-primary" onclick="analyzeAndShowRecommendation()">
+                        <button type="button" class="btn btn-secondary" id="step6Prev">السابق</button>
+                        <button type="button" class="btn btn-primary" id="step6GetRecommendation">
                             احصل على توصيتك
                         </button>
                     </div>
@@ -1150,7 +1150,7 @@
                     </div>
                     
                     <div class="form-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
+                        <button type="button" class="btn btn-secondary" id="step7Prev">السابق</button>
                         <button type="submit" class="btn btn-primary" id="submitBtn">
                             أكمل الحجز
                         </button>
@@ -2085,7 +2085,7 @@
                 await db.collection('bookings').add(bookingData);
                 
                 // Send WhatsApp notification
-                const journeyNames = {
+                const journeyNamesMap = {
                     'eshraq': 'الإشراقة',
                     'baseera': 'البصيرة',
                     'sakeena': 'السكينة',
@@ -2099,7 +2099,7 @@
 الاسم: ${formData.name}
 البريد: ${formData.email}
 الهاتف: ${formData.phone}
-الرحلة الموصى بها: ${journeyNames[recommendationData.journeyType]}
+الرحلة الموصى بها: ${journeyNamesMap[recommendationData.journeyType]}
 
 النتائج:
 - إشراقة: ${recommendationData.scores.eshraq}
@@ -2152,6 +2152,26 @@
             auth.signOut().catch(error => {
                 console.log('Sign out error (ignored):', error);
             });
+            
+            // Add event listeners for navigation buttons
+            document.getElementById('step1Next')?.addEventListener('click', nextStep);
+            
+            document.getElementById('step2Prev')?.addEventListener('click', previousStep);
+            document.getElementById('step2Next')?.addEventListener('click', nextStep);
+            
+            document.getElementById('step3Prev')?.addEventListener('click', previousStep);
+            document.getElementById('step3Next')?.addEventListener('click', nextStep);
+            
+            document.getElementById('step4Prev')?.addEventListener('click', previousStep);
+            document.getElementById('step4Next')?.addEventListener('click', nextStep);
+            
+            document.getElementById('step5Prev')?.addEventListener('click', previousStep);
+            document.getElementById('step5Next')?.addEventListener('click', nextStep);
+            
+            document.getElementById('step6Prev')?.addEventListener('click', previousStep);
+            document.getElementById('step6GetRecommendation')?.addEventListener('click', analyzeAndShowRecommendation);
+            
+            document.getElementById('step7Prev')?.addEventListener('click', previousStep);
         };
     </script>
 </body>
