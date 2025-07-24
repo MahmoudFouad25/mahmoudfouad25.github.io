@@ -3865,19 +3865,15 @@
                     </div>
                     
                     <script>
-                        window.onload = function() {
-                            window.print();
-                            window.close();
-                        }
-                    </script>
-                </body>
-                </html>
-            `;
-            
-printWindow.document.write(content);
-        printWindow.document.close();
-    }
+    printWindow.document.write(content);
+    printWindow.document.close();
+}
+
+window.onload = function() {
+    window.print();
+    window.close();
 }
 </script>
 </body>
 </html>
+
