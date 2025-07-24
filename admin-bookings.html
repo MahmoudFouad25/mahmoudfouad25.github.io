@@ -2002,23 +2002,32 @@ async function convertToJourney(bookingId) {
 }
 // دالة إنشاء رحلة جديدة - نسخة واحدة محدثة
 async function createNewJourney(booking) {
-    // خريطة تحويل البرامج
-    const programToJourneyType = {
-        'جلسة الوضوح': 'eshraq',
-        'رحلة الاكتشاف': 'baseera', 
-        'رحلة التحول': 'sakeena',
+    // تحديد نوع الرحلة الصحيح
+    const journeyTypeMapping = {
+        'eshraq': 'eshraq',
+        'baseera': 'baseera', 
+        'sakeena': 'sakeena',
+        'mixed-eshraq-baseera': 'eshraq', // نبدأ بالإشراقة
+        'mixed-baseera-sakeena': 'baseera', // نبدأ بالبصيرة
+        // للتوافق مع القديم
         'clarity': 'eshraq',
         'discovery': 'baseera',
         'transformation': 'sakeena',
-        'الإشراقة': 'eshraq',
-        'البصيرة': 'baseera',
-        'السكينة': 'sakeena'
+        'جلسة الوضوح': 'eshraq',
+        'رحلة الاكتشاف': 'baseera',
+        'رحلة التحول': 'sakeena'
     };
     
-    // تحديد نوع الرحلة
-    const journeyType = booking.journeyType || 
-                       programToJourneyType[booking.program] || 
+    const journeyType = journeyTypeMapping[booking.journeyType] || 
+                       journeyTypeMapping[booking.program] || 
                        'eshraq';
+    
+    // أسماء البرامج بالعربية
+    const programNames = {
+        'eshraq': 'رحلة الإشراقة',
+        'baseera': 'رحلة البصيرة',
+        'sakeena': 'رحلة السكينة'
+    };
     
     const journeyData = {
         // معلومات العميل
@@ -2027,21 +2036,21 @@ async function createNewJourney(booking) {
         clientPhone: booking.phone,
         userId: booking.userId || null,
         
-        // معلومات الرحلة - مع الحقلين معاً
-        program: booking.program,
-        journeyType: journeyType, // هذا الحقل المفقود!
+        // معلومات الرحلة - مهم جداً
+        program: programNames[journeyType],
+        journeyType: journeyType,
         status: 'active',
         startDate: firebase.firestore.FieldValue.serverTimestamp(),
         
         // التقدم الأولي
         currentPhase: 1,
-        totalPhases: getProgramPhases(booking.program),
+        totalPhases: getProgramPhases(journeyType),
         progress: 0,
         completedSessions: 0,
-        totalSessions: getProgramSessions(booking.program),
+        totalSessions: getProgramSessions(journeyType),
         
-        // البيانات الأولية
-        engagementScore: 100,
+        // البيانات الأولية للإحصائيات
+        engagementScore: 80, // نبدأ بـ 80 بدلاً من 100
         assignedTools: [],
         practicesCompleted: 0,
         practicesAssigned: 0,
@@ -2049,54 +2058,31 @@ async function createNewJourney(booking) {
         // بيانات النشاط
         lastActivityDate: firebase.firestore.FieldValue.serverTimestamp(),
         
-        // معلومات إضافية من الحجز
-        goals: booking.goals || '',
+        // معلومات إضافية من التقييم
+        goals: booking.goals || booking.message || '',
         challenges: booking.challenges || '',
         notes: booking.notes || '',
-        
-        // معلومات التقييم إن وجدت
         assessmentId: booking.assessmentId || null,
         
         // Metadata
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     };
     
     // إنشاء الرحلة
     const journeyRef = await db.collection('journeys').add(journeyData);
     
-    // إنشاء المراحل
-    const phases = getDefaultPhases(booking.program);
-    const batch = db.batch();
-    
-    phases.forEach((phase, index) => {
-        const phaseRef = journeyRef.collection('phases').doc();
-        batch.set(phaseRef, {
-            ...phase,
-            order: index + 1,
-            status: index === 0 ? 'in_progress' : 'pending',
-            startDate: index === 0 ? firebase.firestore.FieldValue.serverTimestamp() : null
-        });
-    });
-    
-    await batch.commit();
-    
-    // إنشاء الجلسة الأولى
-    await db.collection('sessions').add({
+    // إنشاء نشاط أولي
+    await db.collection('activities').add({
         journeyId: journeyRef.id,
-        sessionNumber: 1,
-        type: booking.sessionType || 'online',
-        status: 'scheduled',
-        scheduledDate: booking.appointmentDate,
-        scheduledTime: booking.appointmentTime || '10:00 AM',
-        duration: 90,
+        clientId: booking.userId,
         clientName: booking.name,
-        clientPhone: booking.phone,
-        phase: 1,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        type: 'milestone',
+        description: `بدأ ${booking.name} رحلة ${programNames[journeyType]}`,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
     
-    // ربط الحجز بالرحلة
+    // تحديث الحجز
     await db.collection('bookings').doc(booking.id).update({
         status: 'converted',
         journeyId: journeyRef.id,
@@ -2107,7 +2093,7 @@ async function createNewJourney(booking) {
     if (booking.userId) {
         await db.collection('users').doc(booking.userId).update({
             activeJourneyId: journeyRef.id,
-            currentProgram: booking.program,
+            currentProgram: programNames[journeyType],
             journeyStartDate: firebase.firestore.FieldValue.serverTimestamp()
         });
     }
