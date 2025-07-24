@@ -1317,16 +1317,6 @@
     </style>
 </head>
 <body>
-    <!-- شاشة التحقق من الأمان -->
-<div id="authCheck" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; justify-content: center; align-items: center; z-index: 9999;">
-    <div style="text-align: center;">
-        <h2>يجب تسجيل الدخول أولاً</h2>
-        <button onclick="window.location.href='admin-dashboard.html'" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-            الذهاب لتسجيل الدخول
-        </button>
-    </div>
-</div>
-
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
@@ -1813,34 +1803,8 @@
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-    <div id="mainContent" style="display: none;">
-    <!-- كل محتوى الصفحة العادي هنا -->
-    <h1>صفحة الرحلات</h1>
-    <p>المحتوى محمي بالأمان</p>
-    <!-- باقي HTML الصفحة -->
-</div>
-
-
     
     <script>
-
-        const authToken = sessionStorage.getItem('adminAuth');
-const authTime = sessionStorage.getItem('authTime');
-const oneHour = 60 * 60 * 1000;
-
-if (!authToken || authToken !== 'true' || !authTime || (Date.now() - parseInt(authTime) > oneHour)) {
-    // غير مصرح له - توجيه فوري
-    window.location.replace('admin-dashboard.html');
-} else {
-    // مصرح له - إظهار الصفحة
-    document.body.style.display = 'block';
-    
-    // كود الصفحة هنا
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('تم تحميل صفحة الرحلات بأمان');
-        
-
         // Initialize Firebase
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -1865,24 +1829,32 @@ if (!authToken || authToken !== 'true' || !authTime || (Date.now() - parseInt(au
         });
         
         // Check authentication
-        // 2. دالة checkAuth الجديدة
 function checkAuth() {
-    const authToken = sessionStorage.getItem('adminAuth');
-    const authTime = sessionStorage.getItem('authTime');
-    const oneHour = 60 * 60 * 1000;
-    
-    if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
-        document.getElementById('authCheck').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
+    auth.onAuthStateChanged(user => {
+        if (!user) {
+            // لا يوجد مستخدم مسجل دخول
+            window.location.href = 'admin-login.html';
+            return;
+        }
         
-        // هنا حط كود تحميل البيانات
-        // loadBookings();
-    } else {
-        document.getElementById('authCheck').style.display = 'flex';
-        document.getElementById('mainContent').style.display = 'none';
-    }
+        // التحقق من أن المستخدم هو admin
+        user.getIdTokenResult().then(idTokenResult => {
+            if (!idTokenResult.claims.admin) {
+                // ليس admin
+                alert('ليس لديك صلاحية الوصول لهذه الصفحة');
+                window.location.href = 'index.html';
+            }
+        }).catch(error => {
+            console.error('Error checking admin claim:', error);
+            // في حالة الخطأ، نتحقق من البريد الإلكتروني
+            const adminEmails = ['admin@example.com']; // ضع هنا بريد الأدمن
+            if (!adminEmails.includes(user.email)) {
+                alert('ليس لديك صلاحية الوصول لهذه الصفحة');
+                window.location.href = 'index.html';
+            }
+        });
+    });
 }
-
         
         // Load all dashboard data
         async function loadDashboardData() {
@@ -1912,42 +1884,50 @@ function checkAuth() {
                 showLoading(false);
             }
         }
-
 // Load journeys from Firestore
-        async function loadJourneys() {
-            try {
-                const snapshot = await db.collection('journeys')
-                    .where('status', '==', 'active')
-                    .get();
-                
-                allJourneys = [];
-                const journeyPromises = [];
-                
-                snapshot.forEach(doc => {
-                    const journey = {
-                        id: doc.id,
-                        ...doc.data()
-                    };
-                    
-                    // Calculate additional metrics
-                    journey.healthIndicator = calculateHealthIndicator(journey);
-                    journey.needsAttention = checkNeedsAttention(journey);
-                    
-                    allJourneys.push(journey);
-                });
-                
-                // Sort by last activity
-                allJourneys.sort((a, b) => {
-                    const dateA = a.lastActivityDate?.toDate() || new Date(0);
-                    const dateB = b.lastActivityDate?.toDate() || new Date(0);
-                    return dateB - dateA;
-                });
-                
-            } catch (error) {
-                console.error('Error loading journeys:', error);
-                throw error;
+async function loadJourneys() {
+    try {
+        const snapshot = await db.collection('journeys')
+            .where('status', '==', 'active')
+            .get();
+        
+        allJourneys = [];
+        
+        snapshot.forEach(doc => {
+            const journey = {
+                id: doc.id,
+                ...doc.data()
+            };
+            
+            // التأكد من أن journeyType يستخدم الأسماء الصحيحة
+            // تحويل الأسماء القديمة إذا وجدت
+            if (journey.journeyType === 'clarity' || journey.journeyType === 'وضوح') {
+                journey.journeyType = 'eshraq';
+            } else if (journey.journeyType === 'discovery' || journey.journeyType === 'اكتشاف') {
+                journey.journeyType = 'baseera';
+            } else if (journey.journeyType === 'transformation' || journey.journeyType === 'تحول') {
+                journey.journeyType = 'sakeena';
             }
-        }
+            
+            // Calculate additional metrics
+            journey.healthIndicator = calculateHealthIndicator(journey);
+            journey.needsAttention = checkNeedsAttention(journey);
+            
+            allJourneys.push(journey);
+        });
+        
+        // Sort by last activity
+        allJourneys.sort((a, b) => {
+            const dateA = a.lastActivityDate?.toDate() || new Date(0);
+            const dateB = b.lastActivityDate?.toDate() || new Date(0);
+            return dateB - dateA;
+        });
+        
+    } catch (error) {
+        console.error('Error loading journeys:', error);
+        throw error;
+    }
+}
         
         // Load activities from Firestore
         async function loadActivities() {
@@ -2550,72 +2530,72 @@ function checkAuth() {
         }
         
         // Display Kanban view
-        function displayKanban() {
-            const kanbanBoard = document.getElementById('kanbanBoard');
-            
-            // Group journeys by type
-            const journeysByType = {
-                eshraq: [],
-                baseera: [],
-                sakeena: []
-            };
-            
-            filteredJourneys.forEach(journey => {
-                if (journey.journeyType === 'eshraq' || journey.journeyType.includes('eshraq')) {
-                    journeysByType.eshraq.push(journey);
-                } else if (journey.journeyType === 'baseera' || journey.journeyType.includes('baseera')) {
-                    journeysByType.baseera.push(journey);
-                } else if (journey.journeyType === 'sakeena' || journey.journeyType.includes('sakeena')) {
-                    journeysByType.sakeena.push(journey);
-                }
-            });
-            
-            let html = `
-                <div class="kanban-column">
-                    <div class="column-header">
-                        <div class="column-title">
-                            <span style="color: var(--eshraq-color);">●</span>
-                            <span>رحلة الإشراقة</span>
-                        </div>
-                        <span class="column-count">${journeysByType.eshraq.length}</span>
-                    </div>
-                    <div class="kanban-cards">
-                        ${journeysByType.eshraq.map(j => createJourneyCard(j, 'eshraq')).join('')}
-                        ${journeysByType.eshraq.length === 0 ? '<p style="text-align: center; color: #999; padding: 2rem;">لا توجد رحلات</p>' : ''}
-                    </div>
-                </div>
-                
-                <div class="kanban-column">
-                    <div class="column-header">
-                        <div class="column-title">
-                            <span style="color: var(--baseera-color);">●</span>
-                            <span>رحلة البصيرة</span>
-                        </div>
-                        <span class="column-count">${journeysByType.baseera.length}</span>
-                    </div>
-                    <div class="kanban-cards">
-                        ${journeysByType.baseera.map(j => createJourneyCard(j, 'baseera')).join('')}
-                        ${journeysByType.baseera.length === 0 ? '<p style="text-align: center; color: #999; padding: 2rem;">لا توجد رحلات</p>' : ''}
-                    </div>
-                </div>
-                
-                <div class="kanban-column">
-                    <div class="column-header">
-                        <div class="column-title">
-                            <span style="color: var(--sakeena-color);">●</span>
-                            <span>رحلة السكينة</span>
-                        </div>
-                        <span class="column-count">${journeysByType.sakeena.length}</span>
-                    </div>
-                    <div class="kanban-cards">
-                        ${journeysByType.sakeena.map(j => createJourneyCard(j, 'sakeena')).join('')}
-                        ${journeysByType.sakeena.length === 0 ? '<p style="text-align: center; color: #999; padding: 2rem;">لا توجد رحلات</p>' : ''}
-                    </div>
-                </div>
-            `;
-            
-            kanbanBoard.innerHTML = html;
+function displayKanban() {
+    const kanbanBoard = document.getElementById('kanbanBoard');
+    
+    // Group journeys by type
+    const journeysByType = {
+        eshraq: [],
+        baseera: [],
+        sakeena: []
+    };
+    
+    filteredJourneys.forEach(journey => {
+        if (journey.journeyType === 'eshraq' || journey.journeyType.includes('eshraq')) {
+            journeysByType.eshraq.push(journey);
+        } else if (journey.journeyType === 'baseera' || journey.journeyType.includes('baseera')) {
+            journeysByType.baseera.push(journey);
+        } else if (journey.journeyType === 'sakeena' || journey.journeyType.includes('sakeena')) {
+            journeysByType.sakeena.push(journey);
         }
+    });
+    
+    let html = `
+        <div class="kanban-column">
+            <div class="column-header">
+                <div class="column-title">
+                    <span style="color: var(--eshraq-color);">●</span>
+                    <span>رحلة الإشراقة</span>
+                </div>
+                <span class="column-count">${journeysByType.eshraq.length}</span>
+            </div>
+            <div class="kanban-cards">
+                ${journeysByType.eshraq.map(j => createJourneyCard(j, 'eshraq')).join('')}
+                ${journeysByType.eshraq.length === 0 ? '<p style="text-align: center; color: #999; padding: 2rem;">لا توجد رحلات نشطة</p>' : ''}
+            </div>
+        </div>
+        
+        <div class="kanban-column">
+            <div class="column-header">
+                <div class="column-title">
+                    <span style="color: var(--baseera-color);">●</span>
+                    <span>رحلة البصيرة</span>
+                </div>
+                <span class="column-count">${journeysByType.baseera.length}</span>
+            </div>
+            <div class="kanban-cards">
+                ${journeysByType.baseera.map(j => createJourneyCard(j, 'baseera')).join('')}
+                ${journeysByType.baseera.length === 0 ? '<p style="text-align: center; color: #999; padding: 2rem;">لا توجد رحلات نشطة</p>' : ''}
+            </div>
+        </div>
+        
+        <div class="kanban-column">
+            <div class="column-header">
+                <div class="column-title">
+                    <span style="color: var(--sakeena-color);">●</span>
+                    <span>رحلة السكينة</span>
+                </div>
+                <span class="column-count">${journeysByType.sakeena.length}</span>
+            </div>
+            <div class="kanban-cards">
+                ${journeysByType.sakeena.map(j => createJourneyCard(j, 'sakeena')).join('')}
+                ${journeysByType.sakeena.length === 0 ? '<p style="text-align: center; color: #999; padding: 2rem;">لا توجد رحلات نشطة</p>' : ''}
+            </div>
+        </div>
+    `;
+    
+    kanbanBoard.innerHTML = html;
+}
         
         // Create journey card
         function createJourneyCard(journey, type) {
@@ -2762,17 +2742,16 @@ function checkAuth() {
         }
         
         // Get journey type name
-        function getJourneyTypeName(type) {
-            const names = {
-                eshraq: 'الإشراقة',
-                baseera: 'البصيرة',
-                sakeena: 'السكينة',
-                'mixed-eshraq-baseera': 'إشراقة → بصيرة',
-                'mixed-baseera-sakeena': 'بصيرة → سكينة'
-            };
-            return names[type] || type;
-        }
-        
+function getJourneyTypeName(type) {
+    const names = {
+        'eshraq': 'رحلة الإشراقة',
+        'baseera': 'رحلة البصيرة', 
+        'sakeena': 'رحلة السكينة',
+        'mixed-eshraq-baseera': 'مسار متدرج (إشراقة → بصيرة)',
+        'mixed-baseera-sakeena': 'مسار متدرج (بصيرة → سكينة)'
+    };
+    return names[type] || type;
+}        
         // Get journey color
         function getJourneyColor(type) {
             if (type.includes('eshraq')) return 'var(--eshraq-color)';
@@ -3720,7 +3699,7 @@ function checkAuth() {
         function logout() {
             if (confirm('هل أنت متأكد من الخروج؟')) {
                 auth.signOut().then(() => {
-                    window.location.href = 'admin-dashboard.html';
+                    window.location.href = 'admin-login.html';
                 });
             }
         }
@@ -3812,9 +3791,119 @@ function checkAuth() {
             showNotification('تم تصدير بيانات الرحلة', 'success');
         }
         
-      
-checkAuth();
-
-</script>
+        // Print journey summary
+{
+    const journey = allJourneys.find(j => j.id === journeyId);
+    if (!journey) return;
+    
+    const printWindow = window.open('', '_blank');
+    
+    const progress = journey.totalSessions > 0 ?
+        Math.round((journey.completedSessions / journey.totalSessions) * 100) : 0;
+    
+    const content = `
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <title>ملخص رحلة ${journey.clientName}</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }
+                h1, h2 {
+                    color: #2C5530;
+                }
+                .info-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 20px;
+                    margin: 20px 0;
+                }
+                .info-box {
+                    background: #f5f5f5;
+                    padding: 15px;
+                    border-radius: 8px;
+                }
+                .info-box h3 {
+                    margin-top: 0;
+                    color: #2C5530;
+                }
+                .progress-bar {
+                    width: 100%;
+                    height: 20px;
+                    background: #e0e0e0;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    margin: 10px 0;
+                }
+                .progress-fill {
+                    height: 100%;
+                    background: #2C5530;
+                    transition: width 0.3s;
+                }
+                @media print {
+                    body {
+                        margin: 0;
+                        padding: 10px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>ملخص رحلة ${journey.clientName}</h1>
+            <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p>
+            
+            <div class="info-grid">
+                <div class="info-box">
+                    <h3>معلومات العميل</h3>
+                    <p><strong>الاسم:</strong> ${journey.clientName}</p>
+                    <p><strong>البريد:</strong> ${journey.clientEmail || 'غير محدد'}</p>
+                    <p><strong>الهاتف:</strong> ${journey.clientPhone || 'غير محدد'}</p>
+                </div>
+                
+                <div class="info-box">
+                    <h3>معلومات الرحلة</h3>
+                    <p><strong>النوع:</strong> ${getJourneyTypeName(journey.journeyType)}</p>
+                    <p><strong>المرحلة:</strong> ${journey.currentPhase || 1} من ${journey.totalPhases || 3}</p>
+                    <p><strong>تاريخ البداية:</strong> ${journey.startDate?.toDate().toLocaleDateString('ar-EG') || 'غير محدد'}</p>
+                </div>
+                
+                <div class="info-box">
+                    <h3>الإحصائيات</h3>
+                    <p><strong>الجلسات:</strong> ${journey.completedSessions || 0} من ${journey.totalSessions || 0}</p>
+                    <p><strong>معدل المشاركة:</strong> ${journey.engagementScore || 0}%</p>
+                    <p><strong>الممارسات:</strong> ${journey.practicesCompleted || 0} من ${journey.practicesAssigned || 0}</p>
+                </div>
+                
+                <div class="info-box">
+                    <h3>التقدم العام</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%;"></div>
+                    </div>
+                    <p style="text-align: center;">${progress}%</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    printWindow.document.write(content);
+    printWindow.document.close();
+    
+    // إضافة سكريبت الطباعة بعد كتابة المحتوى
+    printWindow.onload = function() {
+        printWindow.print();
+        printWindow.onafterprint = function() {
+            printWindow.close();
+        };
+    };
+}
+    </script>
 </body>
 </html>
