@@ -2035,9 +2035,10 @@
         };
         
         // URL Parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const clientId = urlParams.get('clientId');
-        const bookingId = urlParams.get('bookingId');
+const urlParams = new URLSearchParams(window.location.search);
+const clientId = urlParams.get('clientId');
+const bookingId = urlParams.get('bookingId');
+const journeyId = urlParams.get('journeyId');
         
         // Initialize
         window.onload = function() {
@@ -2070,7 +2071,11 @@
                     id: userDoc.id,
                     ...userDoc.data()
                 };
-                
+
+                // إذا كان journeyId موجود، استخدمه
+if (journeyId) {
+    currentClient.activeJourneyId = journeyId;
+}
                 // Load booking data if available
                 if (bookingId) {
                     const bookingDoc = await db.collection('bookings').doc(bookingId).get();
