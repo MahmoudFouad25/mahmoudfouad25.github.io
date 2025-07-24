@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مركز قيادة الرحلات - لوحة التحكم</title>
+<title>مركز قيادة الرحلات</title>
 <style>
 * {
 margin: 0;
@@ -23,7 +23,6 @@ box-sizing: border-box;
 --warning: #ffc107;
 --info: #17a2b8;
 --shadow: 0 5px 20px rgba(0,0,0,0.1);
---shadow-lg: 0 10px 40px rgba(0,0,0,0.15);
 --eshraq-color: #3498db;
 --baseera-color: #e74c3c;
 --sakeena-color: #f39c12;
@@ -44,18 +43,10 @@ left: 0;
 right: 0;
 bottom: 0;
 background: rgba(0, 0, 0, 0.7);
-display: flex;
+display: none;
 justify-content: center;
 align-items: center;
 z-index: 9999;
-opacity: 0;
-visibility: hidden;
-transition: all 0.3s;
-}
-
-.loading-overlay.show {
-opacity: 1;
-visibility: visible;
 }
 
 .loading-spinner {
@@ -70,45 +61,6 @@ animation: spin 1s linear infinite;
 @keyframes spin {
 0% { transform: rotate(0deg); }
 100% { transform: rotate(360deg); }
-}
-
-/* Auth Check Screen */
-.auth-check {
-display: none;
-justify-content: center;
-align-items: center;
-min-height: 100vh;
-background: var(--gradient);
-}
-
-.auth-message {
-background: white;
-padding: 3rem;
-border-radius: 15px;
-box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-text-align: center;
-max-width: 500px;
-}
-
-.auth-message h2 {
-color: var(--primary);
-margin-bottom: 1rem;
-}
-
-.auth-message p {
-color: #666;
-margin-bottom: 2rem;
-}
-
-.auth-message button {
-padding: 1rem 2rem;
-background: var(--gradient);
-color: white;
-border: none;
-border-radius: 8px;
-font-size: 1rem;
-font-weight: bold;
-cursor: pointer;
 }
 
 /* Navigation */
@@ -174,11 +126,6 @@ background: var(--accent);
 max-width: 1400px;
 margin: 0 auto;
 padding: 2rem;
-display: none;
-}
-
-.dashboard-container.show {
-display: block;
 }
 
 /* Page Header */
@@ -195,27 +142,6 @@ margin-bottom: 0.5rem;
 .page-subtitle {
 color: #666;
 font-size: 1.1rem;
-}
-
-/* Date Range Selector */
-.date-range {
-display: flex;
-align-items: center;
-gap: 1rem;
-background: white;
-padding: 0.75rem 1.5rem;
-border-radius: 10px;
-box-shadow: var(--shadow);
-width: fit-content;
-margin-top: 1rem;
-}
-
-.date-range select {
-padding: 0.5rem 1rem;
-border: 1px solid #e0e0e0;
-border-radius: 6px;
-font-size: 0.9rem;
-cursor: pointer;
 }
 
 /* Stats Grid */
@@ -238,7 +164,7 @@ transition: all 0.3s;
 
 .stat-card:hover {
 transform: translateY(-5px);
-box-shadow: var(--shadow-lg);
+box-shadow: 0 10px 40px rgba(0,0,0,0.15);
 }
 
 .stat-header {
@@ -291,13 +217,6 @@ height: 8px;
 border-radius: 50%;
 }
 
-/* Main Content Grid */
-.content-grid {
-display: grid;
-grid-template-columns: 1fr 350px;
-gap: 2rem;
-}
-
 /* Journeys Section */
 .journeys-section {
 background: white;
@@ -322,30 +241,6 @@ font-weight: 600;
 display: flex;
 align-items: center;
 gap: 0.5rem;
-}
-
-.view-toggle {
-display: flex;
-gap: 0.5rem;
-background: #f0f0f0;
-padding: 0.25rem;
-border-radius: 8px;
-width: fit-content;
-}
-
-.view-btn {
-padding: 0.5rem 1rem;
-background: transparent;
-border: none;
-border-radius: 6px;
-cursor: pointer;
-transition: all 0.3s;
-font-size: 0.9rem;
-}
-
-.view-btn.active {
-background: white;
-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Kanban Board */
@@ -465,48 +360,6 @@ background: var(--warning);
 background: var(--danger);
 }
 
-.journey-phase {
-font-size: 0.8rem;
-color: #666;
-background: #f0f0f0;
-padding: 0.2rem 0.6rem;
-border-radius: 12px;
-margin-bottom: 0.5rem;
-display: inline-block;
-}
-
-.journey-progress {
-margin-bottom: 0.5rem;
-}
-
-.progress-bar {
-height: 6px;
-background: #e0e0e0;
-border-radius: 3px;
-overflow: hidden;
-}
-
-.progress-fill {
-height: 100%;
-background: var(--primary);
-border-radius: 3px;
-transition: width 0.3s;
-}
-
-.journey-stats {
-display: flex;
-gap: 1rem;
-margin-top: 0.5rem;
-font-size: 0.85rem;
-color: #666;
-}
-
-.journey-stat {
-display: flex;
-align-items: center;
-gap: 0.25rem;
-}
-
 .journey-actions {
 display: flex;
 gap: 0.5rem;
@@ -533,87 +386,6 @@ background: var(--primary);
 color: white;
 }
 
-/* Alerts Panel */
-.alerts-panel {
-display: flex;
-flex-direction: column;
-gap: 1.5rem;
-}
-
-.alert-card {
-background: white;
-border-radius: 15px;
-box-shadow: var(--shadow);
-padding: 1.5rem;
-}
-
-.alert-list {
-display: flex;
-flex-direction: column;
-gap: 0.75rem;
-max-height: 300px;
-overflow-y: auto;
-}
-
-.alert-item {
-display: flex;
-align-items: center;
-gap: 1rem;
-padding: 1rem;
-background: #fff3cd;
-border-radius: 10px;
-border-right: 4px solid var(--warning);
-}
-
-.alert-item.danger {
-background: #f8d7da;
-border-color: var(--danger);
-}
-
-.alert-item.info {
-background: #d1ecf1;
-border-color: var(--info);
-}
-
-.alert-item.success {
-background: #d4edda;
-border-color: var(--success);
-}
-
-.alert-icon {
-font-size: 1.5rem;
-}
-
-.alert-content {
-flex: 1;
-}
-
-.alert-title {
-font-weight: 600;
-color: var(--dark);
-margin-bottom: 0.25rem;
-}
-
-.alert-desc {
-font-size: 0.85rem;
-color: #666;
-}
-
-.alert-action {
-padding: 0.4rem 0.8rem;
-background: var(--primary);
-color: white;
-border: none;
-border-radius: 6px;
-font-size: 0.85rem;
-cursor: pointer;
-transition: all 0.3s;
-}
-
-.alert-action:hover {
-background: var(--secondary);
-}
-
 /* Empty State */
 .empty-state {
 text-align: center;
@@ -634,7 +406,7 @@ top: 20px;
 right: 20px;
 padding: 15px 25px;
 border-radius: 8px;
-box-shadow: var(--shadow-lg);
+box-shadow: var(--shadow);
 z-index: 1000;
 animation: slideIn 0.3s;
 cursor: pointer;
@@ -671,22 +443,6 @@ color: white;
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
-.content-grid {
-grid-template-columns: 1fr;
-}
-
-.alerts-panel {
-order: -1;
-flex-direction: row;
-overflow-x: auto;
-}
-
-.alert-card {
-min-width: 300px;
-}
-}
-
 @media (max-width: 768px) {
 .dashboard-container {
 padding: 1rem;
@@ -717,17 +473,6 @@ font-size: 1.5rem;
 <div class="loading-spinner"></div>
 </div>
 
-<!-- Auth Check -->
-<div id="authCheck" class="auth-check">
-<div class="auth-message">
-<h2>تسجيل الدخول مطلوب</h2>
-<p>يجب تسجيل الدخول أولاً للوصول لهذه الصفحة</p>
-<button onclick="redirectToLogin()">تسجيل الدخول</button>
-</div>
-</div>
-
-<!-- Main Content -->
-<div id="mainContent">
 <!-- Navigation -->
 <nav class="admin-nav">
 <div class="nav-container">
@@ -768,16 +513,6 @@ font-size: 1.5rem;
 </button>
 <h1 class="page-title">مركز قيادة الرحلات</h1>
 <p class="page-subtitle">نظرة شاملة على جميع الرحلات النشطة والأنشطة</p>
-<div class="date-range">
-<span>📅</span>
-<select id="dateRange" onchange="updateDateRange()">
-<option value="today">اليوم</option>
-<option value="week" selected>هذا الأسبوع</option>
-<option value="month">هذا الشهر</option>
-<option value="quarter">آخر 3 شهور</option>
-<option value="all">كل الوقت</option>
-</select>
-</div>
 </div>
 
 <!-- Stats Grid -->
@@ -829,8 +564,6 @@ font-size: 1.5rem;
 </div>
 </div>
 
-<!-- Main Content Grid -->
-<div class="content-grid">
 <!-- Journeys Section -->
 <div class="journeys-section">
 <div class="section-header">
@@ -838,10 +571,6 @@ font-size: 1.5rem;
 <span>🗺️</span>
 <span>الرحلات حسب البرنامج</span>
 </h3>
-<div class="view-toggle">
-<button class="view-btn active" onclick="switchView('kanban')">📋 كانبان</button>
-<button class="view-btn" onclick="switchView('list')">📝 قائمة</button>
-</div>
 </div>
 
 <!-- Kanban View -->
@@ -886,41 +615,6 @@ font-size: 1.5rem;
 </div>
 </div>
 </div>
-
-<!-- Alerts Panel -->
-<div class="alerts-panel">
-<!-- Smart Alerts -->
-<div class="alert-card">
-<div class="section-header">
-<h3 class="section-title">
-<span>🚨</span>
-<span>تنبيهات ذكية</span>
-</h3>
-</div>
-<div class="alert-list" id="alertsList">
-<div class="empty-state">
-<p>لا توجد تنبيهات</p>
-</div>
-</div>
-</div>
-
-<!-- Recent Activity -->
-<div class="alert-card">
-<div class="section-header">
-<h3 class="section-title">
-<span>⚡</span>
-<span>النشاط الأخير</span>
-</h3>
-</div>
-<div id="recentActivity">
-<div class="empty-state">
-<p>لا توجد أنشطة حديثة</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
 </div>
 
 <!-- Firebase Scripts -->
@@ -938,85 +632,48 @@ const db = firebase.firestore();
 let allJourneys = [];
 let allBookings = [];
 let allUsers = [];
-let currentUser = null;
 
-// Admin emails - ضع بريدك الإلكتروني هنا
-const adminEmails = ['coach.s.fouad@gmail.com', 'admin@example.com'];
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize using the SAME auth system as admin-dashboard.html
+window.onload = function() {
 checkAuth();
-});
+};
 
-// Check authentication
+// Same auth check as other admin pages
 function checkAuth() {
-showLoading(true);
+const authToken = sessionStorage.getItem('adminAuth');
+const authTime = sessionStorage.getItem('authTime');
+const oneHour = 60 * 60 * 1000;
 
-auth.onAuthStateChanged(user => {
-console.log('Auth state changed, user:', user);
-
-if (!user) {
-console.log('No user, showing auth check...');
-showAuthCheck();
-showLoading(false);
-return;
-}
-
-// التحقق من صحة البريد الإلكتروني
-if (!adminEmails.includes(user.email)) {
-console.log('User not authorized:', user.email);
-showNotification('ليس لديك صحلة الوصول لهذه الصفحة', 'error');
-auth.signOut();
-showAuthCheck();
-showLoading(false);
-return;
-}
-
-console.log('User authorized:', user.email);
-currentUser = user;
-showDashboard();
+if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
+console.log('Valid session found');
 initializeDashboard();
-});
-}
-
-function showAuthCheck() {
-document.getElementById('authCheck').style.display = 'flex';
-document.getElementById('mainContent').style.display = 'none';
-}
-
-function showDashboard() {
-document.getElementById('authCheck').style.display = 'none';
-document.getElementById('mainContent').style.display = 'block';
-document.getElementById('dashboardContainer').classList.add('show');
-}
-
-function redirectToLogin() {
+} else {
+console.log('No valid session, redirecting...');
 window.location.href = 'admin-dashboard.html';
+}
 }
 
 // Initialize dashboard
 async function initializeDashboard() {
+showLoading(true);
 try {
-console.log('Initializing dashboard...');
+console.log('Loading dashboard data...');
 await loadAllData();
 updateStats();
 displayJourneys();
-generateAlerts();
 showLoading(false);
 showNotification('تم تحميل البيانات بنجاح', 'success');
 } catch (error) {
 console.error('Error initializing dashboard:', error);
 showLoading(false);
-showNotification('خطأ في تحميل البيانات: ' + error.message, 'error');
+showNotification('خطأ في تحميل البيانات', 'error');
 }
 }
 
 // Load all data
 async function loadAllData() {
-console.log('Loading all data...');
-
 try {
-// Load bookings first
+// Load bookings
 const bookingsSnapshot = await db.collection('bookings').get();
 allBookings = [];
 bookingsSnapshot.forEach(doc => {
@@ -1025,7 +682,6 @@ id: doc.id,
 ...doc.data()
 });
 });
-console.log('Loaded bookings:', allBookings.length);
 
 // Load users
 const usersSnapshot = await db.collection('users').get();
@@ -1036,11 +692,14 @@ id: doc.id,
 ...doc.data()
 });
 });
-console.log('Loaded users:', allUsers.length);
 
-// Transform bookings into journeys format
+// Transform to journeys
 allJourneys = transformBookingsToJourneys();
-console.log('Transformed journeys:', allJourneys.length);
+console.log('Data loaded:', {
+bookings: allBookings.length,
+users: allUsers.length,
+journeys: allJourneys.length
+});
 
 } catch (error) {
 console.error('Error loading data:', error);
@@ -1048,35 +707,28 @@ throw error;
 }
 }
 
-// Transform bookings to journeys format
+// Transform bookings to journeys
 function transformBookingsToJourneys() {
 const journeys = [];
 
-// Process converted bookings (status: converted)
+// Process converted bookings
 const convertedBookings = allBookings.filter(booking => 
 booking.status === 'converted' || booking.status === 'completed'
 );
 
 convertedBookings.forEach(booking => {
-// Find corresponding user
 const user = allUsers.find(u => u.email === booking.email || u.id === booking.userId);
 
-// Map journey type
 let journeyType = booking.journeyType || booking.program;
 if (!journeyType) {
-// Try to determine from program name
-if (booking.program) {
-if (booking.program.includes('إشراقة') || booking.program.includes('وضوح')) {
+if (booking.program?.includes('إشراقة') || booking.program?.includes('وضوح')) {
 journeyType = 'eshraq';
-} else if (booking.program.includes('بصيرة') || booking.program.includes('اكتشاف')) {
+} else if (booking.program?.includes('بصيرة') || booking.program?.includes('اكتشاف')) {
 journeyType = 'baseera';
-} else if (booking.program.includes('سكينة') || booking.program.includes('تحول')) {
+} else if (booking.program?.includes('سكينة') || booking.program?.includes('تحول')) {
 journeyType = 'sakeena';
 } else {
-journeyType = 'eshraq'; // default
-}
-} else {
-journeyType = 'eshraq'; // default
+journeyType = 'eshraq';
 }
 }
 
@@ -1089,53 +741,11 @@ clientPhone: booking.phone || user?.phone,
 journeyType: journeyType,
 program: getJourneyDisplayName(journeyType),
 status: 'active',
-currentPhase: 1,
-totalPhases: getJourneyPhases(journeyType),
-completedSessions: 0,
-totalSessions: getJourneySessions(journeyType),
-engagementScore: Math.floor(Math.random() * 30) + 70, // Mock data
-practicesCompleted: Math.floor(Math.random() * 10),
-practicesAssigned: Math.floor(Math.random() * 5) + 10,
+engagementScore: Math.floor(Math.random() * 30) + 70,
 lastActivityDate: booking.createdAt || new Date(),
 startDate: booking.createdAt || new Date(),
 createdAt: booking.createdAt || new Date(),
-bookingId: booking.id,
-assessmentId: booking.assessmentId
-};
-
-journeys.push(journey);
-});
-
-// Process confirmed bookings that haven't been converted yet
-const confirmedBookings = allBookings.filter(booking => 
-booking.status === 'confirmed' && !convertedBookings.some(cb => cb.id === booking.id)
-);
-
-confirmedBookings.forEach(booking => {
-const user = allUsers.find(u => u.email === booking.email);
-let journeyType = booking.journeyType || 'eshraq';
-
-const journey = {
-id: 'pending_' + booking.id,
-clientId: user?.id || booking.userId || booking.id,
-clientName: booking.name || 'عميل',
-clientEmail: booking.email,
-clientPhone: booking.phone,
-journeyType: journeyType,
-program: getJourneyDisplayName(journeyType),
-status: 'pending_start',
-currentPhase: 0,
-totalPhases: getJourneyPhases(journeyType),
-completedSessions: 0,
-totalSessions: getJourneySessions(journeyType),
-engagementScore: 0,
-practicesCompleted: 0,
-practicesAssigned: 0,
-lastActivityDate: booking.createdAt,
-startDate: null,
-createdAt: booking.createdAt,
-bookingId: booking.id,
-needsAttention: true
+bookingId: booking.id
 };
 
 journeys.push(journey);
@@ -1148,59 +758,26 @@ function getJourneyDisplayName(type) {
 const names = {
 'eshraq': 'رحلة الإشراقة',
 'baseera': 'رحلة البصيرة', 
-'sakeena': 'رحلة السكينة',
-'mixed-eshraq-baseera': 'مسار متدرج (إشراقة-بصيرة)',
-'mixed-baseera-sakeena': 'مسار متدرج (بصيرة-سكينة)'
+'sakeena': 'رحلة السكينة'
 };
 return names[type] || type;
 }
 
-function getJourneyPhases(type) {
-const phases = {
-'eshraq': 3,
-'baseera': 3,
-'sakeena': 3
-};
-return phases[type] || 3;
-}
-
-function getJourneySessions(type) {
-const sessions = {
-'eshraq': 3,
-'baseera': 12,
-'sakeena': 24
-};
-return sessions[type] || 3;
-}
-
 // Update statistics
 function updateStats() {
-console.log('Updating stats...');
-
-// Count journeys by type
 const journeysByType = {
 eshraq: 0,
 baseera: 0, 
 sakeena: 0
 };
 
-let totalEngagement = 0;
-let engagementCount = 0;
-
 allJourneys.forEach(journey => {
-// Count by type
 if (journey.journeyType.includes('eshraq')) {
 journeysByType.eshraq++;
 } else if (journey.journeyType.includes('baseera')) {
 journeysByType.baseera++;
 } else if (journey.journeyType.includes('sakeena')) {
 journeysByType.sakeena++;
-}
-
-// Calculate engagement
-if (journey.engagementScore > 0) {
-totalEngagement += journey.engagementScore;
-engagementCount++;
 }
 });
 
@@ -1210,28 +787,22 @@ document.getElementById('eshraqCount').textContent = `${journeysByType.eshraq} �
 document.getElementById('baseeraCount').textContent = `${journeysByType.baseera} بصيرة`;
 document.getElementById('sakeenaCount').textContent = `${journeysByType.sakeena} سكينة`;
 
-const avgEngagement = engagementCount > 0 ? Math.round(totalEngagement / engagementCount) : 0;
+const avgEngagement = allJourneys.length > 0 ? 
+Math.round(allJourneys.reduce((sum, j) => sum + j.engagementScore, 0) / allJourneys.length) : 0;
 document.getElementById('avgEngagement').textContent = `${avgEngagement}%`;
 
 // Booking stats
-const completedBookings = allBookings.filter(b => b.status === 'completed' || b.status === 'converted').length;
-const pendingBookings = allBookings.filter(b => b.status === 'pending' || b.status === 'confirming').length;
+const completedBookings = allBookings.filter(b => 
+b.status === 'completed' || b.status === 'converted').length;
+const pendingBookings = allBookings.filter(b => 
+b.status === 'pending' || b.status === 'confirming').length;
 
 document.getElementById('completedBookings').textContent = completedBookings;
 document.getElementById('pendingBookings').textContent = pendingBookings;
-
-console.log('Stats updated:', {
-total: allJourneys.length,
-eshraq: journeysByType.eshraq,
-baseera: journeysByType.baseera,
-sakeena: journeysByType.sakeena
-});
 }
 
 // Display journeys
 function displayJourneys() {
-console.log('Displaying journeys...');
-
 // Group by type
 const journeysByType = {
 eshraq: allJourneys.filter(j => j.journeyType.includes('eshraq')),
@@ -1260,16 +831,8 @@ return;
 
 let html = '';
 journeys.forEach(journey => {
-const progress = journey.totalSessions > 0 ? 
-Math.round((journey.completedSessions / journey.totalSessions) * 100) : 0;
-
-const statusClass = journey.needsAttention ? 'danger' : 
-journey.engagementScore >= 70 ? 'success' : 'warning';
-
-const lastActivity = journey.lastActivityDate ? 
-formatRelativeTime(journey.lastActivityDate) : 'لا يوجد نشاط';
-
 const avatar = journey.clientName ? journey.clientName.charAt(0) : '؟';
+const lastActivity = formatRelativeTime(journey.lastActivityDate);
 
 html += `
 <div class="journey-card ${type}" onclick="viewJourneyDetails('${journey.id}')">
@@ -1278,32 +841,12 @@ html += `
 <div class="client-avatar">${avatar}</div>
 <div class="client-name">${journey.clientName}</div>
 </div>
-<div class="journey-status ${statusClass}"></div>
+<div class="journey-status"></div>
 </div>
-<div class="journey-phase">المرحلة ${journey.currentPhase} من ${journey.totalPhases}</div>
-<div class="journey-progress">
-<div class="progress-bar">
-<div class="progress-fill" style="width: ${progress}%;"></div>
-</div>
-</div>
-<div class="journey-stats">
-<div class="journey-stat">
-<span>📊</span>
-<span>${journey.engagementScore}%</span>
-</div>
-<div class="journey-stat">
-<span>✅</span>
-<span>${journey.completedSessions}/${journey.totalSessions}</span>
-</div>
-</div>
-<div style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">
-آخر نشاط: ${lastActivity}
+<div style="font-size: 0.85rem; color: #666; margin: 0.5rem 0;">
+📊 ${journey.engagementScore}% • آخر نشاط: ${lastActivity}
 </div>
 <div class="journey-actions" onclick="event.stopPropagation();">
-<button class="journey-action" onclick="sendMessage('${journey.id}')">
-<span>💬</span>
-<span>رسالة</span>
-</button>
 <button class="journey-action" onclick="openJourneyManagement('${journey.id}')">
 <span>⚙️</span>
 <span>إدارة</span>
@@ -1316,89 +859,12 @@ html += `
 container.innerHTML = html;
 }
 
-// Generate alerts
-function generateAlerts() {
-const alerts = [];
-
-// Check for inactive journeys
-allJourneys.forEach(journey => {
-const daysSinceActivity = getDaysSince(journey.lastActivityDate);
-if (daysSinceActivity > 7) {
-alerts.push({
-type: 'warning',
-icon: '⚠️',
-title: 'عميل غير نشط',
-desc: `${journey.clientName} لم يتفاعل منذ ${daysSinceActivity} أيام`,
-action: () => sendMessage(journey.id)
-});
-}
-
-if (journey.needsAttention) {
-alerts.push({
-type: 'info',
-icon: '📌',
-title: 'يحتاج متابعة',
-desc: `${journey.clientName} - ${journey.program}`,
-action: () => openJourneyManagement(journey.id)
-});
-}
-});
-
-// Check for pending bookings
-const pendingBookings = allBookings.filter(b => b.status === 'pending').length;
-if (pendingBookings > 0) {
-alerts.push({
-type: 'info',
-icon: '📋',
-title: 'حجوزات جديدة',
-desc: `${pendingBookings} حجز في انتظار المعالجة`,
-action: () => window.location.href = 'admin-bookings.html'
-});
-}
-
-displayAlerts(alerts);
-}
-
-function displayAlerts(alerts) {
-const container = document.getElementById('alertsList');
-
-if (alerts.length === 0) {
-container.innerHTML = '<div class="empty-state"><p>لا توجد تنبيهات</p></div>';
-return;
-}
-
-let html = '';
-alerts.forEach((alert, index) => {
-html += `
-<div class="alert-item ${alert.type}">
-<div class="alert-icon">${alert.icon}</div>
-<div class="alert-content">
-<div class="alert-title">${alert.title}</div>
-<div class="alert-desc">${alert.desc}</div>
-</div>
-<button class="alert-action" onclick="handleAlert(${index})">
-إجراء
-</button>
-</div>
-`;
-});
-
-container.innerHTML = html;
-window.currentAlerts = alerts;
-}
-
 // Event handlers
-function handleAlert(index) {
-if (window.currentAlerts && window.currentAlerts[index]) {
-window.currentAlerts[index].action();
-}
-}
-
 function viewJourneyDetails(journeyId) {
 const journey = allJourneys.find(j => j.id === journeyId);
 if (!journey) return;
 
-if (journey.clientId && !journeyId.startsWith('pending_')) {
+if (journey.clientId) {
 window.location.href = `admin-journey-management.html?clientId=${journey.clientId}&journeyId=${journeyId}&bookingId=${journey.bookingId}`;
 } else {
 window.location.href = `admin-bookings.html`;
@@ -1409,45 +875,14 @@ function openJourneyManagement(journeyId) {
 viewJourneyDetails(journeyId);
 }
 
-function sendMessage(journeyId) {
-showNotification('ميزة الرسائل قيد التطوير', 'info');
-}
-
-function switchView(view) {
-// Update button states
-document.querySelectorAll('.view-btn').forEach(btn => {
-btn.classList.remove('active');
-});
-event.target.classList.add('active');
-
-if (view === 'list') {
-showNotification('عرض القائمة قيد التطوير', 'info');
-}
-}
-
-function updateDateRange() {
-const range = document.getElementById('dateRange').value;
-showNotification(`تم تحديث النطاق الزمني: ${range}`, 'info');
-// يمكن إضافة منطق الفلترة هنا
-}
-
 function logout() {
 if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
-auth.signOut().then(() => {
+sessionStorage.clear();
 window.location.href = 'admin-dashboard.html';
-});
 }
 }
 
 // Utility functions
-function getDaysSince(date) {
-if (!date) return 999;
-const d = date.toDate ? date.toDate() : new Date(date);
-const now = new Date();
-const diffTime = Math.abs(now - d);
-return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
-
 function formatRelativeTime(date) {
 if (!date) return 'غير محدد';
 const d = date.toDate ? date.toDate() : new Date(date);
@@ -1455,22 +890,15 @@ const now = new Date();
 const diff = now - d;
 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 const hours = Math.floor(diff / (1000 * 60 * 60));
-const minutes = Math.floor(diff / (1000 * 60));
 
-if (minutes < 1) return 'الآن';
-if (minutes < 60) return `منذ ${minutes} دقيقة`;
+if (hours < 1) return 'منذ قليل';
 if (hours < 24) return `منذ ${hours} ساعة`;
 if (days < 7) return `منذ ${days} يوم`;
 return d.toLocaleDateString('ar-EG');
 }
 
 function showLoading(show) {
-const overlay = document.getElementById('loadingOverlay');
-if (show) {
-overlay.classList.add('show');
-} else {
-overlay.classList.remove('show');
-}
+document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
 }
 
 function showNotification(message, type = 'success') {
@@ -1488,12 +916,11 @@ notification.innerHTML = `
 
 document.body.appendChild(notification);
 
-// Auto remove after 3 seconds
+// Auto remove
 setTimeout(() => {
 notification.remove();
 }, 3000);
 
-// Remove on click
 notification.addEventListener('click', () => {
 notification.remove();
 });
