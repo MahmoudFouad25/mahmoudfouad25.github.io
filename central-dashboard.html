@@ -1829,14 +1829,18 @@
         });
         
         // Check authentication
-        function checkAuth() {
-            auth.onAuthStateChanged(user => {
-                if (!user) {
-                    window.location.href = 'admin-dashboard.html';
-                }
-            });
+function checkAuth() {
+    // لا تعمل أي redirect، فقط اطبع للـ console
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            console.log('المستخدم مسجل دخول:', user.email);
+        } else {
+            console.log('المستخدم غير مسجل دخول');
+            // علق على السطر التالي مؤقتاً
+            // window.location.href = 'admin-dashboard.html';
         }
-        
+    });
+}
         // Load all dashboard data
         async function loadDashboardData() {
             showLoading(true);
