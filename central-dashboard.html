@@ -1866,41 +1866,112 @@
             }
         }
 
-// Load journeys from Firestore
-        async function loadJourneys() {
-            try {
-                const snapshot = await db.collection('journeys')
-                    .where('status', '==', 'active')
-                    .get();
-                
-                allJourneys = [];
-                const journeyPromises = [];
-                
-                snapshot.forEach(doc => {
-                    const journey = {
-                        id: doc.id,
-                        ...doc.data()
-                    };
-                    
-                    // Calculate additional metrics
-                    journey.healthIndicator = calculateHealthIndicator(journey);
-                    journey.needsAttention = checkNeedsAttention(journey);
-                    
-                    allJourneys.push(journey);
-                });
-                
-                // Sort by last activity
-                allJourneys.sort((a, b) => {
-                    const dateA = a.lastActivityDate?.toDate() || new Date(0);
-                    const dateB = b.lastActivityDate?.toDate() || new Date(0);
-                    return dateB - dateA;
-                });
-                
-            } catch (error) {
-                console.error('Error loading journeys:', error);
-                throw error;
-            }
+        // دالة لتحديث الرحلات الموجودة
+async function fixExistingJourneys() {
+    const programMapping = {
+        'جلسة الوضوح': 'eshraq',
+        'رحلة الاكتشاف': 'baseera',
+        'رحلة التحول': 'sakeena',
+        'clarity': 'eshraq',
+        'discovery': 'baseera',
+        'transformation': 'sakeena'
+    };
+    
+    const journeysRef = db.collection('journeys');
+    const snapshot = await journeysRef.get();
+    
+    const batch = db.batch();
+    
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        if (!data.journeyType && data.program) {
+            const journeyType = programMapping[data.program] || 'eshraq';
+            batch.update(doc.ref, { journeyType: journeyType });
         }
+    });
+    
+    await batch.commit();
+    console.log('Fixed existing journeys');
+    
+    // إعادة تحميل البيانات
+    loadJourneys();
+}
+
+// استدعي هذه الدالة مرة واحدة
+// fixExistingJourneys();
+        
+// Load journeys from Firestore
+async function loadJourneys() {
+    try {
+        const snapshot = await db.collection('journeys')
+            .where('status', '==', 'active')
+            .get();
+        
+        allJourneys = [];
+        
+        // إضافة متغير journeysByType للتصنيف
+        const journeysByType = {
+            eshraq: [],
+            baseera: [],
+            sakeena: []
+        };
+        
+        snapshot.forEach(doc => {
+            const journey = {
+                id: doc.id,
+                ...doc.data()
+            };
+            
+            // تحديد journeyType إذا لم يكن موجوداً
+            if (!journey.journeyType && journey.program) {
+                const programMapping = {
+                    'جلسة الوضوح': 'eshraq',
+                    'رحلة الاكتشاف': 'baseera',
+                    'رحلة التحول': 'sakeena'
+                };
+                journey.journeyType = programMapping[journey.program] || 'eshraq';
+            }
+            
+            // Calculate additional metrics
+            journey.healthIndicator = calculateHealthIndicator(journey);
+            journey.needsAttention = checkNeedsAttention(journey);
+            
+            allJourneys.push(journey);
+            
+            // التصنيف حسب النوع
+            if (journey.journeyType === 'eshraq' || journey.journeyType.includes('eshraq')) {
+                journeysByType.eshraq.push(journey);
+            } else if (journey.journeyType === 'baseera' || journey.journeyType.includes('baseera')) {
+                journeysByType.baseera.push(journey);
+            } else if (journey.journeyType === 'sakeena' || journey.journeyType.includes('sakeena')) {
+                journeysByType.sakeena.push(journey);
+            }
+        });
+        
+        // Sort by last activity
+        allJourneys.sort((a, b) => {
+            const dateA = a.lastActivityDate?.toDate() || new Date(0);
+            const dateB = b.lastActivityDate?.toDate() || new Date(0);
+            return dateB - dateA;
+        });
+        
+        // ترتيب كل نوع حسب آخر نشاط
+        Object.keys(journeysByType).forEach(type => {
+            journeysByType[type].sort((a, b) => {
+                const dateA = a.lastActivityDate?.toDate() || new Date(0);
+                const dateB = b.lastActivityDate?.toDate() || new Date(0);
+                return dateB - dateA;
+            });
+        });
+        
+        // يمكنك استخدام journeysByType في باقي الكود
+        console.log('Journeys by type:', journeysByType);
+        
+    } catch (error) {
+        console.error('Error loading journeys:', error);
+        throw error;
+    }
+}
         
         // Load activities from Firestore
         async function loadActivities() {
