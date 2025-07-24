@@ -1943,7 +1943,12 @@ async function loadBookings(forceRefresh = false) {
 async function convertToJourney(bookingId) {
     const booking = allBookings.find(b => b.id === bookingId);
     if (!booking) return;
-    
+
+        // تأكد من وجود journeyType في الحجز
+    if (booking.journeyType) {
+        booking.program = getArabicProgramName(booking.journeyType);
+    }
+
     try {
         showLoading(true);
         
@@ -1995,8 +2000,26 @@ async function convertToJourney(bookingId) {
         showLoading(false);
     }
 }
-        // دالة إنشاء رحلة جديدة
+// دالة إنشاء رحلة جديدة - نسخة واحدة محدثة
 async function createNewJourney(booking) {
+    // خريطة تحويل البرامج
+    const programToJourneyType = {
+        'جلسة الوضوح': 'eshraq',
+        'رحلة الاكتشاف': 'baseera', 
+        'رحلة التحول': 'sakeena',
+        'clarity': 'eshraq',
+        'discovery': 'baseera',
+        'transformation': 'sakeena',
+        'الإشراقة': 'eshraq',
+        'البصيرة': 'baseera',
+        'السكينة': 'sakeena'
+    };
+    
+    // تحديد نوع الرحلة
+    const journeyType = booking.journeyType || 
+                       programToJourneyType[booking.program] || 
+                       'eshraq';
+    
     const journeyData = {
         // معلومات العميل
         clientName: booking.name,
@@ -2004,8 +2027,9 @@ async function createNewJourney(booking) {
         clientPhone: booking.phone,
         userId: booking.userId || null,
         
-        // معلومات الرحلة
+        // معلومات الرحلة - مع الحقلين معاً
         program: booking.program,
+        journeyType: journeyType, // هذا الحقل المفقود!
         status: 'active',
         startDate: firebase.firestore.FieldValue.serverTimestamp(),
         
@@ -2019,11 +2043,19 @@ async function createNewJourney(booking) {
         // البيانات الأولية
         engagementScore: 100,
         assignedTools: [],
+        practicesCompleted: 0,
+        practicesAssigned: 0,
+        
+        // بيانات النشاط
+        lastActivityDate: firebase.firestore.FieldValue.serverTimestamp(),
         
         // معلومات إضافية من الحجز
         goals: booking.goals || '',
         challenges: booking.challenges || '',
         notes: booking.notes || '',
+        
+        // معلومات التقييم إن وجدت
+        assessmentId: booking.assessmentId || null,
         
         // Metadata
         lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
@@ -2049,6 +2081,21 @@ async function createNewJourney(booking) {
     
     await batch.commit();
     
+    // إنشاء الجلسة الأولى
+    await db.collection('sessions').add({
+        journeyId: journeyRef.id,
+        sessionNumber: 1,
+        type: booking.sessionType || 'online',
+        status: 'scheduled',
+        scheduledDate: booking.appointmentDate,
+        scheduledTime: booking.appointmentTime || '10:00 AM',
+        duration: 90,
+        clientName: booking.name,
+        clientPhone: booking.phone,
+        phase: 1,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
     // ربط الحجز بالرحلة
     await db.collection('bookings').doc(booking.id).update({
         status: 'converted',
@@ -2073,7 +2120,7 @@ async function createNewJourney(booking) {
     };
 }
 
-// دالة إضافة جلسة لرحلة موجودة
+// دالة إضافة جلسة لرحلة موجودة - نسخة واحدة
 async function addSessionToJourney(journeyId, booking) {
     // تحديث الحجز
     await db.collection('bookings').doc(booking.id).update({
@@ -2085,16 +2132,38 @@ async function addSessionToJourney(journeyId, booking) {
     showNotification('تم إضافة الجلسة للرحلة الموجودة', 'success');
 }
 
-// دالة الحصول على عدد المراحل
+// دالة الحصول على عدد المراحل - نسخة واحدة
 function getProgramPhases(program) {
     const phases = {
-        clarity: 1,
-        discovery: 3,
-        transformation: 3
+        'clarity': 1,
+        'discovery': 3,
+        'transformation': 3,
+        'جلسة الوضوح': 1,
+        'رحلة الاكتشاف': 3,
+        'رحلة التحول': 3,
+        'الإشراقة': 1,
+        'البصيرة': 3,
+        'السكينة': 3
     };
     return phases[program] || 1;
 }
 
+// دالة تحويل اسم البرنامج لنوع الرحلة
+function getProgramJourneyType(program) {
+    const mapping = {
+        'جلسة الوضوح': 'eshraq',
+        'رحلة الاكتشاف': 'baseera',
+        'رحلة التحول': 'sakeena',
+        'clarity': 'eshraq',
+        'discovery': 'baseera',
+        'transformation': 'sakeena',
+        'الإشراقة': 'eshraq',
+        'البصيرة': 'baseera',
+        'السكينة': 'sakeena'
+    };
+    return mapping[program] || 'eshraq';
+}
+        
 // دالة الحصول على عدد الجلسات
 function getProgramSessions(program) {
     const sessions = {
@@ -2124,135 +2193,7 @@ function getDefaultPhases(program) {
     };
     return phases[program] || [];
 }
-        // دالة إنشاء رحلة جديدة
-async function createNewJourney(booking) {
-    const journeyData = {
-        // معلومات العميل
-        clientName: booking.name,
-        clientEmail: booking.email,
-        clientPhone: booking.phone,
-        userId: booking.userId || null,
-        
-        // معلومات الرحلة
-        program: booking.program,
-        status: 'active',
-        startDate: firebase.firestore.FieldValue.serverTimestamp(),
-        
-        // التقدم الأولي
-        currentPhase: 1,
-        totalPhases: getProgramPhases(booking.program),
-        progress: 0,
-        completedSessions: 0,
-        totalSessions: getProgramSessions(booking.program),
-        
-        // البيانات الأولية
-        engagementScore: 100,
-        assignedTools: [],
-        
-        // معلومات إضافية من الحجز
-        goals: booking.goals || '',
-        challenges: booking.challenges || '',
-        notes: booking.notes || '',
-        
-        // Metadata
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    
-    // إنشاء الرحلة
-    const journeyRef = await db.collection('journeys').add(journeyData);
-    
-    // إنشاء المراحل
-    const phases = getDefaultPhases(booking.program);
-    const batch = db.batch();
-    
-    phases.forEach((phase, index) => {
-        const phaseRef = journeyRef.collection('phases').doc();
-        batch.set(phaseRef, {
-            ...phase,
-            order: index + 1,
-            status: index === 0 ? 'in_progress' : 'pending',
-            startDate: index === 0 ? firebase.firestore.FieldValue.serverTimestamp() : null
-        });
-    });
-    
-    await batch.commit();
-    
-    // ربط الحجز بالرحلة
-    await db.collection('bookings').doc(booking.id).update({
-        status: 'converted',
-        journeyId: journeyRef.id,
-        convertedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    // تحديث بيانات المستخدم إن وجد
-    if (booking.userId) {
-        await db.collection('users').doc(booking.userId).update({
-            activeJourneyId: journeyRef.id,
-            currentProgram: booking.program,
-            journeyStartDate: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    }
-    
-    showNotification('تم إنشاء الرحلة بنجاح', 'success');
-    
-    return {
-        id: journeyRef.id,
-        ...journeyData
-    };
-}
 
-// دالة إضافة جلسة لرحلة موجودة
-async function addSessionToJourney(journeyId, booking) {
-    // تحديث الحجز
-    await db.collection('bookings').doc(booking.id).update({
-        status: 'converted',
-        journeyId: journeyId,
-        convertedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    showNotification('تم إضافة الجلسة للرحلة الموجودة', 'success');
-}
-
-// دالة الحصول على عدد المراحل
-function getProgramPhases(program) {
-    const phases = {
-        clarity: 1,
-        discovery: 3,
-        transformation: 3
-    };
-    return phases[program] || 1;
-}
-
-// دالة الحصول على عدد الجلسات
-function getProgramSessions(program) {
-    const sessions = {
-        clarity: 1,
-        discovery: 3,
-        transformation: 6
-    };
-    return sessions[program] || 1;
-}
-
-// دالة الحصول على تفاصيل المراحل
-function getDefaultPhases(program) {
-    const phases = {
-        clarity: [
-            { name: 'جلسة الوضوح', description: 'جلسة واحدة مكثفة للوضوح' }
-        ],
-        discovery: [
-            { name: 'اكتشاف الذات', description: 'فهم الأنماط والقيم الأساسية' },
-            { name: 'بناء الوعي', description: 'تحديد نقاط القوة والفرص' },
-            { name: 'خطة العمل', description: 'رسم خارطة التغيير' }
-        ],
-        transformation: [
-            { name: 'الإنبات', description: 'كشف الجذور وبداية التحول' },
-            { name: 'النمو', description: 'بناء الهوية الجديدة' },
-            { name: 'الازدهار', description: 'دمج التغيير والاستدامة' }
-        ]
-    };
-    return phases[program] || [];
-}
         // Cancel booking - دالة جديدة
         async function cancelBooking(bookingId) {
             const booking = allBookings.find(b => b.id === bookingId);
