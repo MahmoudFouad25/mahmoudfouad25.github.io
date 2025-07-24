@@ -991,7 +991,7 @@ document.getElementById('dashboardContainer').classList.add('show');
 }
 
 function redirectToLogin() {
-window.location.href = 'admin-login.html';
+window.location.href = 'admin-dashboard.html';
 }
 
 // Initialize dashboard
@@ -1434,7 +1434,7 @@ showNotification(`تم تحديث النطاق الزمني: ${range}`, 'info');
 function logout() {
 if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
 auth.signOut().then(() => {
-window.location.href = 'admin-login.html';
+window.location.href = 'admin-dashboard.html';
 });
 }
 }
