@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رحلة اكتشاف الذات - التقييم العميق</title>
+    <title>احجز رحلتك - تقييم شامل</title>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-80SPFZH1RS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-80SPFZH1RS');
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -13,194 +23,235 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-            background: linear-gradient(135deg, #F5F2E8 0%, #E8E5D5 100%);
+            background: #F5F2E8;
             color: #1A1A1A;
-            line-height: 1.8;
-            min-height: 100vh;
+            line-height: 1.6;
+            padding: 20px;
         }
         
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
         }
         
-        /* Progress Bar */
-        .progress-container {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 0 20px;
         }
         
-        .progress-bar {
-            background: #E5E5E5;
-            height: 8px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-        
-        .progress-fill {
-            background: linear-gradient(90deg, #2C5530, #8B9467);
-            height: 100%;
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        
-        .progress-text {
+        .step {
+            flex: 1;
             text-align: center;
-            color: #666;
-            font-size: 14px;
+            position: relative;
         }
         
-        /* Question Container */
-        .question-container {
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #ddd;
+            z-index: -1;
+        }
+        
+        .step:last-child::after {
+            display: none;
+        }
+        
+        .step.active::after {
+            background: #2C5530;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ddd;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .step.active .step-circle {
+            background: #2C5530;
+            transform: scale(1.1);
+        }
+        
+        .step.completed .step-circle {
+            background: #28a745;
+        }
+        
+        .step-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .step.active .step-label {
+            color: #2C5530;
+            font-weight: bold;
+        }
+        
+        /* Form Container */
+        .form-container {
             background: white;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            animation: fadeInUp 0.5s ease;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
         }
         
-        @keyframes fadeInUp {
-            from {
+        h1 {
+            color: #2C5530;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        /* Form Steps */
+        .form-step {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .form-step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { 
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(20px);
             }
-            to {
+            to { 
                 opacity: 1;
                 transform: translateY(0);
             }
         }
         
-        .question-section {
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2C5530;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2C5530;
+            background: #fafafa;
+        }
+        
+        input.error, select.error, textarea.error {
+            border-color: #dc3545;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
             display: none;
         }
         
-        .question-section.active {
-            display: block;
-        }
-        
-        .section-intro {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 30px;
-            background: linear-gradient(135deg, rgba(44, 85, 48, 0.05) 0%, rgba(139, 148, 103, 0.05) 100%);
-            border-radius: 15px;
-        }
-        
-        .section-intro h2 {
-            color: #2C5530;
-            margin-bottom: 15px;
-            font-size: 28px;
-        }
-        
-        .section-intro p {
-            color: #666;
-            font-size: 18px;
-            max-width: 600px;
-            margin: 0 auto;
+        textarea {
+            resize: vertical;
+            min-height: 100px;
         }
         
         /* Question Styles */
-        .question {
-            margin-bottom: 35px;
-            opacity: 0;
-            animation: fadeIn 0.5s ease forwards;
+        .question-card {
+            background: #f8f8f8;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
         }
         
-        .question.revealed {
-            opacity: 1;
-        }
-        
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
+        .question-card:hover {
+            border-color: #8B9467;
         }
         
         .question-number {
             display: inline-block;
             background: #2C5530;
             color: white;
-            width: 35px;
-            height: 35px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             text-align: center;
-            line-height: 35px;
+            line-height: 30px;
             margin-bottom: 15px;
             font-weight: bold;
         }
         
         .question-text {
-            font-size: 20px;
+            font-size: 18px;
             color: #2C5530;
             margin-bottom: 20px;
             font-weight: 500;
         }
         
-        /* Option Styles */
+        /* Options */
         .options {
             display: grid;
             gap: 15px;
         }
         
         .option {
-            background: #F8F8F8;
-            padding: 20px;
-            border-radius: 15px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+            transition: all 0.3s;
+            border: 2px solid #eee;
             position: relative;
-            overflow: hidden;
+            padding-right: 45px;
         }
         
         .option:hover {
-            background: #F0F0F0;
-            transform: translateX(-5px);
             border-color: #8B9467;
+            transform: translateX(-5px);
         }
         
         .option.selected {
-            background: linear-gradient(135deg, rgba(44, 85, 48, 0.1) 0%, rgba(139, 148, 103, 0.1) 100%);
             border-color: #2C5530;
+            background: #F5F2E8;
         }
         
-        .option.selected::before {
-            content: '✓';
+        .option input[type="radio"] {
             position: absolute;
-            left: 15px;
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            background: #2C5530;
-            color: white;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        
-        .option-text {
-            display: block;
-            margin-right: 40px;
-        }
-        
-        .option-main {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        
-        .option-sub {
-            font-size: 14px;
-            color: #666;
-            font-style: italic;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
         }
         
         /* Sub-questions */
@@ -211,11 +262,11 @@
             border-radius: 10px;
             border-right: 4px solid #2C5530;
             display: none;
+            animation: slideDown 0.3s;
         }
         
         .sub-question.active {
             display: block;
-            animation: slideDown 0.3s ease;
         }
         
         @keyframes slideDown {
@@ -229,30 +280,29 @@
             }
         }
         
-        /* Text Input Styles */
-        .text-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #E5E5E5;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            resize: vertical;
-            min-height: 120px;
-            font-family: inherit;
+        /* Checkboxes */
+        .checkbox-group {
+            display: grid;
+            gap: 10px;
         }
         
-        .text-input:focus {
-            outline: none;
-            border-color: #2C5530;
-            background: #FAFAFA;
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
         
-        .char-count {
-            text-align: left;
-            color: #999;
-            font-size: 12px;
-            margin-top: 5px;
+        .checkbox-option:hover {
+            background: #f0f0f0;
+        }
+        
+        .checkbox-option input {
+            width: auto;
+            margin-left: 10px;
         }
         
         /* Scale Input */
@@ -265,6 +315,7 @@
             justify-content: space-between;
             margin-bottom: 10px;
             color: #666;
+            font-size: 14px;
         }
         
         .scale-input {
@@ -284,12 +335,6 @@
             border-radius: 50%;
             background: #2C5530;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .scale-input::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            background: #1e3a21;
         }
         
         .scale-value {
@@ -300,67 +345,22 @@
             margin-top: 10px;
         }
         
-        /* Checkbox Styles */
-        .checkbox-group {
-            display: grid;
-            gap: 12px;
-        }
-        
-        .checkbox-option {
+        /* Buttons */
+        .form-buttons {
             display: flex;
-            align-items: center;
-            padding: 15px;
-            background: #F8F8F8;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .checkbox-option:hover {
-            background: #F0F0F0;
-        }
-        
-        .checkbox-option input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-left: 15px;
-            cursor: pointer;
-        }
-        
-        .checkbox-option.checked {
-            background: rgba(44, 85, 48, 0.1);
-            border: 1px solid #2C5530;
-        }
-        
-        /* Navigation Buttons */
-        .navigation {
-            display: flex;
+            gap: 10px;
             justify-content: space-between;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 1px solid #E5E5E5;
+            margin-top: 30px;
         }
         
         .btn {
-            padding: 15px 35px;
+            padding: 12px 30px;
             border: none;
             border-radius: 10px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: #2C5530;
-            border: 2px solid #2C5530;
-        }
-        
-        .btn-secondary:hover {
-            background: #2C5530;
-            color: white;
+            transition: all 0.3s;
         }
         
         .btn-primary {
@@ -374,64 +374,86 @@
             box-shadow: 0 5px 15px rgba(44, 85, 48, 0.3);
         }
         
+        .btn-secondary {
+            background: white;
+            color: #2C5530;
+            border: 2px solid #2C5530;
+        }
+        
+        .btn-secondary:hover {
+            background: #2C5530;
+            color: white;
+        }
+        
         .btn:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none !important;
         }
         
-        /* Results Section */
-        .results-container {
-            background: white;
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        /* Password Requirements */
+        .password-requirements {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .requirement {
+            margin: 2px 0;
+        }
+        
+        .requirement.met {
+            color: #28a745;
+        }
+        
+        .requirement.met::before {
+            content: '✓ ';
+        }
+        
+        /* Success Message */
+        .success-message {
             display: none;
             text-align: center;
+            padding: 60px 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
         }
         
-        .results-icon {
+        .success-icon {
             font-size: 80px;
-            margin-bottom: 30px;
-        }
-        
-        .results-title {
-            color: #2C5530;
-            font-size: 32px;
+            color: #28a745;
             margin-bottom: 20px;
         }
         
-        .results-subtitle {
-            color: #666;
-            font-size: 20px;
-            margin-bottom: 40px;
+        .success-message h2 {
+            color: #2C5530;
+            margin-bottom: 15px;
         }
         
+        .success-message p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        /* Recommendation Box */
         .recommendation-box {
             background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(139, 148, 103, 0.1) 100%);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: right;
-            margin-bottom: 30px;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
             border: 2px solid #D4AF37;
         }
         
         .recommendation-title {
             color: #2C5530;
             font-size: 24px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .recommendation-icon {
-            font-size: 40px;
-            margin-left: 15px;
+            margin-bottom: 15px;
+            text-align: center;
         }
         
         .recommendation-content {
-            line-height: 2;
+            line-height: 1.8;
             color: #333;
         }
         
@@ -442,102 +464,21 @@
             font-weight: 500;
         }
         
-        .journey-details {
-            background: #F8F8F8;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 30px 0;
-            text-align: right;
-        }
-        
-        .journey-details h3 {
-            color: #2C5530;
-            margin-bottom: 15px;
-        }
-        
-        .journey-details ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .journey-details li {
-            padding: 10px 0;
-            border-bottom: 1px solid #E5E5E5;
-        }
-        
-        .journey-details li:last-child {
-            border-bottom: none;
-        }
-        
-        .journey-details li::before {
-            content: '✓';
-            color: #2C5530;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        
-        .action-buttons {
-            display: grid;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        
-        .action-btn {
-            padding: 20px;
-            border-radius: 15px;
-            text-decoration: none;
-            text-align: center;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        .action-btn-primary {
-            background: #2C5530;
-            color: white;
-        }
-        
-        .action-btn-primary:hover {
-            background: #1e3a21;
-            transform: translateY(-2px);
-        }
-        
-        .action-btn-secondary {
-            background: white;
-            color: #2C5530;
-            border: 2px solid #2C5530;
-        }
-        
-        .action-btn-secondary:hover {
-            background: #2C5530;
-            color: white;
-        }
-        
         /* Loading */
-        .loading-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
+        .loading {
             display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .loading-content {
             text-align: center;
+            margin: 20px 0;
         }
         
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #2C5530;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2C5530;
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto;
         }
         
         @keyframes spin {
@@ -545,32 +486,50 @@
             100% { transform: rotate(360deg); }
         }
         
-        .loading-text {
-            color: #2C5530;
-            font-size: 18px;
+        /* Alert */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        /* Character Counter */
+        .char-count {
+            text-align: left;
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
         }
         
         /* Responsive */
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .question-container {
+            .form-container {
                 padding: 20px;
             }
             
-            .question-text {
-                font-size: 18px;
+            .progress-steps {
+                padding: 0;
             }
             
-            .option {
-                padding: 15px;
+            .step-label {
+                font-size: 12px;
             }
             
-            .navigation {
+            .form-buttons {
                 flex-direction: column;
-                gap: 10px;
             }
             
             .btn {
@@ -581,654 +540,645 @@
 </head>
 <body>
     <div class="container">
-        <!-- Progress Bar -->
-        <div class="progress-container">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-label">معلوماتك</div>
             </div>
-            <div class="progress-text" id="progressText">البداية</div>
-        </div>
-        
-        <!-- Main Form Container -->
-        <div class="question-container" id="questionContainer">
-            
-            <!-- Welcome Section -->
-            <div class="question-section active" id="section-0">
-                <div class="section-intro">
-                    <h2>مرحباً بك في رحلة اكتشاف الذات 🌟</h2>
-                    <p>قبل أن نبدأ، خذ نفساً عميقاً...</p>
-                    <p>هذه ليست مجرد استمارة، بل محادثة مع نفسك</p>
-                    <p>كل سؤال مصمم ليساعدك على الوضوح</p>
-                </div>
-                
-                <div class="navigation">
-                    <span></span>
-                    <button class="btn btn-primary" onclick="startAssessment()">ابدأ الرحلة</button>
-                </div>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-label">الوعي</div>
             </div>
-            
-            <!-- Section 1: Starting Point -->
-            <div class="question-section" id="section-1">
-                <div class="section-intro">
-                    <h2>نقطة البداية</h2>
-                    <p>دعنا نفهم ما الذي جلبك إلى هنا</p>
-                </div>
-                
-                <!-- Question 1 -->
-                <div class="question revealed" id="q1">
-                    <span class="question-number">1</span>
-                    <h3 class="question-text">ما الذي يجعلك تبحث عن الدعم في هذه اللحظة من حياتك؟</h3>
-                    <div class="options">
-                        <div class="option" onclick="selectOption('q1', 'a', this)">
-                            <span class="option-text">
-                                <span class="option-main">أواجه تحدياً محدداً أريد حلاً له</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q1', 'b', this)">
-                            <span class="option-text">
-                                <span class="option-main">أشعر بأن شيئاً ما "ليس صحيحاً" في حياتي</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q1', 'c', this)">
-                            <span class="option-text">
-                                <span class="option-main">أريد أن أفهم نفسي بشكل أعمق</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q1', 'd', this)">
-                            <span class="option-text">
-                                <span class="option-main">مستعد لتحول جذري في حياتي</span>
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <!-- Sub-questions -->
-                    <div class="sub-question" id="q1-sub-a">
-                        <h4>ما نوع التحدي الذي تواجهه؟</h4>
-                        <div class="options">
-                            <div class="option" onclick="selectSubOption('q1-sub-a', '1', this)">
-                                <span class="option-text">التحدي في العمل/المهنة</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-a', '2', this)">
-                                <span class="option-text">التحدي في العلاقات</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-a', '3', this)">
-                                <span class="option-text">التحدي مع نفسي</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-a', '4', this)">
-                                <span class="option-text">التحدي في اتخاذ قرار مهم</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="sub-question" id="q1-sub-b">
-                        <h4>كيف يتجلى هذا الشعور في حياتك؟</h4>
-                        <div class="options">
-                            <div class="option" onclick="selectSubOption('q1-sub-b', '1', this)">
-                                <span class="option-text">شعور بالفراغ رغم الإنجازات</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-b', '2', this)">
-                                <span class="option-text">تكرار نفس الأنماط المؤلمة</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-b', '3', this)">
-                                <span class="option-text">فقدان الشغف والمعنى</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-b', '4', this)">
-                                <span class="option-text">إحساس بأنني لست في مكاني الصحيح</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="sub-question" id="q1-sub-c">
-                        <h4>ما أكثر سؤال يشغل بالك عن نفسك؟</h4>
-                        <div class="options">
-                            <div class="option" onclick="selectSubOption('q1-sub-c', '1', this)">
-                                <span class="option-text">لماذا أتصرف بالطريقة التي أتصرف بها؟</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-c', '2', this)">
-                                <span class="option-text">من أنا حقاً خلف كل الأقنعة؟</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-c', '3', this)">
-                                <span class="option-text">ما هو دوري الحقيقي في الحياة؟</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-c', '4', this)">
-                                <span class="option-text">كيف أحقق إمكانياتي الكامنة؟</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="sub-question" id="q1-sub-d">
-                        <h4>ما الذي يدفعك نحو هذا التحول؟</h4>
-                        <div class="options">
-                            <div class="option" onclick="selectSubOption('q1-sub-d', '1', this)">
-                                <span class="option-text">لدي رؤية واضحة وأحتاج دعماً للتنفيذ</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-d', '2', this)">
-                                <span class="option-text">أعرف أنني أحتاج تغييراً جذرياً لكن لا أعرف كيف</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-d', '3', this)">
-                                <span class="option-text">مررت بتجربة أيقظتني وأريد البناء عليها</span>
-                            </div>
-                            <div class="option" onclick="selectSubOption('q1-sub-d', '4', this)">
-                                <span class="option-text">وصلت لمرحلة "كفى" وأريد حياة مختلفة</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Question 2 -->
-                <div class="question" id="q2">
-                    <span class="question-number">2</span>
-                    <h3 class="question-text">عندما تواجه تحدياً في حياتك، ما أول ما تفكر فيه عادة؟</h3>
-                    <div class="options">
-                        <div class="option" onclick="selectOption('q2', 'a', this)">
-                            <span class="option-text">
-                                <span class="option-main">"كيف أحل هذه المشكلة بسرعة؟"</span>
-                                <span class="option-sub">أركز على إيجاد حلول عملية فورية</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q2', 'b', this)">
-                            <span class="option-text">
-                                <span class="option-main">"لماذا يحدث لي هذا دائماً؟"</span>
-                                <span class="option-sub">ألاحظ تكرار نفس النوع من التحديات</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q2', 'c', this)">
-                            <span class="option-text">
-                                <span class="option-main">"ما الرسالة التي تحملها هذه التجربة؟"</span>
-                                <span class="option-sub">أبحث عن المعنى والحكمة</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q2', 'd', this)">
-                            <span class="option-text">
-                                <span class="option-main">"هذا امتحان/فرصة للنمو"</span>
-                                <span class="option-sub">أرى التحديات كجزء من رحلة التطور</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Question 3 -->
-                <div class="question" id="q3">
-                    <span class="question-number">3</span>
-                    <h3 class="question-text">أكمل هذه الجملة: "أكثر ما يؤلمني في حياتي الآن هو..."</h3>
-                    <textarea class="text-input" id="q3-text" placeholder="اكتب بحرية... كل ما تكتبه سيبقى في سرية تامة" onkeyup="updateCharCount('q3-text', 500)"></textarea>
-                    <div class="char-count" id="q3-text-count">0 / 500</div>
-                </div>
-                
-                <div class="navigation">
-                    <button class="btn btn-secondary" onclick="previousSection()">السابق</button>
-                    <button class="btn btn-primary" onclick="nextSection()">التالي</button>
-                </div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-label">الاستكشاف</div>
             </div>
-            
-            <!-- Section 2: Patterns & Awareness -->
-            <div class="question-section" id="section-2">
-                <div class="section-intro">
-                    <h2>الوعي بالأنماط</h2>
-                    <p>لنستكشف معاً الخيوط الخفية في نسيج حياتك</p>
-                </div>
-                
-                <!-- Question 4 -->
-                <div class="question revealed" id="q4">
-                    <span class="question-number">4</span>
-                    <h3 class="question-text">فكر في آخر 3 تحديات كبرى واجهتها. هل تلاحظ نمطاً مشتركاً؟</h3>
-                    <div class="options">
-                        <div class="option" onclick="selectOption('q4', 'a', this)">
-                            <span class="option-text">
-                                <span class="option-main">لا، كل موقف مختلف تماماً</span>
-                                <span class="option-sub">التحديات متنوعة ولا أرى رابطاً بينها</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q4', 'b', this)">
-                            <span class="option-text">
-                                <span class="option-main">نعم، ألاحظ بعض التشابه</span>
-                                <span class="option-sub">هناك خيوط مشتركة أبدأ في رؤيتها</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q4', 'c', this)">
-                            <span class="option-text">
-                                <span class="option-main">نعم، هناك نمط واضح أراه</span>
-                                <span class="option-sub">أعي تماماً الأنماط المتكررة في حياتي</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q4', 'd', this)">
-                            <span class="option-text">
-                                <span class="option-main">الآن بعد أن سألت، بدأت ألاحظ...</span>
-                                <span class="option-sub">السؤال فتح عيني على شيء لم أنتبه له</span>
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="sub-question" id="q4-sub-b">
-                        <h4>ما نوع التشابه الذي تلاحظه؟</h4>
-                        <div class="checkbox-group">
-                            <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                                <input type="checkbox" value="people">
-                                <span>نفس نوع الأشخاص يسبب لي المشاكل</span>
-                            </div>
-                            <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                                <input type="checkbox" value="mistakes">
-                                <span>أكرر نفس الأخطاء</span>
-                            </div>
-                            <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                                <input type="checkbox" value="situations">
-                                <span>أجد نفسي في نفس المواقف</span>
-                            </div>
-                            <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                                <input type="checkbox" value="reactions">
-                                <span>ردود أفعالي متشابهة</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Question 5 -->
-                <div class="question" id="q5">
-                    <span class="question-number">5</span>
-                    <h3 class="question-text">ما مدى استعدادك لمواجهة حقائق قد تكون غير مريحة عن نفسك؟</h3>
-                    <div class="options">
-                        <div class="option" onclick="selectOption('q5', 'a', this)">
-                            <span class="option-text">
-                                <span class="option-main">مستعد تماماً - أريد الحقيقة مهما كانت</span>
-                                <span class="option-sub">الوضوح أهم من الراحة بالنسبة لي</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q5', 'b', this)">
-                            <span class="option-text">
-                                <span class="option-main">مستعد بحذر - أريد التدرج</span>
-                                <span class="option-sub">أفضل اكتشاف الحقائق خطوة بخطوة</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q5', 'c', this)">
-                            <span class="option-text">
-                                <span class="option-main">قلق لكن مستعد - أحتاج دعماً كبيراً</span>
-                                <span class="option-sub">أريد التغيير رغم مخاوفي</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q5', 'd', this)">
-                            <span class="option-text">
-                                <span class="option-main">لست متأكداً - أريد البدء بهدوء</span>
-                                <span class="option-sub">أحتاج لبناء الثقة أولاً</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Question 6 -->
-                <div class="question" id="q6">
-                    <span class="question-number">6</span>
-                    <h3 class="question-text">عندما تتخيل نفسك بعد عام من الآن، ماذا تتمنى أن يكون قد تغير؟</h3>
-                    <textarea class="text-input" id="q6-text" placeholder="صف الصورة التي تتمناها لنفسك..." onkeyup="updateCharCount('q6-text', 500)"></textarea>
-                    <div class="char-count" id="q6-text-count">0 / 500</div>
-                </div>
-                
-                <div class="navigation">
-                    <button class="btn btn-secondary" onclick="previousSection()">السابق</button>
-                    <button class="btn btn-primary" onclick="nextSection()">التالي</button>
-                </div>
+            <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <div class="step-label">العمق</div>
             </div>
-            
-            <!-- Section 3: Resources & Commitment -->
-            <div class="question-section" id="section-3">
-                <div class="section-intro">
-                    <h2>الموارد والالتزام</h2>
-                    <p>لنفهم ما لديك وما تحتاجه لرحلتك</p>
-                </div>
-                
-                <!-- Question 7 -->
-                <div class="question revealed" id="q7">
-                    <span class="question-number">7</span>
-                    <h3 class="question-text">كم من الوقت والطاقة يمكنك تخصيصه لرحلتك؟</h3>
-                    <div class="options">
-                        <div class="option" onclick="selectOption('q7', 'a', this)">
-                            <span class="option-text">
-                                <span class="option-main">محدود جداً - ساعة أسبوعياً أو أقل</span>
-                                <span class="option-sub">وقتي ضيق لكنني مهتم</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q7', 'b', this)">
-                            <span class="option-text">
-                                <span class="option-main">متوسط - 2-3 ساعات أسبوعياً</span>
-                                <span class="option-sub">يمكنني إيجاد وقت مناسب</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q7', 'c', this)">
-                            <span class="option-text">
-                                <span class="option-main">جيد - 3-5 ساعات أسبوعياً</span>
-                                <span class="option-sub">مستعد لاستثمار وقت كافٍ</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q7', 'd', this)">
-                            <span class="option-text">
-                                <span class="option-main">ملتزم تماماً - أكثر من 5 ساعات</span>
-                                <span class="option-sub">هذا أولوية قصوى في حياتي</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Question 8 -->
-                <div class="question" id="q8">
-                    <span class="question-number">8</span>
-                    <h3 class="question-text">ما الذي يدعمك في حياتك الآن؟</h3>
-                    <div class="checkbox-group">
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="family">
-                            <span>عائلة داعمة</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="friends">
-                            <span>أصدقاء واعون</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="spiritual">
-                            <span>ممارسة روحية/دينية</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="learning">
-                            <span>قراءة وتعلم ذاتي</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="physical">
-                            <span>رياضة أو ممارسة جسدية</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="work">
-                            <span>عمل أحبه</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="hobby">
-                            <span>هواية أو شغف</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="none">
-                            <span>لا شيء مما سبق</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="navigation">
-                    <button class="btn btn-secondary" onclick="previousSection()">السابق</button>
-                    <button class="btn btn-primary" onclick="nextSection()">التالي</button>
-                </div>
+            <div class="step" data-step="5">
+                <div class="step-circle">5</div>
+                <div class="step-label">الاستعداد</div>
             </div>
-            
-            <!-- Section 4: Deep Questions -->
-            <div class="question-section" id="section-4">
-                <div class="section-intro">
-                    <h2>الأسئلة العميقة</h2>
-                    <p>خذ وقتك... هذه أسئلة للتأمل والاستبصار</p>
-                </div>
-                
-                <!-- Question 9 -->
-                <div class="question revealed" id="q9">
-                    <span class="question-number">9</span>
-                    <h3 class="question-text">لو كان ألمك الحالي رسالة لك، ماذا تعتقد أنها تريد أن تقول؟</h3>
-                    <textarea class="text-input" id="q9-text" placeholder="استمع لصوت الألم... ماذا يحاول أن يخبرك؟" onkeyup="updateCharCount('q9-text', 500)"></textarea>
-                    <div class="char-count" id="q9-text-count">0 / 500</div>
-                </div>
-                
-                <!-- Question 10 -->
-                <div class="question" id="q10">
-                    <span class="question-number">10</span>
-                    <h3 class="question-text">ما أكثر شيء تخاف من اكتشافه عن نفسك؟</h3>
-                    <div class="options">
-                        <div class="option" onclick="selectOption('q10', 'a', this)">
-                            <span class="option-text">
-                                <span class="option-main">أنني لست بالقوة التي أظنها</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q10', 'b', this)">
-                            <span class="option-text">
-                                <span class="option-main">أنني السبب في معظم مشاكلي</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q10', 'c', this)">
-                            <span class="option-text">
-                                <span class="option-main">أنني أحتاج تغييراً جذرياً</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q10', 'd', this)">
-                            <span class="option-text">
-                                <span class="option-main">أنني بخير كما أنا ولا أحتاج كل هذا</span>
-                            </span>
-                        </div>
-                        <div class="option" onclick="selectOption('q10', 'e', this)">
-                            <span class="option-text">
-                                <span class="option-main">أفضل عدم التفكير في هذا</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="navigation">
-                    <button class="btn btn-secondary" onclick="previousSection()">السابق</button>
-                    <button class="btn btn-primary" onclick="nextSection()">التالي</button>
-                </div>
+            <div class="step" data-step="6">
+                <div class="step-circle">6</div>
+                <div class="step-label">حسابك</div>
             </div>
-            
-            <!-- Section 5: Previous Experience -->
-            <div class="question-section" id="section-5">
-                <div class="section-intro">
-                    <h2>التجارب السابقة</h2>
-                    <p>لنبني على ما سبق ونتعلم منه</p>
-                </div>
-                
-                <!-- Question 11 -->
-                <div class="question revealed" id="q11">
-                    <span class="question-number">11</span>
-                    <h3 class="question-text">هل سبق لك تجربة أي من التالي؟</h3>
-                    <div class="checkbox-group">
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="therapy">
-                            <span>علاج نفسي تقليدي</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="coaching">
-                            <span>كوتشينج حياة</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="workshops">
-                            <span>ورش تطوير ذات</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="meditation">
-                            <span>ممارسات تأملية/يوغا</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="reading">
-                            <span>قراءات في علم النفس/التنمية</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="spiritual-journey">
-                            <span>رحلة روحية/دينية عميقة</span>
-                        </div>
-                        <div class="checkbox-option" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" value="none-experience">
-                            <span>لا شيء مما سبق</span>
-                        </div>
-                    </div>
-                    
-                    <div class="sub-question" id="q11-sub" style="display: none;">
-                        <h4>ما أهم ما استفدته؟ وما الذي شعرت أنه ناقص؟</h4>
-                        <textarea class="text-input" id="q11-text" placeholder="شارك تجربتك..." onkeyup="updateCharCount('q11-text', 300)"></textarea>
-                        <div class="char-count" id="q11-text-count">0 / 300</div>
-                    </div>
-                </div>
-                
-                <div class="navigation">
-                    <button class="btn btn-secondary" onclick="previousSection()">السابق</button>
-                    <button class="btn btn-primary" onclick="nextSection()">التالي</button>
-                </div>
-            </div>
-            
-            <!-- Section 6: Account & Contact Info -->
-            <div class="question-section" id="section-6">
-                <div class="section-intro">
-                    <h2>معلومات التواصل</h2>
-                    <p>لنتمكن من مرافقتك في رحلتك</p>
-                </div>
-                
-                <!-- Basic Information -->
-                <div class="question revealed" id="qBasicInfo">
-                    <span class="question-number">📝</span>
-                    <h3 class="question-text">معلوماتك الأساسية</h3>
-                    
-                    <div style="display: grid; gap: 20px;">
-                        <div>
-                            <label style="display: block; margin-bottom: 10px; color: #2C5530; font-weight: bold;">
-                                الاسم (يمكنك استخدام اسم مستعار)
-                            </label>
-                            <input type="text" id="userName" class="text-input" style="min-height: 50px;" placeholder="الاسم الذي تحب أن نناديك به">
-                        </div>
-                        
-                        <div>
-                            <label style="display: block; margin-bottom: 10px; color: #2C5530; font-weight: bold;">
-                                البريد الإلكتروني *
-                            </label>
-                            <input type="email" id="userEmail" class="text-input" style="min-height: 50px;" placeholder="example@email.com" required>
-                            <small style="color: #666;">سنستخدمه لإنشاء حسابك الخاص</small>
-                        </div>
-                        
-                        <div>
-                            <label style="display: block; margin-bottom: 10px; color: #2C5530; font-weight: bold;">
-                                رقم الواتساب *
-                            </label>
-                            <input type="tel" id="userPhone" class="text-input" style="min-height: 50px;" placeholder="01234567890" required>
-                            <small style="color: #666;">للتواصل المباشر معك</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Account Creation -->
-                <div class="question" id="qAccount">
-                    <span class="question-number">🔐</span>
-                    <h3 class="question-text">إنشاء حسابك الخاص</h3>
-                    <p style="color: #666; margin-bottom: 20px;">سيتم إنشاء مساحة خاصة بك لمتابعة رحلتك وحفظ تقدمك</p>
-                    
-                    <div>
-                        <label style="display: block; margin-bottom: 10px; color: #2C5530; font-weight: bold;">
-                            كلمة المرور (6 أحرف على الأقل) *
-                        </label>
-                        <div style="position: relative;">
-                            <input type="password" id="userPassword" class="text-input" style="min-height: 50px; padding-left: 50px;" placeholder="اختر كلمة مرور قوية" required>
-                            <span onclick="togglePasswordVisibility()" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 20px;">
-                                👁️
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 20px;">
-                        <label style="display: block; margin-bottom: 10px; color: #2C5530; font-weight: bold;">
-                            تأكيد كلمة المرور *
-                        </label>
-                        <input type="password" id="confirmPassword" class="text-input" style="min-height: 50px;" placeholder="أعد كتابة كلمة المرور" required>
-                    </div>
-                    
-                    <div style="margin-top: 20px; padding: 15px; background: #F0F8F0; border-radius: 10px;">
-                        <p style="color: #2C5530; margin: 0;">
-                            <strong>ملاحظة:</strong> يمكنك تسجيل الدخول لاحقاً باستخدام بريدك الإلكتروني وكلمة المرور لمتابعة رحلتك
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="navigation">
-                    <button class="btn btn-secondary" onclick="previousSection()">السابق</button>
-                    <button class="btn btn-primary" onclick="nextSection()">التالي</button>
-                </div>
-            </div>
-            
-            <!-- Section 7: Final Touch -->
-            <div class="question-section" id="section-7">
-                <div class="section-intro">
-                    <h2>اللمسة الأخيرة</h2>
-                    <p>أنت على وشك إكمال الرحلة التقييمية</p>
-                </div>
-                
-                <!-- Question 12 -->
-                <div class="question revealed" id="q12">
-                    <span class="question-number">12</span>
-                    <h3 class="question-text">تخيل أننا بعد 6 شهور من الآن نحتفل بتحولك. ما الذي نحتفل به تحديداً؟</h3>
-                    <textarea class="text-input" id="q12-text" placeholder="اسمح لنفسك بالحلم... ما الذي تحقق؟" onkeyup="updateCharCount('q12-text', 500)"></textarea>
-                    <div class="char-count" id="q12-text-count">0 / 500</div>
-                </div>
-                
-                <!-- Question 13 -->
-                <div class="question" id="q13">
-                    <span class="question-number">13</span>
-                    <h3 class="question-text">على مقياس من 1-10:</h3>
-                    
-                    <div class="scale-container">
-                        <h4>ما مدى إلحاح حاجتك للدعم الآن؟</h4>
-                        <div class="scale-label">
-                            <span>1 - غير ملح</span>
-                            <span>10 - ملح جداً</span>
-                        </div>
-                        <input type="range" class="scale-input" id="urgency-scale" min="1" max="10" value="5" onchange="updateScaleValue('urgency')">
-                        <div class="scale-value" id="urgency-value">5</div>
-                    </div>
-                    
-                    <div class="scale-container">
-                        <h4>ما مدى استعدادك للاستثمار في نفسك؟</h4>
-                        <div class="scale-label">
-                            <span>1 - غير مستعد</span>
-                            <span>10 - مستعد تماماً</span>
-                        </div>
-                        <input type="range" class="scale-input" id="investment-scale" min="1" max="10" value="5" onchange="updateScaleValue('investment')">
-                        <div class="scale-value" id="investment-value">5</div>
-                    </div>
-                    
-                    <div class="scale-container">
-                        <h4>ما مدى ثقتك في إمكانية التغيير؟</h4>
-                        <div class="scale-label">
-                            <span>1 - غير واثق</span>
-                            <span>10 - واثق تماماً</span>
-                        </div>
-                        <input type="range" class="scale-input" id="confidence-scale" min="1" max="10" value="5" onchange="updateScaleValue('confidence')">
-                        <div class="scale-value" id="confidence-value">5</div>
-                    </div>
-                </div>
-                
-                <!-- Question 14 -->
-                <div class="question" id="q14">
-                    <span class="question-number">14</span>
-                    <h3 class="question-text">هل هناك شيء مهم تريد أن أعرفه عنك لم تسأل عنه الأسئلة؟</h3>
-                    <textarea class="text-input" id="q14-text" placeholder="هذه مساحتك الحرة..." onkeyup="updateCharCount('q14-text', 500)"></textarea>
-                    <div class="char-count" id="q14-text-count">0 / 500</div>
-                </div>
-                
-                <div class="navigation">
-                    <button class="btn btn-secondary" onclick="previousSection()">السابق</button>
-                    <button class="btn btn-primary" onclick="submitAssessment()">إرسال وعرض النتائج</button>
-                </div>
+            <div class="step" data-step="7">
+                <div class="step-circle">7</div>
+                <div class="step-label">التوصية</div>
             </div>
         </div>
         
-        <!-- Results Container -->
-        <div class="results-container" id="resultsContainer">
-            <div class="results-icon">🌟</div>
-            <h2 class="results-title">تحليل رحلتك الشخصية</h2>
-            <p class="results-subtitle">بناءً على إجاباتك الصادقة، إليك التوصية المخصصة لك</p>
+        <!-- Form Container -->
+        <div class="form-container" id="formContainer">
+            <h1>رحلة اكتشاف نفسك</h1>
+            <p class="subtitle">كل سؤال مصمم ليساعدك على الوضوح</p>
             
-            <div class="recommendation-box" id="recommendationBox">
-                <!-- Dynamic recommendation content will be inserted here -->
-            </div>
+            <!-- Alert -->
+            <div id="alertBox" class="alert alert-error"></div>
             
-            <div class="journey-details" id="journeyDetails">
-                <!-- Dynamic journey details will be inserted here -->
-            </div>
-            
-            <div class="action-buttons">
-                <a href="#" class="action-btn action-btn-primary" onclick="bookSession()">احجز جلستك الأولى</a>
-                <a href="#" class="action-btn action-btn-secondary" onclick="learnMore()">تعرف أكثر على الرحلة</a>
-            </div>
-        </div>
-        
-        <!-- Loading -->
-        <div class="loading-container" id="loadingContainer">
-            <div class="loading-content">
+            <!-- Loading -->
+            <div id="loading" class="loading">
                 <div class="spinner"></div>
-                <p class="loading-text">جاري تحليل إجاباتك...</p>
+                <p>جاري تحليل إجاباتك...</p>
+            </div>
+            
+            <form id="assessmentForm">
+                <!-- Step 1: Basic Info -->
+                <div class="form-step active" data-step="1">
+                    <h2>معلوماتك الأساسية</h2>
+                    
+                    <div class="form-group">
+                        <label for="name">الاسم *</label>
+                        <input type="text" id="name" name="name" required placeholder="يمكنك استخدام اسم مستعار">
+                        <div class="error-message" id="nameError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">البريد الإلكتروني *</label>
+                        <input type="email" id="email" name="email" required placeholder="example@email.com">
+                        <div class="error-message" id="emailError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">رقم الواتساب *</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="01234567890">
+                        <div class="error-message" id="phoneError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gender">النوع</label>
+                        <select id="gender" name="gender">
+                            <option value="neutral">أفضل عدم التحديد</option>
+                            <option value="male">ذكر</option>
+                            <option value="female">أنثى</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <span></span>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Starting Point -->
+                <div class="form-step" data-step="2">
+                    <h2>نقطة البداية</h2>
+                    
+                    <div class="question-card">
+                        <span class="question-number">1</span>
+                        <h3 class="question-text">ما الذي جعلك تبحث عن الدعم في هذه اللحظة من حياتك؟</h3>
+                        
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q1" value="a" onchange="handleQ1Change(this.value)">
+                                أواجه تحدياً محدداً أريد حلاً له
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q1" value="b" onchange="handleQ1Change(this.value)">
+                                أشعر بأن شيئاً ما "ليس صحيحاً" في حياتي
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q1" value="c" onchange="handleQ1Change(this.value)">
+                                أريد أن أفهم نفسي بشكل أعمق
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q1" value="d" onchange="handleQ1Change(this.value)">
+                                مستعد لتحول جذري في حياتي
+                            </label>
+                        </div>
+                        
+                        <!-- Sub-questions -->
+                        <div class="sub-question" id="q1-sub-a">
+                            <h4>ما نوع التحدي الذي تواجهه؟</h4>
+                            <div class="options">
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="1">
+                                    التحدي في العمل/المهنة
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="2">
+                                    التحدي في العلاقات
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="3">
+                                    التحدي مع نفسي
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="4">
+                                    التحدي في اتخاذ قرار مهم
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="sub-question" id="q1-sub-b">
+                            <h4>كيف يتجلى هذا الشعور في حياتك؟</h4>
+                            <div class="options">
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="1">
+                                    شعور بالفراغ رغم الإنجازات
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="2">
+                                    تكرار نفس الأنماط المؤلمة
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="3">
+                                    فقدان الشغف والمعنى
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="4">
+                                    إحساس بأنني لست في مكاني الصحيح
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="sub-question" id="q1-sub-c">
+                            <h4>ما أكثر سؤال يشغل بالك عن نفسك؟</h4>
+                            <div class="options">
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="1">
+                                    لماذا أتصرف بالطريقة التي أتصرف بها؟
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="2">
+                                    من أنا حقاً خلف كل الأقنعة؟
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="3">
+                                    ما هو دوري الحقيقي في الحياة؟
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="4">
+                                    كيف أحقق إمكانياتي الكامنة؟
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="sub-question" id="q1-sub-d">
+                            <h4>ما الذي يدفعك نحو هذا التحول؟</h4>
+                            <div class="options">
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="1">
+                                    لدي رؤية واضحة وأحتاج دعماً للتنفيذ
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="2">
+                                    أعرف أنني أحتاج تغييراً جذرياً لكن لا أعرف كيف
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="3">
+                                    مررت بتجربة أيقظتني وأريد البناء عليها
+                                </label>
+                                <label class="option">
+                                    <input type="radio" name="q1_sub" value="4">
+                                    وصلت لمرحلة "كفى" وأريد حياة مختلفة
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <span class="question-number">2</span>
+                        <h3 class="question-text">عندما تواجه تحدياً في حياتك، ما أول ما تفكر فيه عادة؟</h3>
+                        
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q2" value="a">
+                                "كيف أحل هذه المشكلة بسرعة؟"
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q2" value="b">
+                                "لماذا يحدث لي هذا دائماً؟"
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q2" value="c">
+                                "ما الرسالة التي تحملها هذه التجربة؟"
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q2" value="d">
+                                "هذا امتحان/فرصة للنمو"
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Patterns & Awareness -->
+                <div class="form-step" data-step="3">
+                    <h2>الوعي بالأنماط</h2>
+                    
+                    <div class="question-card">
+                        <span class="question-number">3</span>
+                        <h3 class="question-text">أكمل هذه الجملة: "أكثر ما يؤلمني في حياتي الآن هو..."</h3>
+                        
+                        <textarea id="q3_text" name="q3_text" placeholder="اكتب بحرية... كل ما تكتبه سيبقى في سرية تامة" 
+                                  onkeyup="updateCharCount('q3_text', 500)"></textarea>
+                        <div class="char-count" id="q3_text-count">0 / 500</div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <span class="question-number">4</span>
+                        <h3 class="question-text">فكر في آخر 3 تحديات كبرى واجهتها. هل تلاحظ نمطاً مشتركاً؟</h3>
+                        
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q4" value="a" onchange="handleQ4Change(this.value)">
+                                لا، كل موقف مختلف تماماً
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q4" value="b" onchange="handleQ4Change(this.value)">
+                                نعم، ألاحظ بعض التشابه
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q4" value="c" onchange="handleQ4Change(this.value)">
+                                نعم، هناك نمط واضح أراه
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q4" value="d" onchange="handleQ4Change(this.value)">
+                                الآن بعد أن سألت، بدأت ألاحظ...
+                            </label>
+                        </div>
+                        
+                        <div class="sub-question" id="q4-sub">
+                            <h4>ما نوع التشابه الذي تلاحظه؟</h4>
+                            <div class="checkbox-group">
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="q4_patterns" value="people">
+                                    نفس نوع الأشخاص يسبب لي المشاكل
+                                </label>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="q4_patterns" value="mistakes">
+                                    أكرر نفس الأخطاء
+                                </label>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="q4_patterns" value="situations">
+                                    أجد نفسي في نفس المواقف
+                                </label>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="q4_patterns" value="reactions">
+                                    ردود أفعالي متشابهة
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Deep Questions -->
+                <div class="form-step" data-step="4">
+                    <h2>الأسئلة العميقة</h2>
+                    
+                    <div class="question-card">
+                        <span class="question-number">5</span>
+                        <h3 class="question-text">ما مدى استعدادك لمواجهة حقائق قد تكون غير مريحة عن نفسك؟</h3>
+                        
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q5" value="a">
+                                مستعد تماماً - أريد الحقيقة مهما كانت
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q5" value="b">
+                                مستعد بحذر - أريد التدرج
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q5" value="c">
+                                قلق لكن مستعد - أحتاج دعماً كبيراً
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q5" value="d">
+                                لست متأكداً - أريد البدء بهدوء
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <span class="question-number">6</span>
+                        <h3 class="question-text">عندما تتخيل نفسك بعد عام من الآن، ماذا تتمنى أن يكون قد تغير؟</h3>
+                        
+                        <textarea id="q6_text" name="q6_text" placeholder="صف الصورة التي تتمناها لنفسك..." 
+                                  onkeyup="updateCharCount('q6_text', 500)"></textarea>
+                        <div class="char-count" id="q6_text-count">0 / 500</div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <span class="question-number">7</span>
+                        <h3 class="question-text">لو كان ألمك الحالي رسالة لك، ماذا تعتقد أنها تريد أن تقول؟</h3>
+                        
+                        <textarea id="q7_text" name="q7_text" placeholder="استمع لصوت الألم... ماذا يحاول أن يخبرك؟" 
+                                  onkeyup="updateCharCount('q7_text', 500)"></textarea>
+                        <div class="char-count" id="q7_text-count">0 / 500</div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <span class="question-number">8</span>
+                        <h3 class="question-text">ما أكثر شيء تخاف من اكتشافه عن نفسك؟</h3>
+                        
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q8" value="a">
+                                أنني لست بالقوة التي أظنها
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q8" value="b">
+                                أنني السبب في معظم مشاكلي
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q8" value="c">
+                                أنني أحتاج تغييراً جذرياً
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q8" value="d">
+                                أنني بخير كما أنا ولا أحتاج كل هذا
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q8" value="e">
+                                أفضل عدم التفكير في هذا
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                    </div>
+                </div>
+                
+                <!-- Step 5: Resources & Readiness -->
+                <div class="form-step" data-step="5">
+                    <h2>الموارد والاستعداد</h2>
+                    
+                    <div class="question-card">
+                        <span class="question-number">9</span>
+                        <h3 class="question-text">كم من الوقت والطاقة يمكنك تخصيصه لرحلتك؟</h3>
+                        
+                        <div class="options">
+                            <label class="option">
+                                <input type="radio" name="q9" value="a">
+                                محدود جداً - ساعة أسبوعياً أو أقل
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q9" value="b">
+                                متوسط - 2-3 ساعات أسبوعياً
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q9" value="c">
+                                جيد - 3-5 ساعات أسبوعياً
+                            </label>
+                            
+                            <label class="option">
+                                <input type="radio" name="q9" value="d">
+                                ملتزم تماماً - أكثر من 5 ساعات
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <span class="question-number">10</span>
+                        <h3 class="question-text">ما الذي يدعمك في حياتك الآن؟</h3>
+                        
+                        <div class="checkbox-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="support" value="family">
+                                عائلة داعمة
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="support" value="friends">
+                                أصدقاء واعون
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="support" value="spiritual">
+                                ممارسة روحية/دينية
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="support" value="learning">
+                                قراءة وتعلم ذاتي
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="support" value="physical">
+                                رياضة أو ممارسة جسدية
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="support" value="work">
+                                عمل أحبه
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="support" value="hobby">
+                                هواية أو شغف
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="support" value="none">
+                                لا شيء مما سبق
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <span class="question-number">11</span>
+                        <h3 class="question-text">هل سبق لك تجربة أي من التالي؟</h3>
+                        
+                        <div class="checkbox-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="experience" value="therapy" onchange="checkExperience()">
+                                علاج نفسي تقليدي
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="experience" value="coaching" onchange="checkExperience()">
+                                كوتشينج حياة
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="experience" value="workshops" onchange="checkExperience()">
+                                ورش تطوير ذات
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="experience" value="meditation" onchange="checkExperience()">
+                                ممارسات تأملية/يوغا
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="experience" value="reading" onchange="checkExperience()">
+                                قراءات في علم النفس/التنمية
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="experience" value="spiritual" onchange="checkExperience()">
+                                رحلة روحية/دينية عميقة
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" name="experience" value="none" onchange="checkExperience()">
+                                لا شيء مما سبق
+                            </label>
+                        </div>
+                        
+                        <div class="sub-question" id="experience-sub" style="display: none;">
+                            <h4>ما أهم ما استفدته؟ وما الذي شعرت أنه ناقص؟</h4>
+                            <textarea id="experience_text" name="experience_text" placeholder="شارك تجربتك..." 
+                                      onkeyup="updateCharCount('experience_text', 300)"></textarea>
+                            <div class="char-count" id="experience_text-count">0 / 300</div>
+                        </div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <span class="question-number">12</span>
+                        <h3 class="question-text">تخيل أننا بعد 6 شهور من الآن نحتفل بتحولك. ما الذي نحتفل به تحديداً؟</h3>
+                        
+                        <textarea id="q12_text" name="q12_text" placeholder="اسمح لنفسك بالحلم... ما الذي تحقق؟" 
+                                  onkeyup="updateCharCount('q12_text', 500)"></textarea>
+                        <div class="char-count" id="q12_text-count">0 / 500</div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <span class="question-number">13</span>
+                        <h3 class="question-text">على مقياس من 1-10:</h3>
+                        
+                        <div class="scale-container">
+                            <h4>ما مدى إلحاح حاجتك للدعم الآن؟</h4>
+                            <div class="scale-label">
+                                <span>1 - غير ملح</span>
+                                <span>10 - ملح جداً</span>
+                            </div>
+                            <input type="range" class="scale-input" id="urgency" name="urgency" min="1" max="10" value="5" 
+                                   onchange="updateScaleValue('urgency')">
+                            <div class="scale-value" id="urgency-value">5</div>
+                        </div>
+                        
+                        <div class="scale-container">
+                            <h4>ما مدى استعدادك للاستثمار في نفسك؟</h4>
+                            <div class="scale-label">
+                                <span>1 - غير مستعد</span>
+                                <span>10 - مستعد تماماً</span>
+                            </div>
+                            <input type="range" class="scale-input" id="investment" name="investment" min="1" max="10" value="5" 
+                                   onchange="updateScaleValue('investment')">
+                            <div class="scale-value" id="investment-value">5</div>
+                        </div>
+                        
+                        <div class="scale-container">
+                            <h4>ما مدى ثقتك في إمكانية التغيير؟</h4>
+                            <div class="scale-label">
+                                <span>1 - غير واثق</span>
+                                <span>10 - واثق تماماً</span>
+                            </div>
+                            <input type="range" class="scale-input" id="confidence" name="confidence" min="1" max="10" value="5" 
+                                   onchange="updateScaleValue('confidence')">
+                            <div class="scale-value" id="confidence-value">5</div>
+                        </div>
+                    </div>
+                    
+                    <div class="question-card">
+                        <span class="question-number">14</span>
+                        <h3 class="question-text">هل هناك شيء مهم تريد أن أعرفه عنك لم تسأل عنه الأسئلة؟</h3>
+                        
+                        <textarea id="q14_text" name="q14_text" placeholder="هذه مساحتك الحرة..." 
+                                  onkeyup="updateCharCount('q14_text', 500)"></textarea>
+                        <div class="char-count" id="q14_text-count">0 / 500</div>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">التالي</button>
+                    </div>
+                </div>
+                
+                <!-- Step 6: Account Creation -->
+                <div class="form-step" data-step="6">
+                    <h2>إنشاء حسابك الخاص</h2>
+                    <p style="text-align: center; margin-bottom: 20px; color: #666;">
+                        سيتم إنشاء حساب خاص بك للوصول إلى مساحتك الشخصية ومتابعة رحلتك
+                    </p>
+                    
+                    <div class="form-group">
+                        <label for="password">كلمة المرور *</label>
+                        <input type="password" id="password" name="password" required 
+                               placeholder="أدخل كلمة مرور قوية" onkeyup="checkPasswordStrength()">
+                        <div class="password-requirements">
+                            <div class="requirement" id="length">• 6 أحرف على الأقل</div>
+                            <div class="requirement" id="letter">• حرف واحد على الأقل</div>
+                            <div class="requirement" id="number">• رقم واحد على الأقل</div>
+                        </div>
+                        <div class="error-message" id="passwordError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">تأكيد كلمة المرور *</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required 
+                               placeholder="أعد كتابة كلمة المرور">
+                        <div class="error-message" id="confirmPasswordError"></div>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
+                        <button type="button" class="btn btn-primary" onclick="analyzeAndShowRecommendation()">
+                            احصل على توصيتك
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 7: Recommendation -->
+                <div class="form-step" data-step="7">
+                    <h2>توصيتك الشخصية</h2>
+                    <div id="recommendationContent">
+                        <!-- سيتم ملؤه ديناميكياً -->
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">السابق</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            أكمل الحجز
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message">
+            <div class="success-icon">✓</div>
+            <h2>تم إرسال طلبك بنجاح!</h2>
+            <p>شكراً لك على الثقة</p>
+            <p>سنتواصل معك خلال 24 ساعة لتحديد موعد الجلسة</p>
+            <p style="margin-top: 20px; color: #2C5530;">رقم الحجز: <strong id="bookingNumber"></strong></p>
+            
+            <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: #2C5530; margin-bottom: 10px;">معلومات حسابك</h3>
+                <p><strong>البريد الإلكتروني:</strong> <span id="accountEmail"></span></p>
+                <p style="margin-top: 10px; color: #666;">
+                    يمكنك الآن تسجيل الدخول إلى مساحتك الخاصة لمتابعة رحلتك
+                </p>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <button onclick="window.location.href='portal.html'" class="btn btn-primary">
+                    مساحتي الخاصة
+                </button>
             </div>
         </div>
     </div>
@@ -1237,373 +1187,396 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
     
-    <!-- Firebase Configuration -->
     <script>
-        // Initialize Firebase (يجب وضع ملف firebase-config.js)
-        const firebaseConfig = {
-            // ضع معلومات Firebase الخاصة بك هنا
-        };
-        
-        firebase.initializeApp(firebaseConfig);
+        // Initialize Firebase
         const auth = firebase.auth();
         const db = firebase.firestore();
-    </script>
-    
-    <script>
-        // Global state
-        let currentSection = 0;
-        const totalSections = 8; // Updated to include account section
-        let answers = {};
-        let subAnswers = {};
-        let userAccount = null;
         
-        // Initialize
-        function startAssessment() {
-            currentSection = 1;
-            showSection(currentSection);
-            updateProgress();
-        }
+        // Form state
+        let currentStep = 1;
+        const totalSteps = 7;
+        let formData = {};
+        let assessmentAnswers = {};
+        let recommendationData = {};
         
-        // Section navigation
-        function showSection(sectionNum) {
-            // Hide all sections
-            document.querySelectorAll('.question-section').forEach(section => {
-                section.classList.remove('active');
+        // Option selections
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event('change'));
+                    }
+                }
+                
+                // Update visual selection
+                const siblings = this.parentElement.querySelectorAll('.option');
+                siblings.forEach(s => s.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+        
+        // Handle Q1 sub-questions
+        function handleQ1Change(value) {
+            // Hide all sub-questions
+            document.querySelectorAll('[id^="q1-sub-"]').forEach(sub => {
+                sub.classList.remove('active');
             });
             
-            // Show current section
-            const section = document.getElementById(`section-${sectionNum}`);
-            if (section) {
-                section.classList.add('active');
-                
-                // Reveal questions with delay
-                const questions = section.querySelectorAll('.question');
-                questions.forEach((q, index) => {
-                    if (!q.classList.contains('revealed')) {
-                        setTimeout(() => {
-                            q.classList.add('revealed');
-                        }, index * 300);
-                    }
-                });
-            }
-            
-            updateProgress();
-        }
-        
-        function nextSection() {
-            if (validateSection(currentSection)) {
-                if (currentSection < totalSections - 1) {
-                    currentSection++;
-                    showSection(currentSection);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
+            // Show relevant sub-question
+            const subQuestion = document.getElementById(`q1-sub-${value}`);
+            if (subQuestion) {
+                subQuestion.classList.add('active');
             }
         }
         
-        function previousSection() {
-            if (currentSection > 0) {
-                currentSection--;
-                showSection(currentSection);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-        
-        // Progress update
-        function updateProgress() {
-            const progress = (currentSection / (totalSections - 1)) * 100;
-            document.getElementById('progressFill').style.width = progress + '%';
-            
-            const progressTexts = [
-                'البداية',
-                'نقطة البداية',
-                'الوعي بالأنماط',
-                'الموارد والالتزام',
-                'الأسئلة العميقة',
-                'التجارب السابقة',
-                'اللمسة الأخيرة'
-            ];
-            
-            document.getElementById('progressText').textContent = progressTexts[currentSection];
-        }
-        
-        // Option selection
-        function selectOption(questionId, value, element) {
-            // Store answer
-            answers[questionId] = value;
-            
-            // Update UI
-            const options = element.parentElement.querySelectorAll('.option');
-            options.forEach(opt => opt.classList.remove('selected'));
-            element.classList.add('selected');
-            
-            // Handle sub-questions
-            const subQuestions = document.querySelectorAll(`#${questionId}-sub-a, #${questionId}-sub-b, #${questionId}-sub-c, #${questionId}-sub-d`);
-            subQuestions.forEach(sq => sq.classList.remove('active'));
-            
-            const targetSub = document.getElementById(`${questionId}-sub-${value}`);
-            if (targetSub) {
-                targetSub.classList.add('active');
-            }
-        }
-        
-        function selectSubOption(subQuestionId, value, element) {
-            // Store sub-answer
-            subAnswers[subQuestionId] = value;
-            
-            // Update UI
-            const options = element.parentElement.querySelectorAll('.option');
-            options.forEach(opt => opt.classList.remove('selected'));
-            element.classList.add('selected');
-        }
-        
-        // Checkbox handling
-        function toggleCheckbox(element) {
-            const checkbox = element.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked;
-            
-            if (checkbox.checked) {
-                element.classList.add('checked');
+        // Handle Q4 sub-question
+        function handleQ4Change(value) {
+            const subQuestion = document.getElementById('q4-sub');
+            if (value === 'b' || value === 'c' || value === 'd') {
+                subQuestion.classList.add('active');
             } else {
-                element.classList.remove('checked');
-            }
-            
-            // Handle Q11 sub-question
-            if (element.closest('#q11')) {
-                const checkedBoxes = document.querySelectorAll('#q11 input[type="checkbox"]:checked');
-                const hasExperience = Array.from(checkedBoxes).some(cb => cb.value !== 'none-experience');
-                const subQuestion = document.getElementById('q11-sub');
-                
-                if (hasExperience && subQuestion) {
-                    subQuestion.style.display = 'block';
-                    subQuestion.classList.add('active');
-                } else if (subQuestion) {
-                    subQuestion.style.display = 'none';
-                    subQuestion.classList.remove('active');
-                }
+                subQuestion.classList.remove('active');
             }
         }
         
-        // Character count
+        // Handle experience sub-question
+        function checkExperience() {
+            const experienceChecks = document.querySelectorAll('input[name="experience"]:checked');
+            const hasExperience = Array.from(experienceChecks).some(check => check.value !== 'none');
+            const subQuestion = document.getElementById('experience-sub');
+            
+            if (hasExperience) {
+                subQuestion.style.display = 'block';
+            } else {
+                subQuestion.style.display = 'none';
+            }
+        }
+        
+        // Update character count
         function updateCharCount(textareaId, maxChars) {
             const textarea = document.getElementById(textareaId);
             const countElement = document.getElementById(`${textareaId}-count`);
             const count = textarea.value.length;
             countElement.textContent = `${count} / ${maxChars}`;
-            
-            // Store text answers
-            answers[textareaId] = textarea.value;
         }
         
-        // Scale value update
-        function updateScaleValue(scaleType) {
-            const scale = document.getElementById(`${scaleType}-scale`);
-            const valueDisplay = document.getElementById(`${scaleType}-value`);
+        // Update scale value
+        function updateScaleValue(scaleId) {
+            const scale = document.getElementById(scaleId);
+            const valueDisplay = document.getElementById(`${scaleId}-value`);
             valueDisplay.textContent = scale.value;
-            
-            // Store scale answers
-            answers[`${scaleType}-scale`] = scale.value;
         }
         
-        // Password visibility toggle
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('userPassword');
-            const icon = event.target;
+        // Password strength checker
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const requirements = {
+                length: password.length >= 6,
+                letter: /[a-zA-Z]/.test(password),
+                number: /\d/.test(password)
+            };
             
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.textContent = '🙈';
-            } else {
-                passwordInput.type = 'password';
-                icon.textContent = '👁️';
+            for (const [req, met] of Object.entries(requirements)) {
+                const element = document.getElementById(req);
+                if (met) {
+                    element.classList.add('met');
+                } else {
+                    element.classList.remove('met');
+                }
             }
         }
         
-        // Validation
-        function validateSection(sectionNum) {
-            let isValid = true;
-            let errorMessage = '';
+        // Navigation
+        function updateProgress() {
+            document.querySelectorAll('.step').forEach((step, index) => {
+                if (index < currentStep - 1) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (index === currentStep - 1) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            });
+        }
+        
+        function showStep(stepNum) {
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.classList.remove('active');
+            });
             
-            switch(sectionNum) {
+            const targetStep = document.querySelector(`.form-step[data-step="${stepNum}"]`);
+            if (targetStep) {
+                targetStep.classList.add('active');
+            }
+            
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function saveStepData(stepNum) {
+            switch(stepNum) {
                 case 1:
-                    if (!answers.q1) {
-                        errorMessage = 'من فضلك أجب على السؤال الأول';
-                        isValid = false;
-                    } else if (!answers.q2) {
-                        errorMessage = 'من فضلك أجب على السؤال الثاني';
-                        isValid = false;
-                    } else if (!answers['q3-text'] || answers['q3-text'].length < 10) {
-                        errorMessage = 'من فضلك اكتب إجابة أطول قليلاً في السؤال الثالث';
-                        isValid = false;
-                    }
+                    formData.name = document.getElementById('name').value;
+                    formData.email = document.getElementById('email').value;
+                    formData.phone = document.getElementById('phone').value;
+                    formData.gender = document.getElementById('gender').value;
                     break;
-                    
+                
                 case 2:
-                    if (!answers.q4) {
-                        errorMessage = 'من فضلك أجب على السؤال الرابع';
-                        isValid = false;
-                    } else if (!answers.q5) {
-                        errorMessage = 'من فضلك أجب على السؤال الخامس';
-                        isValid = false;
-                    } else if (!answers['q6-text'] || answers['q6-text'].length < 10) {
-                        errorMessage = 'من فضلك شارك رؤيتك في السؤال السادس';
-                        isValid = false;
-                    }
+                    assessmentAnswers.q1 = document.querySelector('input[name="q1"]:checked')?.value;
+                    assessmentAnswers.q1_sub = document.querySelector('input[name="q1_sub"]:checked')?.value;
+                    assessmentAnswers.q2 = document.querySelector('input[name="q2"]:checked')?.value;
                     break;
+                
+                case 3:
+                    assessmentAnswers.q3_text = document.getElementById('q3_text').value;
+                    assessmentAnswers.q4 = document.querySelector('input[name="q4"]:checked')?.value;
+                    assessmentAnswers.q4_patterns = Array.from(document.querySelectorAll('input[name="q4_patterns"]:checked'))
+                        .map(cb => cb.value);
+                    break;
+                
+                case 4:
+                    assessmentAnswers.q5 = document.querySelector('input[name="q5"]:checked')?.value;
+                    assessmentAnswers.q6_text = document.getElementById('q6_text').value;
+                    assessmentAnswers.q7_text = document.getElementById('q7_text').value;
+                    assessmentAnswers.q8 = document.querySelector('input[name="q8"]:checked')?.value;
+                    break;
+                
+                case 5:
+                    assessmentAnswers.q9 = document.querySelector('input[name="q9"]:checked')?.value;
+                    assessmentAnswers.support = Array.from(document.querySelectorAll('input[name="support"]:checked'))
+                        .map(cb => cb.value);
+                    assessmentAnswers.experience = Array.from(document.querySelectorAll('input[name="experience"]:checked'))
+                        .map(cb => cb.value);
+                    assessmentAnswers.experience_text = document.getElementById('experience_text').value;
+                    assessmentAnswers.q12_text = document.getElementById('q12_text').value;
+                    assessmentAnswers.urgency = document.getElementById('urgency').value;
+                    assessmentAnswers.investment = document.getElementById('investment').value;
+                    assessmentAnswers.confidence = document.getElementById('confidence').value;
+                    assessmentAnswers.q14_text = document.getElementById('q14_text').value;
+                    break;
+                
+                case 6:
+                    formData.password = document.getElementById('password').value;
+                    break;
+            }
+        }
+        
+        function validateStep(stepNum) {
+            let isValid = true;
+            
+            switch(stepNum) {
+                case 1:
+                    // Validate basic info
+                    const name = document.getElementById('name').value;
+                    const email = document.getElementById('email').value;
+                    const phone = document.getElementById('phone').value;
                     
-                case 6: // Account info validation
-                    const email = document.getElementById('userEmail').value;
-                    const phone = document.getElementById('userPhone').value;
-                    const password = document.getElementById('userPassword').value;
-                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    if (!name) {
+                        showError('name', 'الاسم مطلوب');
+                        isValid = false;
+                    } else {
+                        clearError('name');
+                    }
                     
                     if (!email || !validateEmail(email)) {
-                        errorMessage = 'من فضلك أدخل بريد إلكتروني صحيح';
+                        showError('email', 'البريد الإلكتروني غير صحيح');
                         isValid = false;
-                    } else if (!phone || !validatePhone(phone)) {
-                        errorMessage = 'من فضلك أدخل رقم واتساب صحيح';
-                        isValid = false;
-                    } else if (!password || password.length < 6) {
-                        errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
-                        isValid = false;
-                    } else if (password !== confirmPassword) {
-                        errorMessage = 'كلمتا المرور غير متطابقتين';
-                        isValid = false;
+                    } else {
+                        clearError('email');
                     }
                     
-                    // Store account info
-                    if (isValid) {
-                        answers.userName = document.getElementById('userName').value || 'عميل كريم';
-                        answers.userEmail = email;
-                        answers.userPhone = phone;
-                        answers.userPassword = password;
+                    if (!phone || !validatePhone(phone)) {
+                        showError('phone', 'رقم الواتساب غير صحيح');
+                        isValid = false;
+                    } else {
+                        clearError('phone');
                     }
                     break;
+                
+                case 2:
+                    // Validate Q1 and Q2
+                    if (!document.querySelector('input[name="q1"]:checked')) {
+                        showAlert('من فضلك أجب على السؤال الأول');
+                        isValid = false;
+                    }
+                    if (!document.querySelector('input[name="q2"]:checked')) {
+                        showAlert('من فضلك أجب على السؤال الثاني');
+                        isValid = false;
+                    }
+                    break;
+                
+                case 3:
+                    // Validate Q3 and Q4
+                    const q3Text = document.getElementById('q3_text').value;
+                    if (!q3Text || q3Text.length < 10) {
+                        showAlert('من فضلك اكتب إجابة أطول قليلاً في السؤال الثالث');
+                        isValid = false;
+                    }
+                    if (!document.querySelector('input[name="q4"]:checked')) {
+                        showAlert('من فضلك أجب على السؤال الرابع');
+                        isValid = false;
+                    }
+                    break;
+                
+                case 4:
+                    // Validate deep questions
+                    if (!document.querySelector('input[name="q5"]:checked')) {
+                        showAlert('من فضلك أجب على السؤال الخامس');
+                        isValid = false;
+                    }
+                    const q6Text = document.getElementById('q6_text').value;
+                    if (!q6Text || q6Text.length < 10) {
+                        showAlert('من فضلك شارك رؤيتك في السؤال السادس');
+                        isValid = false;
+                    }
+                    break;
+                
+                case 5:
+                    // Validate resources questions
+                    if (!document.querySelector('input[name="q9"]:checked')) {
+                        showAlert('من فضلك حدد الوقت المتاح لديك');
+                        isValid = false;
+                    }
+                    break;
+                
+                case 6:
+                    // Validate password
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
                     
-                // Add more validation as needed
-            }
-            
-            if (!isValid) {
-                alert(errorMessage);
+                    if (!password || password.length < 6) {
+                        showError('password', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+                        isValid = false;
+                    } else if (!/[a-zA-Z]/.test(password)) {
+                        showError('password', 'كلمة المرور يجب أن تحتوي على حرف واحد على الأقل');
+                        isValid = false;
+                    } else if (!/\d/.test(password)) {
+                        showError('password', 'كلمة المرور يجب أن تحتوي على رقم واحد على الأقل');
+                        isValid = false;
+                    } else {
+                        clearError('password');
+                    }
+                    
+                    if (password !== confirmPassword) {
+                        showError('confirmPassword', 'كلمتا المرور غير متطابقتين');
+                        isValid = false;
+                    } else {
+                        clearError('confirmPassword');
+                    }
+                    break;
             }
             
             return isValid;
         }
         
-        // Email validation
+        function nextStep() {
+            if (validateStep(currentStep)) {
+                saveStepData(currentStep);
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            }
+        }
+        
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+        
+        // Helper functions
         function validateEmail(email) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         }
         
-        // Phone validation
         function validatePhone(phone) {
             const cleaned = phone.replace(/\D/g, '');
             return cleaned.length >= 10 && cleaned.length <= 11;
         }
         
-        // Submit assessment
-        async function submitAssessment() {
-            // Show loading
-            document.getElementById('loadingContainer').style.display = 'flex';
-            
-            try {
-                // Create user account first
-                const userCredential = await auth.createUserWithEmailAndPassword(
-                    answers.userEmail, 
-                    answers.userPassword
-                );
-                userAccount = userCredential.user;
-                
-                // Update display name
-                await userAccount.updateProfile({
-                    displayName: answers.userName
-                });
-                
-                // Create user document in Firestore
-                await db.collection('users').doc(userAccount.uid).set({
-                    email: answers.userEmail,
-                    name: answers.userName,
-                    phone: answers.userPhone,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Analyze results
-                const analysisResults = analyzeAnswers();
-                
-                // Save assessment results to Firestore
-                const assessmentRef = await db.collection('assessments').add({
-                    userId: userAccount.uid,
-                    answers: answers,
-                    subAnswers: subAnswers,
-                    results: analysisResults,
-                    completedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Create booking record
-                const bookingNumber = 'BK' + Date.now().toString().slice(-8);
-                await db.collection('bookings').add({
-                    userId: userAccount.uid,
-                    assessmentId: assessmentRef.id,
-                    bookingNumber: bookingNumber,
-                    userName: answers.userName,
-                    userEmail: answers.userEmail,
-                    userPhone: answers.userPhone,
-                    recommendedJourney: analysisResults.journeyType,
-                    status: 'assessment_completed',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // Send WhatsApp notification
-                await sendWhatsAppNotification(bookingNumber, analysisResults);
-                
-                // Show results
-                setTimeout(() => {
-                    showResults(analysisResults);
-                }, 1000);
-                
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('loadingContainer').style.display = 'none';
-                
-                if (error.code === 'auth/email-already-in-use') {
-                    alert('هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول من صفحة الدخول.');
-                } else {
-                    alert('حدث خطأ. من فضلك حاول مرة أخرى.');
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.add('error');
+                const errorElement = document.getElementById(fieldId + 'Error');
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
                 }
             }
         }
         
-        // Send WhatsApp notification
-        async function sendWhatsAppNotification(bookingNumber, results) {
-            const message = `استمارة تقييم جديدة 🌟
-            
-رقم الحجز: ${bookingNumber}
-الاسم: ${answers.userName}
-البريد: ${answers.userEmail}
-الهاتف: ${answers.userPhone}
-الرحلة الموصى بها: ${getJourneyNameArabic(results.journeyType)}
-
-تم إنشاء حساب جديد ✅
-يمكن للعميل الدخول لمساحته الخاصة
-
-رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
-            
-            const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+        function clearError(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.remove('error');
+                const errorElement = document.getElementById(fieldId + 'Error');
+                if (errorElement) {
+                    errorElement.style.display = 'none';
+                    errorElement.textContent = '';
+                }
+            }
         }
         
-        // Get journey name in Arabic
-        function getJourneyNameArabic(type) {
-            const names = {
-                'eshraq': 'رحلة الإشراقة',
-                'baseera': 'رحلة البصيرة',
-                'sakeena': 'رحلة السكينة'
-            };
-            return names[type] || type;
+        function showAlert(message, type = 'error') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
         }
         
-        // Analyze answers (moved from previous code)
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (loading) {
+                loading.style.display = show ? 'block' : 'none';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = show;
+            }
+        }
+        
+        // Analysis and Recommendation
+        function analyzeAndShowRecommendation() {
+            if (!validateStep(6)) return;
+            
+            saveStepData(6);
+            showLoading(true);
+            
+            // Simulate analysis time
+            setTimeout(() => {
+                const analysis = analyzeAnswers();
+                const recommendation = generateRecommendation(analysis);
+                
+                // Store recommendation data
+                recommendationData = {
+                    journeyType: analysis.recommendedJourney,
+                    scores: analysis.scores,
+                    analysisNotes: analysis.notes
+                };
+                
+                // Display recommendation
+                document.getElementById('recommendationContent').innerHTML = recommendation;
+                
+                showLoading(false);
+                nextStep();
+            }, 2000);
+        }
+        
         function analyzeAnswers() {
             // Calculate scores for each journey
             let scores = {
@@ -1612,535 +1585,552 @@
                 sakeena: 0
             };
             
-            // Scoring logic based on answers
             // Q1 scoring
-            if (answers.q1 === 'a') scores.eshraq += 30;
-            else if (answers.q1 === 'b') scores.baseera += 20;
-            else if (answers.q1 === 'c') scores.baseera += 30;
-            else if (answers.q1 === 'd') scores.sakeena += 30;
+            if (assessmentAnswers.q1 === 'a') scores.eshraq += 30;
+            else if (assessmentAnswers.q1 === 'b') scores.baseera += 20;
+            else if (assessmentAnswers.q1 === 'c') scores.baseera += 30;
+            else if (assessmentAnswers.q1 === 'd') scores.sakeena += 30;
             
             // Q2 scoring
-            if (answers.q2 === 'a') scores.eshraq += 20;
-            else if (answers.q2 === 'b') scores.baseera += 20;
-            else if (answers.q2 === 'c') scores.sakeena += 15;
-            else if (answers.q2 === 'd') scores.sakeena += 20;
+            if (assessmentAnswers.q2 === 'a') scores.eshraq += 20;
+            else if (assessmentAnswers.q2 === 'b') scores.baseera += 20;
+            else if (assessmentAnswers.q2 === 'c') scores.sakeena += 15;
+            else if (assessmentAnswers.q2 === 'd') scores.sakeena += 20;
             
             // Q4 scoring
-            if (answers.q4 === 'a') scores.eshraq += 15;
-            else if (answers.q4 === 'b' || answers.q4 === 'd') scores.baseera += 20;
-            else if (answers.q4 === 'c') scores.sakeena += 20;
+            if (assessmentAnswers.q4 === 'a') scores.eshraq += 15;
+            else if (assessmentAnswers.q4 === 'b' || assessmentAnswers.q4 === 'd') scores.baseera += 20;
+            else if (assessmentAnswers.q4 === 'c') scores.sakeena += 20;
             
-            // Continue with rest of scoring logic...
+            // Q5 scoring
+            if (assessmentAnswers.q5 === 'a') scores.sakeena += 25;
+            else if (assessmentAnswers.q5 === 'b') scores.baseera += 20;
+            else if (assessmentAnswers.q5 === 'c') scores.baseera += 15;
+            else if (assessmentAnswers.q5 === 'd') scores.eshraq += 15;
             
-            // Determine journey type
-            let journeyType = '';
+            // Q9 scoring (time commitment)
+            if (assessmentAnswers.q9 === 'a') scores.eshraq += 20;
+            else if (assessmentAnswers.q9 === 'b') scores.baseera += 15;
+            else if (assessmentAnswers.q9 === 'c') scores.baseera += 20;
+            else if (assessmentAnswers.q9 === 'd') scores.sakeena += 25;
+            
+            // Q8 scoring (fears)
+            if (assessmentAnswers.q8 === 'a' || assessmentAnswers.q8 === 'b') scores.baseera += 15;
+            else if (assessmentAnswers.q8 === 'c') scores.sakeena += 20;
+            else if (assessmentAnswers.q8 === 'd') scores.eshraq += 10;
+            else if (assessmentAnswers.q8 === 'e') scores.eshraq += 15;
+            
+            // Scale scoring
+            const urgency = parseInt(assessmentAnswers.urgency || 5);
+            const investment = parseInt(assessmentAnswers.investment || 5);
+            const confidence = parseInt(assessmentAnswers.confidence || 5);
+            
+            if (urgency >= 8) scores.eshraq += 15;
+            else if (urgency >= 6) scores.baseera += 10;
+            
+            if (investment >= 8) scores.sakeena += 20;
+            else if (investment >= 6) scores.baseera += 15;
+            
+            if (confidence >= 8) scores.sakeena += 15;
+            else if (confidence >= 6) scores.baseera += 10;
+            
+            // Text analysis
+            const allTexts = [
+                assessmentAnswers.q3_text || '',
+                assessmentAnswers.q6_text || '',
+                assessmentAnswers.q7_text || '',
+                assessmentAnswers.q12_text || ''
+            ].join(' ').toLowerCase();
+            
+            // Keywords analysis
+            const transformKeywords = ['تحول', 'جذري', 'تغيير شامل', 'حياة جديدة', 'نقلة'];
+            const understandingKeywords = ['فهم', 'أعرف', 'اكتشف', 'وعي', 'نمط'];
+            const solutionKeywords = ['حل', 'مشكلة', 'تحدي', 'سريع', 'عملي'];
+            
+            transformKeywords.forEach(keyword => {
+                if (allTexts.includes(keyword)) scores.sakeena += 5;
+            });
+            
+            understandingKeywords.forEach(keyword => {
+                if (allTexts.includes(keyword)) scores.baseera += 5;
+            });
+            
+            solutionKeywords.forEach(keyword => {
+                if (allTexts.includes(keyword)) scores.eshraq += 5;
+            });
+            
+            // Support system analysis
+            const supportCount = assessmentAnswers.support ? assessmentAnswers.support.length : 0;
+            if (supportCount >= 4) scores.sakeena += 10;
+            else if (supportCount >= 2) scores.baseera += 10;
+            else if (supportCount === 0) scores.eshraq += 15;
+            
+            // Experience analysis
+            const hasExperience = assessmentAnswers.experience && 
+                                  assessmentAnswers.experience.some(exp => 
+                                      ['coaching', 'therapy', 'spiritual'].includes(exp));
+            if (hasExperience) {
+                scores.baseera += 10;
+                scores.sakeena += 10;
+            }
+            
+            // Determine recommendation
+            let recommendedJourney = '';
             if (scores.eshraq > scores.baseera && scores.eshraq > scores.sakeena) {
-                journeyType = 'eshraq';
+                recommendedJourney = 'eshraq';
             } else if (scores.baseera > scores.sakeena) {
-                journeyType = 'baseera';
+                recommendedJourney = 'baseera';
             } else {
-                journeyType = 'sakeena';
+                recommendedJourney = 'sakeena';
+            }
+            
+            // Check for mixed cases
+            const totalScore = scores.eshraq + scores.baseera + scores.sakeena;
+            const eshraqPercent = (scores.eshraq / totalScore) * 100;
+            const baseeraPercent = (scores.baseera / totalScore) * 100;
+            const sakeenaPercent = (scores.sakeena / totalScore) * 100;
+            
+            let notes = '';
+            if (Math.abs(eshraqPercent - baseeraPercent) < 10 && sakeenaPercent < 30) {
+                recommendedJourney = 'mixed-eshraq-baseera';
+                notes = 'مزيج بين الحاجة للحل العملي والرغبة في الفهم العميق';
+            } else if (Math.abs(baseeraPercent - sakeenaPercent) < 10 && eshraqPercent < 30) {
+                recommendedJourney = 'mixed-baseera-sakeena';
+                notes = 'استعداد عالٍ مع حكمة في طلب التدرج';
             }
             
             return {
                 scores: scores,
-                journeyType: journeyType,
-                userName: answers.userName,
-                userEmail: answers.userEmail
+                recommendedJourney: recommendedJourney,
+                notes: notes
             };
         }
         
-        // Show results (updated to work with analyzeAndShowResults)
-        function showResults(analysisResults) {
-            document.getElementById('loadingContainer').style.display = 'none';
-            document.getElementById('questionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'block';
+        function generateRecommendation(analysis) {
+            const name = formData.name || 'عزيزي';
+            const gender = formData.gender;
             
-            // Generate recommendation based on journey type
+            // Gender-appropriate addressing
+            const addressing = gender === 'female' ? 'العزيزة' : 'العزيز';
+            const pronouns = {
+                your: gender === 'female' ? 'كِ' : 'ك',
+                you: gender === 'female' ? 'تِ' : 'ت'
+            };
+            
             let recommendation = '';
-            if (analysisResults.journeyType === 'eshraq') {
-                recommendation = generateEshraqRecommendation();
-            } else if (analysisResults.journeyType === 'baseera') {
-                recommendation = generateBaseeraRecommendation();
-            } else {
-                recommendation = generateSakeenaRecommendation();
+            
+            switch(analysis.recommendedJourney) {
+                case 'eshraq':
+                    recommendation = generateEshraqRecommendation(name, addressing, pronouns);
+                    break;
+                
+                case 'baseera':
+                    recommendation = generateBaseeraRecommendation(name, addressing, pronouns);
+                    break;
+                
+                case 'sakeena':
+                    recommendation = generateSakeenaRecommendation(name, addressing, pronouns);
+                    break;
+                
+                case 'mixed-eshraq-baseera':
+                    recommendation = generateMixedEshraqBaseeraRecommendation(name, addressing, pronouns);
+                    break;
+                
+                case 'mixed-baseera-sakeena':
+                    recommendation = generateMixedBaseeraSakeenaRecommendation(name, addressing, pronouns);
+                    break;
             }
             
-            document.getElementById('recommendationBox').innerHTML = recommendation;
-            generateJourneyDetails(analysisResults.journeyType);
-            
-            // Update action buttons
-            updateActionButtons(analysisResults);
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return recommendation;
         }
         
-        // Update action buttons
-        function updateActionButtons(results) {
-            const actionButtons = document.querySelector('.action-buttons');
-            actionButtons.innerHTML = `
-                <a href="portal.html" class="action-btn action-btn-primary">ادخل لمساحتك الخاصة</a>
-                <a href="journeys.html#${results.journeyType}" class="action-btn action-btn-secondary">تعرف أكثر على الرحلة</a>
+        function generateEshraqRecommendation(name, addressing, pronouns) {
+            const challenge = getSpecificChallenge();
+            const timeConstraint = assessmentAnswers.q9 === 'a' ? `وقت${pronouns.your} المحدود` : 'التزامك بالوقت';
+            
+            return `
+                <div class="recommendation-box">
+                    <h3 class="recommendation-title">
+                        ${name} ${addressing}،
+                    </h3>
+                    <div class="recommendation-content">
+                        <p>بناءً على إجابات${pronouns.your} الصادقة، ألاحظ أن${pronouns.your} تواجه${pronouns.you === 'ت' ? '' : 'ين'} 
+                        <span class="recommendation-highlight">${challenge}</span> يحتاج حلاً عملياً سريعاً. 
+                        هذا رائع! وضوح التحدي هو نصف الحل.</p>
+                        
+                        <p>لاحظت أيضاً أن${pronouns.your}:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ تريد${pronouns.you === 'ت' ? '' : 'ين'} أدوات عملية يمكن تطبيقها فوراً</li>
+                            <li>✓ تقدر${pronouns.you === 'ت' ? '' : 'ين'} ${timeConstraint}</li>
+                            <li>✓ تفضل${pronouns.you === 'ت' ? '' : 'ين'} التركيز على الحل أكثر من التحليل العميق</li>
+                        </ul>
+                        
+                        <p>لذلك أوصي بـ<span class="recommendation-highlight">رحلة الإشراقة</span> - 
+                        3 جلسات مركزة ستمنح${pronouns.your}:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>• حلاً عملياً لتحدي${pronouns.your} الحالي</li>
+                            <li>• أدوات يمكن${pronouns.your} استخدامها مدى الحياة</li>
+                            <li>• بذور وعي لرحلة أعمق عندما تكون${pronouns.you === 'ت' ? '' : 'ين'} مستعد${pronouns.you === 'ت' ? 'اً' : 'ة'}</li>
+                        </ul>
+                        
+                        <p>ما يميز اقتراحي ل${pronouns.your} تحديداً:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>- سنركز على ${getSpecificFocus()}</li>
+                            <li>- سنستخدم أسلوباً عملياً يناسب طبيعت${pronouns.your}</li>
+                            <li>- ستخرج${pronouns.you === 'ت' ? '' : 'ين'} من أول جلسة بخطة واضحة</li>
+                        </ul>
+                    </div>
+                </div>
             `;
         }
         
-        // Analyze answers and show results
-        function analyzeAndShowResults() {
-            // Calculate scores for each journey
-            let scores = {
-                eshraq: 0,
-                baseera: 0,
-                sakeena: 0
-            };
+        function generateBaseeraRecommendation(name, addressing, pronouns) {
+            const awarenessLevel = getAwarenessLevel();
+            const readiness = getReadinessLevel();
             
-            // Scoring logic based on answers
-            // Q1 scoring
-            if (answers.q1 === 'a') scores.eshraq += 30;
-            else if (answers.q1 === 'b') scores.baseera += 20;
-            else if (answers.q1 === 'c') scores.baseera += 30;
-            else if (answers.q1 === 'd') scores.sakeena += 30;
+            return `
+                <div class="recommendation-box">
+                    <h3 class="recommendation-title">
+                        ${name} ${addressing}،
+                    </h3>
+                    <div class="recommendation-content">
+                        <p>إجابات${pronouns.your} تكشف عن <span class="recommendation-highlight">${awarenessLevel}</span>. 
+                        هذا الوعي هو البداية الحقيقية للتحرر!</p>
+                        
+                        <p>ما لفت انتباهي في إجابات${pronouns.your}:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ إدراك${pronouns.your} أن التحديات الظاهرة لها جذور أعمق</li>
+                            <li>✓ رغبت${pronouns.your} الصادقة في فهم "لماذا" وليس فقط "كيف"</li>
+                            <li>✓ ${readiness}</li>
+                            <li>✓ نضج في التعامل مع فكرة النمو الشخصي</li>
+                        </ul>
+                        
+                        <p>أوصي بـ<span class="recommendation-highlight">رحلة البصيرة</span> - 
+                        رحلة من 8-12 جلسة ستأخذ${pronouns.your} إلى:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>• فهم عميق لنمط${pronouns.your} الشخصي وما يحرك${pronouns.your}</li>
+                            <li>• اكتشاف الأنماط المتكررة وكيفية تحريرها</li>
+                            <li>• أدوات مخصصة لطبيعت${pronouns.your} الفريدة</li>
+                            <li>• تحول حقيقي في طريقة رؤيت${pronouns.your} لنفس${pronouns.your} والحياة</li>
+                        </ul>
+                        
+                        <p>بناءً على ${getSpecificInsight()}, أرى أن لدي${pronouns.your}:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>- ${getStrength()} يمكن البناء عليها</li>
+                            <li>- ${getChallenge()} سنعمل على تحويله لفرصة</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateSakeenaRecommendation(name, addressing, pronouns) {
+            const transformReadiness = getTransformReadiness();
+            const commitment = getCommitmentLevel();
             
-            // Q2 scoring
-            if (answers.q2 === 'a') scores.eshraq += 20;
-            else if (answers.q2 === 'b') scores.baseera += 20;
-            else if (answers.q2 === 'c') scores.sakeena += 15;
-            else if (answers.q2 === 'd') scores.sakeena += 20;
+            return `
+                <div class="recommendation-box">
+                    <h3 class="recommendation-title">
+                        ${name} ${addressing}،
+                    </h3>
+                    <div class="recommendation-content">
+                        <p>إجابات${pronouns.your} تشع بطاقة إنسان 
+                        <span class="recommendation-highlight">${transformReadiness}</span>. 
+                        هذا الاستعداد نادر وثمين!</p>
+                        
+                        <p>ما يؤكد استعداد${pronouns.your} العالي:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ وعي${pronouns.your} بأن التغيير الحقيقي يتطلب عملاً عميقاً</li>
+                            <li>✓ استعداد${pronouns.your} لمواجهة الحقائق غير المريحة</li>
+                            <li>✓ رؤيت${pronouns.your} للألم كرسالة وليس كعدو</li>
+                            <li>✓ ${commitment}</li>
+                        </ul>
+                        
+                        <p>أوصي بـ<span class="recommendation-highlight">رحلة السكينة</span> - 
+                        رحلة تحول عميقة 6-12 شهر:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>• ليست مجرد حل مشاكل بل إعادة تأسيس</li>
+                            <li>• عمل على كل مستويات الوجود</li>
+                            <li>• تحول من الغربة إلى النبالة</li>
+                            <li>• بناء حياة طيبة حقيقية</li>
+                        </ul>
+                        
+                        <p>لكن - وهذا مهم - يمكننا البدء بـ:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>□ شهر تجريبي لتتأكد${pronouns.you === 'ت' ? '' : 'ي'} من التناغم</li>
+                            <li>□ أو حتى بجلسات من البصيرة أولاً</li>
+                            <li>□ المرونة متاحة دائماً</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateMixedEshraqBaseeraRecommendation(name, addressing, pronouns) {
+            return `
+                <div class="recommendation-box">
+                    <h3 class="recommendation-title">
+                        ${name} ${addressing}،
+                    </h3>
+                    <div class="recommendation-content">
+                        <p>إجابات${pronouns.your} تكشف عن حالة جميلة ومثيرة - 
+                        أنت${pronouns.you === 'ت' ? '' : 'ِ'} على أعتاب تحول لكن تحتاج${pronouns.you === 'ت' ? '' : 'ين'} 
+                        البدء بخطوات عملية.</p>
+                        
+                        <p>لاحظت التالي:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ لدي${pronouns.your} تحدٍ عاجل يحتاج حلاً</li>
+                            <li>✓ لكن${pronouns.your} واع${pronouns.you === 'ت' ? '' : 'ية'} بوجود أنماط أعمق</li>
+                            <li>✓ مستعد${pronouns.you === 'ت' ? '' : 'ة'} للعمق لكن بالتدرج</li>
+                        </ul>
+                        
+                        <p>لذلك، توصيتي المخصصة ل${pronouns.your}:</p>
+                        
+                        <p><strong>المرحلة 1: رحلة الإشراقة (3-4 جلسات)</strong></p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>- نحل التحدي العاجل</li>
+                            <li>- نضع أساساً من الأدوات العملية</li>
+                            <li>- نفتح الباب للعمق دون ضغط</li>
+                        </ul>
+                        
+                        <p><strong>المرحلة 2: رحلة البصيرة (عند استعداد${pronouns.your})</strong></p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>- نغوص في فهم الأنماط</li>
+                            <li>- نكتشف نمط${pronouns.your} وشوق${pronouns.your} الخاص</li>
+                            <li>- نبني خطة تحول مخصصة</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateMixedBaseeraSakeenaRecommendation(name, addressing, pronouns) {
+            return `
+                <div class="recommendation-box">
+                    <h3 class="recommendation-title">
+                        ${name} ${addressing}،
+                    </h3>
+                    <div class="recommendation-content">
+                        <p>إجابات${pronouns.your} تشير إلى استعداد عميق للتحول، مع حكمة في طلب التدرج.</p>
+                        
+                        <p>يمكن${pronouns.your} الاختيار بين:</p>
+                        
+                        <p><strong>الخيار الأول: البدء بالبصيرة</strong></p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>- نبني فهماً عميقاً أولاً</li>
+                            <li>- نكتشف نمط${pronouns.your} ودوافع${pronouns.your}</li>
+                            <li>- ثم ننتقل للسكينة عند الاستعداد</li>
+                        </ul>
+                        
+                        <p><strong>الخيار الثاني: الدخول المباشر للسكينة</strong></p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>- مع شهر تجريبي أولاً</li>
+                            <li>- مرونة في السرعة والعمق</li>
+                            <li>- إمكانية التوقف والعودة</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Helper functions for recommendation
+        function getSpecificChallenge() {
+            if (assessmentAnswers.q1 === 'a' && assessmentAnswers.q1_sub) {
+                const challenges = {
+                    '1': 'تحدياً في العمل',
+                    '2': 'تحدياً في العلاقات',
+                    '3': 'تحدياً مع نفسك',
+                    '4': 'قراراً مهماً تحتاج اتخاذه'
+                };
+                return challenges[assessmentAnswers.q1_sub] || 'تحدياً محدداً';
+            }
+            return 'تحدياً يحتاج انتباهك';
+        }
+        
+        function getSpecificFocus() {
+            const q3Text = assessmentAnswers.q3_text || '';
+            if (q3Text.includes('عمل') || q3Text.includes('وظيف')) return 'التحديات المهنية';
+            if (q3Text.includes('علاق') || q3Text.includes('زوج')) return 'تحسين العلاقات';
+            if (q3Text.includes('قلق') || q3Text.includes('خوف')) return 'إدارة المشاعر';
+            return 'تحديك الخاص';
+        }
+        
+        function getAwarenessLevel() {
+            if (assessmentAnswers.q4 === 'c') return 'وعي عميق بالأنماط المتكررة في حياتك';
+            if (assessmentAnswers.q4 === 'b') return 'بداية وعي جميلة بوجود خيوط مشتركة';
+            if (assessmentAnswers.q4 === 'd') return 'يقظة جديدة تتفتح في داخلك';
+            return 'رغبة صادقة في الفهم';
+        }
+        
+        function getReadinessLevel() {
+            if (assessmentAnswers.q5 === 'a') return 'استعدادك الكامل لمواجهة الحقيقة';
+            if (assessmentAnswers.q5 === 'b') return 'حكمتك في طلب التدرج';
+            if (assessmentAnswers.q5 === 'c') return 'شجاعتك رغم المخاوف';
+            return 'استعدادك للنمو';
+        }
+        
+        function getSpecificInsight() {
+            const q6Text = assessmentAnswers.q6_text || '';
+            if (q6Text.length > 50) return 'رؤيتك الواضحة للمستقبل';
+            return 'ما شاركته معي';
+        }
+        
+        function getStrength() {
+            const supportCount = assessmentAnswers.support ? assessmentAnswers.support.length : 0;
+            if (supportCount >= 4) return 'شبكة دعم قوية';
+            if (supportCount >= 2) return 'موارد داعمة جيدة';
+            return 'قوة داخلية ملهمة';
+        }
+        
+        function getChallenge() {
+            if (assessmentAnswers.q8 === 'a') return 'شك في قدراتك';
+            if (assessmentAnswers.q8 === 'b') return 'تحمل مسؤولية زائدة';
+            if (assessmentAnswers.q8 === 'c') return 'خوف من حجم التغيير المطلوب';
+            return 'تحدٍ طبيعي في الرحلة';
+        }
+        
+        function getTransformReadiness() {
+            if (assessmentAnswers.q1 === 'd' && assessmentAnswers.q1_sub === '1') return 'صاحب رؤية واضحة';
+            if (assessmentAnswers.q1 === 'd' && assessmentAnswers.q1_sub === '4') return 'وصل لنقطة التحول الحتمية';
+            return 'مستعد للتحول الجذري';
+        }
+        
+        function getCommitmentLevel() {
+            if (assessmentAnswers.q9 === 'd') return 'التزامك الكامل بتخصيص الوقت والطاقة';
+            if (assessmentAnswers.q9 === 'c') return 'استعدادك لاستثمار وقت كافٍ';
+            return 'التزامك بالرحلة';
+        }
+        
+        // Form submission
+        document.getElementById('assessmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            // Q4 scoring
-            if (answers.q4 === 'a') scores.eshraq += 15;
-            else if (answers.q4 === 'b' || answers.q4 === 'd') scores.baseera += 20;
-else if (answers.q4 === 'c') scores.sakeena += 20;
-           
-           // Q5 scoring
-           if (answers.q5 === 'a') scores.sakeena += 25;
-           else if (answers.q5 === 'b') scores.baseera += 20;
-           else if (answers.q5 === 'c') scores.baseera += 15;
-           else if (answers.q5 === 'd') scores.eshraq += 15;
-           
-           // Q7 scoring (time commitment)
-           if (answers.q7 === 'a') scores.eshraq += 20;
-           else if (answers.q7 === 'b') scores.baseera += 15;
-           else if (answers.q7 === 'c') scores.baseera += 20;
-           else if (answers.q7 === 'd') scores.sakeena += 25;
-           
-           // Q10 scoring (fears)
-           if (answers.q10 === 'a' || answers.q10 === 'b') scores.baseera += 15;
-           else if (answers.q10 === 'c') scores.sakeena += 20;
-           else if (answers.q10 === 'd') scores.eshraq += 10;
-           else if (answers.q10 === 'e') scores.eshraq += 15;
-           
-           // Scale scoring
-           const urgency = parseInt(answers['urgency-scale'] || 5);
-           const investment = parseInt(answers['investment-scale'] || 5);
-           const confidence = parseInt(answers['confidence-scale'] || 5);
-           
-           if (urgency >= 8) scores.eshraq += 15;
-           else if (urgency >= 6) scores.baseera += 10;
-           
-           if (investment >= 8) scores.sakeena += 20;
-           else if (investment >= 6) scores.baseera += 15;
-           
-           if (confidence >= 8) scores.sakeena += 15;
-           else if (confidence >= 6) scores.baseera += 10;
-           
-           // Text analysis (simplified)
-           const q6Text = answers['q6-text'] || '';
-           const q9Text = answers['q9-text'] || '';
-           const q12Text = answers['q12-text'] || '';
-           
-           // Keywords analysis
-           const transformKeywords = ['تحول', 'جذري', 'تغيير شامل', 'حياة جديدة', 'نقلة'];
-           const understandingKeywords = ['فهم', 'أعرف', 'اكتشف', 'وعي', 'نمط'];
-           const solutionKeywords = ['حل', 'مشكلة', 'تحدي', 'سريع', 'عملي'];
-           
-           const allTexts = (q6Text + ' ' + q9Text + ' ' + q12Text).toLowerCase();
-           
-           transformKeywords.forEach(keyword => {
-               if (allTexts.includes(keyword)) scores.sakeena += 5;
-           });
-           
-           understandingKeywords.forEach(keyword => {
-               if (allTexts.includes(keyword)) scores.baseera += 5;
-           });
-           
-           solutionKeywords.forEach(keyword => {
-               if (allTexts.includes(keyword)) scores.eshraq += 5;
-           });
-           
-           // Support system analysis
-           const q8Checkboxes = document.querySelectorAll('#q8 input[type="checkbox"]:checked');
-           const supportCount = q8Checkboxes.length;
-           
-           if (supportCount >= 4) scores.sakeena += 10;
-           else if (supportCount >= 2) scores.baseera += 10;
-           else if (supportCount === 0) scores.eshraq += 15;
-           
-           // Experience analysis
-           const q11Checkboxes = document.querySelectorAll('#q11 input[type="checkbox"]:checked');
-           const hasExperience = Array.from(q11Checkboxes).some(cb => 
-               cb.value === 'coaching' || cb.value === 'therapy' || cb.value === 'spiritual-journey'
-           );
-           
-           if (hasExperience) {
-               scores.baseera += 10;
-               scores.sakeena += 10;
-           }
-           
-           // Determine recommendation
-           let recommendation = '';
-           let journeyType = '';
-           
-           if (scores.eshraq > scores.baseera && scores.eshraq > scores.sakeena) {
-               journeyType = 'eshraq';
-               recommendation = generateEshraqRecommendation();
-           } else if (scores.baseera > scores.sakeena) {
-               journeyType = 'baseera';
-               recommendation = generateBaseeraRecommendation();
-           } else {
-               journeyType = 'sakeena';
-               recommendation = generateSakeenaRecommendation();
-           }
-           
-           // Mixed recommendation logic
-           const totalScore = scores.eshraq + scores.baseera + scores.sakeena;
-           const eshraqPercent = (scores.eshraq / totalScore) * 100;
-           const baseeraPercent = (scores.baseera / totalScore) * 100;
-           const sakeenaPercent = (scores.sakeena / totalScore) * 100;
-           
-           // Check for mixed cases
-           if (Math.abs(eshraqPercent - baseeraPercent) < 10 && sakeenaPercent < 30) {
-               recommendation = generateMixedRecommendation('eshraq-baseera');
-           } else if (Math.abs(baseeraPercent - sakeenaPercent) < 10 && eshraqPercent < 30) {
-               recommendation = generateMixedRecommendation('baseera-sakeena');
-           }
-           
-           // Show results
-           document.getElementById('loadingContainer').style.display = 'none';
-           document.getElementById('questionContainer').style.display = 'none';
-           document.getElementById('resultsContainer').style.display = 'block';
-           document.getElementById('recommendationBox').innerHTML = recommendation;
-           
-           // Generate journey details
-           generateJourneyDetails(journeyType);
-           
-           // Scroll to top
-           window.scrollTo({ top: 0, behavior: 'smooth' });
-           
-           // Store results for booking
-           localStorage.setItem('assessmentResults', JSON.stringify({
-               journeyType: journeyType,
-               scores: scores,
-               answers: answers,
-               timestamp: new Date().toISOString()
-           }));
-       }
-       
-       // Recommendation generators
-       function generateEshraqRecommendation() {
-           const name = answers.name || 'عزيزي';
-           const challenge = getSpecificChallenge();
-           const timeConstraint = answers.q7 === 'a' ? 'وقتك المحدود' : 'التزامك بالوقت';
-           
-           return `
-               <h3 class="recommendation-title">
-                   <span class="recommendation-icon">🌅</span>
-                   رحلة الإشراقة هي الأنسب لك
-               </h3>
-               <div class="recommendation-content">
-                   <p>بناءً على إجاباتك الصادقة، ألاحظ أنك تواجه <span class="recommendation-highlight">${challenge}</span> يحتاج حلاً عملياً سريعاً. هذا رائع! وضوح التحدي هو نصف الحل.</p>
-                   
-                   <p>لاحظت أيضاً أنك:</p>
-                   <ul style="list-style: none; padding: 0;">
-                       <li>✓ تريد أدوات عملية يمكن تطبيقها فوراً</li>
-                       <li>✓ تقدر ${timeConstraint} وتريد نتائج سريعة</li>
-                       <li>✓ تفضل التركيز على الحل أكثر من التحليل العميق</li>
-                   </ul>
-                   
-                   <p>رحلة الإشراقة ستمنحك في <span class="recommendation-highlight">3 جلسات مركزة</span>:</p>
-                   <ul style="list-style: none; padding: 0;">
-                       <li>• حلاً عملياً لتحديك الحالي</li>
-                       <li>• أدوات يمكنك استخدامها مدى الحياة</li>
-                       <li>• بذور وعي لرحلة أعمق عندما تكون مستعداً</li>
-                   </ul>
-                   
-                   <p>ما يميز اقتراحي لك تحديداً:</p>
-                   <ul style="list-style: none; padding: 0;">
-                       <li>- سنركز على ${getSpecificFocus()}</li>
-                       <li>- سنستخدم أسلوباً عملياً يناسب طبيعتك</li>
-                       <li>- ستخرج من أول جلسة بخطة واضحة</li>
-                   </ul>
-               </div>
-           `;
-       }
-       
-       function generateBaseeraRecommendation() {
-           const awarenessLevel = getAwarenessLevel();
-           const readiness = getReadinessLevel();
-           
-           return `
-               <h3 class="recommendation-title">
-                   <span class="recommendation-icon">👁️</span>
-                   رحلة البصيرة هي الأنسب لك
-               </h3>
-               <div class="recommendation-content">
-                   <p>إجاباتك تكشف عن <span class="recommendation-highlight">${awarenessLevel}</span>. هذا الوعي هو البداية الحقيقية للتحرر!</p>
-                   
-                   <p>ما لفت انتباهي في إجاباتك:</p>
-                   <ul style="list-style: none; padding: 0;">
-                       <li>✓ إدراكك أن التحديات الظاهرة لها جذور أعمق</li>
-                       <li>✓ رغبتك الصادقة في فهم "لماذا" وليس فقط "كيف"</li>
-                       <li>✓ ${readiness}</li>
-                       <li>✓ نضج في التعامل مع فكرة النمو الشخصي</li>
-                   </ul>
-                   
-                   <p>رحلة البصيرة - <span class="recommendation-highlight">8-12 جلسة</span> ستأخذك إلى:</p>
-                   <ul style="list-style: none; padding: 0;">
-                       <li>• فهم عميق لنمطك الشخصي وما يحركك</li>
-                       <li>• اكتشاف الأنماط المتكررة وكيفية تحريرها</li>
-                       <li>• أدوات مخصصة لطبيعتك الفريدة</li>
-                       <li>• تحول حقيقي في طريقة رؤيتك لنفسك والحياة</li>
-                   </ul>
-                   
-                   <p>بناءً على ${getSpecificInsight()}, أرى أن لديك:</p>
-                   <ul style="list-style: none; padding: 0;">
-                       <li>- ${getStrength()} يمكن البناء عليها</li>
-                       <li>- ${getChallenge()} سنعمل على تحويله لفرصة</li>
-                   </ul>
-               </div>
-           `;
-       }
-       
-       function generateSakeenaRecommendation() {
-           const transformReadiness = getTransformReadiness();
-           const commitment = getCommitmentLevel();
-           
-           return `
-               <h3 class="recommendation-title">
-                   <span class="recommendation-icon">🌟</span>
-                   رحلة السكينة هي الأنسب لك
-               </h3>
-               <div class="recommendation-content">
-                   <p>إجاباتك تشع بطاقة إنسان <span class="recommendation-highlight">${transformReadiness}</span>. هذا الاستعداد نادر وثمين!</p>
-                   
-                   <p>ما يؤكد استعدادك العالي:</p>
-                   <ul style="list-style: none; padding: 0;">
-                       <li>✓ وعيك بأن التغيير الحقيقي يتطلب عملاً عميقاً</li>
-                       <li>✓ استعدادك لمواجهة الحقائق غير المريحة</li>
-                       <li>✓ رؤيتك للألم كرسالة وليس كعدو</li>
-                       <li>✓ ${commitment}</li>
-                   </ul>
-                   
-                   <p>رحلة السكينة - <span class="recommendation-highlight">6-12 شهر</span> من التحول العميق:</p>
-                   <ul style="list-style: none; padding: 0;">
-                       <li>• ليست مجرد حل مشاكل بل إعادة تأسيس</li>
-                       <li>• عمل على كل مستويات الوجود</li>
-                       <li>• تحول من الغربة إلى النبالة</li>
-                       <li>• بناء حياة طيبة حقيقية</li>
-                   </ul>
-                   
-                   <p>لكن - وهذا مهم - يمكننا البدء بـ:</p>
-                   <ul style="list-style: none; padding: 0;">
-                       <li>□ شهر تجريبي لتتأكد من التناغم</li>
-                       <li>□ أو حتى بجلسات من البصيرة أولاً</li>
-                       <li>□ المرونة متاحة دائماً</li>
-                   </ul>
-               </div>
-           `;
-       }
-       
-       function generateMixedRecommendation(type) {
-           if (type === 'eshraq-baseera') {
-               return `
-                   <h3 class="recommendation-title">
-                       <span class="recommendation-icon">🌅👁️</span>
-                       مسار متدرج: من الإشراقة إلى البصيرة
-                   </h3>
-                   <div class="recommendation-content">
-                       <p>إجاباتك تكشف عن حالة جميلة ومثيرة - أنت على أعتاب تحول لكن تحتاج البدء بخطوات عملية.</p>
-                       
-                       <p>لاحظت التالي:</p>
-                       <ul style="list-style: none; padding: 0;">
-                           <li>✓ لديك تحدٍ عاجل يحتاج حلاً</li>
-                           <li>✓ لكنك واعٍ بوجود أنماط أعمق</li>
-                           <li>✓ مستعد للعمق لكن بالتدرج</li>
-                       </ul>
-                       
-                       <p>لذلك، توصيتي المخصصة لك:</p>
-                       
-                       <p><strong>المرحلة 1: رحلة الإشراقة (3-4 جلسات)</strong></p>
-                       <ul style="list-style: none; padding: 0;">
-                           <li>- نحل التحدي العاجل</li>
-                           <li>- نضع أساساً من الأدوات العملية</li>
-                           <li>- نفتح الباب للعمق دون ضغط</li>
-                       </ul>
-                       
-                       <p><strong>المرحلة 2: رحلة البصيرة (عند استعدادك)</strong></p>
-                       <ul style="list-style: none; padding: 0;">
-                           <li>- نغوص في فهم الأنماط</li>
-                           <li>- نكتشف نمطك وشوقك الخاص</li>
-                           <li>- نبني خطة تحول مخصصة</li>
-                       </ul>
-                   </div>
-               `;
-           } else {
-               return `
-                   <h3 class="recommendation-title">
-                       <span class="recommendation-icon">👁️🌟</span>
-                       أنت جاهز للعمق مع خيار التدرج
-                   </h3>
-                   <div class="recommendation-content">
-                       <p>إجاباتك تشير إلى استعداد عميق للتحول، مع حكمة في طلب التدرج.</p>
-                       
-                       <p>يمكنك الاختيار بين:</p>
-                       
-                       <p><strong>الخيار الأول: البدء بالبصيرة</strong></p>
-                       <ul style="list-style: none; padding: 0;">
-                           <li>- نبني فهماً عميقاً أولاً</li>
-                           <li>- نكتشف نمطك ودوافعك</li>
-                           <li>- ثم ننتقل للسكينة عند الاستعداد</li>
-                       </ul>
-                       
-                       <p><strong>الخيار الثاني: الدخول المباشر للسكينة</strong></p>
-                       <ul style="list-style: none; padding: 0;">
-                           <li>- مع شهر تجريبي أولاً</li>
-                           <li>- مرونة في السرعة والعمق</li>
-                           <li>- إمكانية التوقف والعودة</li>
-                       </ul>
-                   </div>
-               `;
-           }
-       }
-       
-       // Helper functions for personalization
-       function getSpecificChallenge() {
-           if (answers.q1 === 'a' && subAnswers['q1-sub-a']) {
-               const challenges = {
-                   '1': 'تحدياً في العمل',
-                   '2': 'تحدياً في العلاقات',
-                   '3': 'تحدياً مع نفسك',
-                   '4': 'قراراً مهماً تحتاج اتخاذه'
-               };
-               return challenges[subAnswers['q1-sub-a']] || 'تحدياً محدداً';
-           }
-           return 'تحدياً يحتاج انتباهك';
-       }
-       
-       function getSpecificFocus() {
-           const q3Text = answers['q3-text'] || '';
-           if (q3Text.includes('عمل') || q3Text.includes('وظيف')) return 'التحديات المهنية';
-           if (q3Text.includes('علاق') || q3Text.includes('زوج')) return 'تحسين العلاقات';
-           if (q3Text.includes('قلق') || q3Text.includes('خوف')) return 'إدارة المشاعر';
-           return 'تحديك الخاص';
-       }
-       
-       function getAwarenessLevel() {
-           if (answers.q4 === 'c') return 'وعي عميق بالأنماط المتكررة في حياتك';
-           if (answers.q4 === 'b') return 'بداية وعي جميلة بوجود خيوط مشتركة';
-           if (answers.q4 === 'd') return 'يقظة جديدة تتفتح في داخلك';
-           return 'رغبة صادقة في الفهم';
-       }
-       
-       function getReadinessLevel() {
-           if (answers.q5 === 'a') return 'استعدادك الكامل لمواجهة الحقيقة';
-           if (answers.q5 === 'b') return 'حكمتك في طلب التدرج';
-           if (answers.q5 === 'c') return 'شجاعتك رغم المخاوف';
-           return 'استعدادك للنمو';
-       }
-       
-       function getSpecificInsight() {
-           const q6Text = answers['q6-text'] || '';
-           if (q6Text.length > 50) return 'رؤيتك الواضحة للمستقبل';
-           return 'ما شاركته معي';
-       }
-       
-       function getStrength() {
-           const supportCount = document.querySelectorAll('#q8 input[type="checkbox"]:checked').length;
-           if (supportCount >= 4) return 'شبكة دعم قوية';
-           if (supportCount >= 2) return 'موارد داعمة جيدة';
-           return 'قوة داخلية ملهمة';
-       }
-       
-       function getChallenge() {
-           if (answers.q10 === 'a') return 'شك في قدراتك';
-           if (answers.q10 === 'b') return 'تحمل مسؤولية زائدة';
-           if (answers.q10 === 'c') return 'خوف من حجم التغيير المطلوب';
-           return 'تحدٍ طبيعي في الرحلة';
-       }
-       
-       function getTransformReadiness() {
-           if (answers.q1 === 'd' && subAnswers['q1-sub-d'] === '1') return 'صاحب رؤية واضحة';
-           if (answers.q1 === 'd' && subAnswers['q1-sub-d'] === '4') return 'وصل لنقطة التحول الحتمية';
-           return 'مستعد للتحول الجذري';
-       }
-       
-       function getCommitmentLevel() {
-           if (answers.q7 === 'd') return 'التزامك الكامل بتخصيص الوقت والطاقة';
-           if (answers.q7 === 'c') return 'استعدادك لاستثمار وقت كافٍ';
-           return 'التزامك بالرحلة';
-       }
-       
-       // Generate journey details
-       function generateJourneyDetails(journeyType) {
-           let details = '';
-           
-           if (journeyType === 'eshraq') {
-               details = `
-                   <h3>تفاصيل رحلة الإشراقة</h3>
-                   <ul>
-                       <li>المدة: 3 جلسات (يمكن إضافة جلسة رابعة)</li>
-                       <li>التكرار: جلسة أسبوعياً</li>
-                       <li>مدة الجلسة: 90 دقيقة للأولى، 75 دقيقة للتالية</li>
-                       <li>المتابعة: أسبوعان من الدعم عبر الرسائل</li>
-                       <li>النتيجة المتوقعة: حل عملي + أدوات للحياة + بذور وعي</li>
-                   </ul>
-               `;
-           } else if (journeyType === 'baseera') {
-               details = `
-                   <h3>تفاصيل رحلة البصيرة</h3>
-                   <ul>
-                       <li>المدة: 8-12 جلسة على 2-3 شهور</li>
-                       <li>التكرار: جلسة أسبوعية أو كل أسبوعين</li>
-                       <li>مدة الجلسة: 90 دقيقة</li>
-                       <li>المتابعة: مجموعة دعم + مكالمة شهرية</li>
-                       <li>النتيجة المتوقعة: فهم عميق للذات + تحرر من الأنماط + خطة تحول</li>
-                   </ul>
-               `;
-           } else {
-               details = `
-                   <h3>تفاصيل رحلة السكينة</h3>
-                   <ul>
-                       <li>المدة: 6-12 شهر (24-48 جلسة)</li>
-                       <li>التكرار: جلسة أسبوعية في البداية</li>
-                       <li>مدة الجلسة: 90-120 دقيقة</li>
-                       <li>المتابعة: دعم مكثف + إشراف أسبوعي</li>
-                       <li>النتيجة المتوقعة: تحول جذري + حياة طيبة + القدرة على الخدمة</li>
-                   </ul>
-               `;
-           }
-           
-           document.getElementById('journeyDetails').innerHTML = details;
-       }
-       
-       // Action functions
-       function bookSession() {
-           // Redirect to booking page with journey type
-           const results = JSON.parse(localStorage.getItem('assessmentResults') || '{}');
-           window.location.href = `booking.html?journey=${results.journeyType}`;
-       }
-       
-       function learnMore() {
-           const results = JSON.parse(localStorage.getItem('assessmentResults') || '{}');
-           window.location.href = `journeys.html#${results.journeyType}`;
-       }
-       
-       // Initialize character counts
-       document.addEventListener('DOMContentLoaded', function() {
-           const textareas = document.querySelectorAll('.text-input');
-           textareas.forEach(textarea => {
-               const maxLength = textarea.id.includes('q11') ? 300 : 500;
-               updateCharCount(textarea.id, maxLength);
-           });
-       });
-   </script>
+            showLoading(true);
+            
+            try {
+                // Create user account
+                const userCredential = await auth.createUserWithEmailAndPassword(
+                    formData.email, 
+                    formData.password
+                );
+                const userId = userCredential.user.uid;
+                
+                // Update display name
+                await userCredential.user.updateProfile({
+                    displayName: formData.name || 'مستخدم جديد'
+                });
+                
+                // Save user data
+                await db.collection('users').doc(userId).set({
+                    email: formData.email,
+                    name: formData.name,
+                    phone: formData.phone,
+                    gender: formData.gender,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Save assessment data
+                const assessmentData = {
+                    userId: userId,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    answers: assessmentAnswers,
+                    scores: recommendationData.scores,
+                    recommendedJourney: recommendationData.journeyType,
+                    analysisNotes: recommendationData.analysisNotes
+                };
+                
+                const assessmentRef = await db.collection('assessments').add(assessmentData);
+                
+                // Create booking
+                const bookingNumber = 'BK' + Date.now().toString().slice(-8);
+                const bookingData = {
+                    userId: userId,
+                    assessmentId: assessmentRef.id,
+                    bookingNumber: bookingNumber,
+                    journeyType: recommendationData.journeyType,
+                    status: 'pending',
+                    source: 'assessment',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userData: {
+                        name: formData.name,
+                        email: formData.email,
+                        phone: formData.phone,
+                        gender: formData.gender
+                    }
+                };
+                
+                await db.collection('bookings').add(bookingData);
+                
+                // Send WhatsApp notification
+                const journeyNames = {
+                    'eshraq': 'الإشراقة',
+                    'baseera': 'البصيرة',
+                    'sakeena': 'السكينة',
+                    'mixed-eshraq-baseera': 'مسار متدرج (إشراقة-بصيرة)',
+                    'mixed-baseera-sakeena': 'مسار متدرج (بصيرة-سكينة)'
+                };
+                
+                const adminMessage = `حجز جديد من التقييم الشامل 🌟
+                
+رقم الحجز: ${bookingNumber}
+الاسم: ${formData.name}
+البريد: ${formData.email}
+الهاتف: ${formData.phone}
+الرحلة الموصى بها: ${journeyNames[recommendationData.journeyType]}
+
+النتائج:
+- إشراقة: ${recommendationData.scores.eshraq}
+- بصيرة: ${recommendationData.scores.baseera}
+- سكينة: ${recommendationData.scores.sakeena}
+
+رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
+                
+                const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`;
+                window.open(whatsappUrl, '_blank');
+                
+                // Show success
+                showLoading(false);
+                document.getElementById('formContainer').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('bookingNumber').textContent = bookingNumber;
+                document.getElementById('accountEmail').textContent = formData.email;
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showLoading(false);
+                
+                let errorMessage = 'حدث خطأ، من فضلك حاول مرة أخرى';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل. من فضلك استخدم بريد آخر أو قم بتسجيل الدخول.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'البريد الإلكتروني غير صحيح';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'كلمة المرور ضعيفة';
+                }
+                
+                showAlert(errorMessage, 'error');
+            }
+        });
+        
+        // Initialize on load
+        window.onload = function() {
+            showStep(1);
+            
+            // Initialize scale values
+            updateScaleValue('urgency');
+            updateScaleValue('investment');
+            updateScaleValue('confidence');
+            
+            // Sign out any existing user
+            auth.signOut().catch(error => {
+                console.log('Sign out error (ignored):', error);
+            });
+        };
+    </script>
 </body>
 </html>
