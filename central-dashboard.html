@@ -1805,8 +1805,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <script>
-                // 1. في بداية الـ script - إخفاء الصفحة فوراً
-                document.body.style.display = 'none';
 
         // Initialize Firebase
         const auth = firebase.auth();
@@ -1833,21 +1831,34 @@
         
         // Check authentication
         // 2. دالة checkAuth الجديدة
-        function checkAuth() {
-            const authToken = sessionStorage.getItem('adminAuth');
-            const authTime = sessionStorage.getItem('authTime');
-            const oneHour = 60 * 60 * 1000;
-            
-            if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
-                // المستخدم مسجل دخول - إظهار المحتوى
-                document.body.style.display = 'block';
-                loadDashboardData();
-            } else {
-                // المستخدم غير مسجل دخول - إعادة توجيه فوراً
-                alert('يجب تسجيل الدخول أولاً');
+function checkAuth() {
+    // تحقق من sessionStorage الأول (الأسرع)
+    const authToken = sessionStorage.getItem('adminAuth');
+    const authTime = sessionStorage.getItem('authTime');
+    const oneHour = 60 * 60 * 1000;
+    
+    if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
+        // المستخدم مسجل دخول عبر sessionStorage
+        console.log('مسجل دخول عبر sessionStorage');
+        return;
+    }
+    
+    // إذا لم يجد sessionStorage، تحقق من Firebase
+    if (typeof auth !== 'undefined' && auth) {
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                console.log('غير مسجل دخول');
                 window.location.href = 'admin-dashboard.html';
+            } else {
+                console.log('مسجل دخول عبر Firebase:', user.email);
             }
-        }
+        });
+    } else {
+        // لا sessionStorage ولا Firebase - إعادة توجيه
+        console.log('لا يوجد مصادقة');
+        window.location.href = 'admin-dashboard.html';
+    }
+}
 
         
         // Load all dashboard data
