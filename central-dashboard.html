@@ -3766,6 +3766,7 @@
         }
         
 // Print journey summary
+// Print journey summary
 function printJourneySummary(journeyId) {
     const journey = allJourneys.find(j => j.id === journeyId);
     if (!journey) return;
@@ -3877,4 +3878,3 @@ function printJourneySummary(journeyId) {
     printWindow.document.write(content);
     printWindow.document.close();
 }
-
