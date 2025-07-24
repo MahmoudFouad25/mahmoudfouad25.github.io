@@ -2944,10 +2944,71 @@ function getJourneyTypeName(type) {
             openModal('journeyDetailsModal');
         }
         
-        // Open journey management page
-        function openJourneyManagement(journeyId) {
-            window.location.href = `admin-journey-management.html?journey=${journeyId}`;
-        }
+// Open journey management page
+function openJourneyManagement(journeyId) {
+    const journey = allJourneys.find(j => j.id === journeyId);
+    if (journey && journey.userId) {
+        window.location.href = `admin-journey-management.html?clientId=${journey.userId}&journeyId=${journeyId}`;
+    } else {
+        window.location.href = `admin-journey-management.html?journeyId=${journeyId}`;
+    }
+}
+
+        // Load journeys from Firestore
+async function loadJourneys() {
+    try {
+        const snapshot = await db.collection('journeys')
+            .where('status', '==', 'active')
+            .get();
+        
+        allJourneys = [];
+        
+        snapshot.forEach(doc => {
+            const journey = {
+                id: doc.id,
+                ...doc.data()
+            };
+            
+            // التأكد من أن journeyType يستخدم الأسماء الصحيحة
+            // تحويل الأسماء القديمة إذا وجدت
+            if (journey.journeyType === 'clarity' || journey.journeyType === 'وضوح') {
+                journey.journeyType = 'eshraq';
+            } else if (journey.journeyType === 'discovery' || journey.journeyType === 'اكتشاف') {
+                journey.journeyType = 'baseera';
+            } else if (journey.journeyType === 'transformation' || journey.journeyType === 'تحول') {
+                journey.journeyType = 'sakeena';
+            }
+            
+            // Calculate additional metrics
+            journey.healthIndicator = calculateHealthIndicator(journey);
+            journey.needsAttention = checkNeedsAttention(journey);
+            
+            allJourneys.push(journey);
+        });
+        
+        // Sort by last activity
+        allJourneys.sort((a, b) => {
+            const dateA = a.lastActivityDate?.toDate() || new Date(0);
+            const dateB = b.lastActivityDate?.toDate() || new Date(0);
+            return dateB - dateA;
+        });
+        
+        // كود التحقق - أضف هذه الأسطر فقط
+        console.log('عدد الرحلات المحملة:', allJourneys.length);
+        allJourneys.forEach(j => {
+            console.log('رحلة:', {
+                اسم: j.clientName,
+                النوع: j.journeyType,
+                الحالة: j.status,
+                userId: j.userId || 'غير موجود'
+            });
+        });
+        
+    } catch (error) {
+        console.error('Error loading journeys:', error);
+        throw error;
+    }
+}
         
         // Schedule session
         function scheduleSession(journeyId) {
