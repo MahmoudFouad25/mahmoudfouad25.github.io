@@ -1805,55 +1805,48 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <script>
-        // Initialize Firebase
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        
-        // Global variables
-        let allJourneys = [];
-        let filteredJourneys = [];
-        let allActivities = [];
-        let allSessions = [];
-        let currentView = 'kanban';
-        let dateRange = 'week';
-        let activityFilter = 'all';
-        let charts = {};
-        let unsubscribeListeners = [];
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            loadDashboardData();
-            setupRealtimeListeners();
-            initializeCharts();
-        });
-        
-        // Check authentication
-function checkAuth() {
-    auth.onAuthStateChanged(user => {
-        if (!user) {
-            // لا يوجد مستخدم مسجل دخول
-            window.location.href = 'admin-login.html';
-            return;
-        }
-        
-        // التحقق من أن المستخدم هو admin
-        user.getIdTokenResult().then(idTokenResult => {
-            if (!idTokenResult.claims.admin) {
-                // ليس admin
-                alert('ليس لديك صلاحية الوصول لهذه الصفحة');
-                window.location.href = 'index.html';
-            }
-        }).catch(error => {
-            console.error('Error checking admin claim:', error);
-            // في حالة الخطأ، نتحقق من البريد الإلكتروني
-            const adminEmails = ['admin@example.com']; // ضع هنا بريد الأدمن
-            if (!adminEmails.includes(user.email)) {
-                alert('ليس لديك صلاحية الوصول لهذه الصفحة');
-                window.location.href = 'index.html';
-            }
-        });
-    });
+// Initialize Firebase
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Global variables
+let allJourneys = [];
+let filteredJourneys = [];
+let allActivities = [];
+let allSessions = [];
+let currentView = 'kanban';
+let dateRange = 'week';
+let activityFilter = 'all';
+let charts = {};
+let unsubscribeListeners = [];
+
+// Check authentication first
+auth.onAuthStateChanged(user => {
+    if (!user) {
+        // لا يوجد مستخدم مسجل دخول
+        window.location.href = 'admin-login.html';
+        return;
+    }
+    
+    // التحقق من البريد الإلكتروني للأدمن
+    const adminEmails = ['coach.s.fouad@gmail.com']; // ضع بريدك هنا
+    
+    if (!adminEmails.includes(user.email)) {
+        alert('ليس لديك صلاحية الوصول لهذه الصفحة');
+        auth.signOut();
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    // إذا كان المستخدم مصرح له، حمّل البيانات
+    initializeDashboard();
+});
+
+// Initialize dashboard after auth check
+function initializeDashboard() {
+    loadDashboardData();
+    setupRealtimeListeners();
+    initializeCharts();
 }
         
         // Load all dashboard data
