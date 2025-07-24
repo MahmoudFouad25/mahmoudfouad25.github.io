@@ -1829,118 +1829,27 @@
         });
         
         // Check authentication
-// Check authentication - آمن ومُحسن
 function checkAuth() {
-    // إخفاء المحتوى أثناء التحقق من المصادقة
-    document.body.style.display = 'none';
-    
-    // إظهار شاشة تحميل
-    const loadingDiv = document.createElement('div');
-    loadingDiv.id = 'auth-loading';
-    loadingDiv.innerHTML = `
-        <div style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            font-family: Arial, sans-serif;
-        ">
-            <div style="text-align: center;">
-                <div style="font-size: 18px; margin-bottom: 20px;">جاري التحقق من صحة تسجيل الدخول...</div>
-                <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-            </div>
-        </div>
-        <style>
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        </style>
-    `;
-    document.body.appendChild(loadingDiv);
-    
-    // التحقق من المصادقة مع timeout للأمان
-    let authCheckComplete = false;
-    
-    // Timeout للأمان - لو Firebase ما ردش خلال 10 ثوان
-    const authTimeout = setTimeout(() => {
-        if (!authCheckComplete) {
-            console.log('انتهت مهلة التحقق من المصادقة');
-            window.location.href = 'admin-dashboard.html';
-        }
-    }, 10000); // 10 ثوان
+    // إخفاء الصفحة كلها
+    document.body.style.visibility = 'hidden';
     
     auth.onAuthStateChanged(user => {
-        authCheckComplete = true;
-        clearTimeout(authTimeout);
-        
-        // إزالة شاشة التحميل
-        const loadingElement = document.getElementById('auth-loading');
-        if (loadingElement) {
-            loadingElement.remove();
-        }
-        
         if (user) {
-            console.log('المستخدم مسجل دخول:', user.email);
-            
-            // التحقق من صحة المستخدم (اختياري - للأمان الإضافي)
-            if (user.emailVerified || user.email) {
-                // إظهار المحتوى
-                document.body.style.display = 'block';
-                
-                // حفظ بيانات المستخدم للاستخدام في الصفحة
-                window.currentUser = user;
-                
-            } else {
-                console.log('المستخدم غير مُتحقق منه');
-                alert('يرجى التحقق من بريدك الإلكتروني أولاً');
-                window.location.href = 'admin-dashboard.html';
-            }
-            
+            // المستخدم مسجل دخول - أظهر الصفحة
+            document.body.style.visibility = 'visible';
+            console.log('مسجل دخول:', user.email);
         } else {
-            console.log('المستخدم غير مسجل دخول');
-            
-            // للأمان الإضافي - تحقق مرة أخيرة
-            setTimeout(() => {
-                const finalCheck = auth.currentUser;
-                if (!finalCheck) {
-                    alert('يجب تسجيل الدخول أولاً للوصول لهذه الصفحة');
-                    window.location.href = 'admin-dashboard.html';
-                } else {
-                    // المستخدم مسجل دخول فعلاً
-                    document.body.style.display = 'block';
-                    window.currentUser = finalCheck;
-                }
-            }, 1000);
+            // المستخدم غير مسجل دخول - رجع فوراً
+            window.location.replace('admin-dashboard.html'); // replace بدل href عشان ميقدرش يرجع
         }
     });
     
-    // التحقق الدوري من المصادقة كل 30 ثانية (للأمان المستمر)
-    setInterval(() => {
+    // أمان إضافي - لو Firebase ما شتغلش خالص
+    setTimeout(() => {
         if (!auth.currentUser) {
-            console.log('فقدان جلسة المصادقة');
-            alert('انتهت جلسة تسجيل الدخول، يرجى تسجيل الدخول مرة أخرى');
-            window.location.href = 'admin-dashboard.html';
+            window.location.replace('admin-dashboard.html');
         }
-    }, 30000);
-}
-
-// دالة إضافية للتحقق من الصلاحيات (اختيارية)
-function checkUserPermissions() {
-    const user = auth.currentUser;
-    if (user) {
-        // يمكنك إضافة تحقق من الصلاحيات هنا
-        // مثل التحقق من role المستخدم في Firestore
-        console.log('التحقق من صلاحيات المستخدم:', user.email);
-        return true;
-    }
-    return false;
+    }, 5000);
 }
         
         // Load all dashboard data
