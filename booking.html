@@ -2027,7 +2027,10 @@
                     phone: formData.phone,
                     gender: formData.gender,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    // إضافة البيانات المطلوبة
+                    program: recommendationData.journeyType,
+                    authProvider: 'email'
                 });
                 
                 // Save assessment data
@@ -2042,6 +2045,14 @@
                 
                 const assessmentRef = await db.collection('assessments').add(assessmentData);
                 
+                const journeyNames = {
+                    'eshraq': 'الإشراقة',
+                    'baseera': 'البصيرة',
+                    'sakeena': 'السكينة',
+                    'mixed-eshraq-baseera': 'مسار متدرج (إشراقة-بصيرة)',
+                    'mixed-baseera-sakeena': 'مسار متدرج (بصيرة-سكينة)'
+                };
+                
                 // Create booking
                 const bookingNumber = 'BK' + Date.now().toString().slice(-8);
                 const bookingData = {
@@ -2049,15 +2060,26 @@
                     assessmentId: assessmentRef.id,
                     bookingNumber: bookingNumber,
                     journeyType: recommendationData.journeyType,
+                    program: journeyNames[recommendationData.journeyType] || recommendationData.journeyType, // اسم البرنامج بالعربية
                     status: 'pending',
                     source: 'assessment',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    userData: {
-                        name: formData.name,
-                        email: formData.email,
-                        phone: formData.phone,
-                        gender: formData.gender
-                    }
+                    // البيانات مباشرة في المستوى الأول
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    gender: formData.gender,
+                    // إضافة باقي البيانات المطلوبة
+                    contactMethod: 'zoom', // قيمة افتراضية
+                    previousCoaching: 'no', // قيمة افتراضية
+                    message: assessmentAnswers.q3_text || 'تم التقييم الشامل',
+                    goal: assessmentAnswers.q1 || '',
+                    duration: assessmentAnswers.q9 || '',
+                    issues: assessmentAnswers.q4_patterns || [],
+                    preferredTimes: 'مرن', // قيمة افتراضية
+                    referralSource: 'website',
+                    accountCreated: true,
+                    authProvider: 'email'
                 };
                 
                 await db.collection('bookings').add(bookingData);
