@@ -1317,6 +1317,16 @@
     </style>
 </head>
 <body>
+    <!-- شاشة التحقق من الأمان -->
+<div id="authCheck" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; justify-content: center; align-items: center; z-index: 9999;">
+    <div style="text-align: center;">
+        <h2>يجب تسجيل الدخول أولاً</h2>
+        <button onclick="window.location.href='admin-dashboard.html'" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+            الذهاب لتسجيل الدخول
+        </button>
+    </div>
+</div>
+
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
@@ -1803,6 +1813,15 @@
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <div id="mainContent" style="display: none;">
+    <!-- كل محتوى الصفحة العادي هنا -->
+    <h1>صفحة الرحلات</h1>
+    <p>المحتوى محمي بالأمان</p>
+    <!-- باقي HTML الصفحة -->
+</div>
+
+
     
     <script>
 
@@ -1848,31 +1867,19 @@ if (!authToken || authToken !== 'true' || !authTime || (Date.now() - parseInt(au
         // Check authentication
         // 2. دالة checkAuth الجديدة
 function checkAuth() {
-    // تحقق من sessionStorage الأول (الأسرع)
     const authToken = sessionStorage.getItem('adminAuth');
     const authTime = sessionStorage.getItem('authTime');
     const oneHour = 60 * 60 * 1000;
     
     if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
-        // المستخدم مسجل دخول عبر sessionStorage
-        console.log('مسجل دخول عبر sessionStorage');
-        return;
-    }
-    
-    // إذا لم يجد sessionStorage، تحقق من Firebase
-    if (typeof auth !== 'undefined' && auth) {
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                console.log('غير مسجل دخول');
-                window.location.href = 'admin-dashboard.html';
-            } else {
-                console.log('مسجل دخول عبر Firebase:', user.email);
-            }
-        });
+        document.getElementById('authCheck').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        
+        // هنا حط كود تحميل البيانات
+        // loadBookings();
     } else {
-        // لا sessionStorage ولا Firebase - إعادة توجيه
-        console.log('لا يوجد مصادقة');
-        window.location.href = 'admin-dashboard.html';
+        document.getElementById('authCheck').style.display = 'flex';
+        document.getElementById('mainContent').style.display = 'none';
     }
 }
 
@@ -3806,6 +3813,7 @@ function checkAuth() {
         }
         
       
+checkAuth();
 
 </script>
 </body>
