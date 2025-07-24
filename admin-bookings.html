@@ -1968,7 +1968,7 @@ async function convertToJourney(bookingId) {
                 await addSessionToJourney(journeyId, booking);
                 
                 // فتح صفحة إدارة الرحلة
-                window.location.href = `admin-journey-management.html?journey=${journeyId}&tab=sessions`;
+                window.location.href = `admin-journey-management.html?clientId=${booking.userId}&journeyId=${journeyId}&bookingId=${booking.id}`;
             }
         } else {
             // إنشاء رحلة جديدة
@@ -1990,7 +1990,7 @@ async function convertToJourney(bookingId) {
             });
             
             // فتح صفحة إدارة الرحلة الجديدة
-            window.location.href = `admin-journey-management.html?journey=${newJourney.id}&tab=overview`;
+            window.location.href = `admin-journey-management.html?clientId=${booking.userId}&journeyId=${newJourney.id}&bookingId=${booking.id}`;
         }
         
     } catch (error) {
