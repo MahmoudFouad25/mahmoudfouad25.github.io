@@ -2031,7 +2031,8 @@ async function createNewJourney(booking) {
         clientName: booking.name,
         clientEmail: booking.email,
         clientPhone: booking.phone,
-        userId: booking.userId || null,
+        userId: booking.userId || booking.id,
+clientId: booking.userId || booking.id, // أضف هذا السطر أيضاً
         
         // معلومات الرحلة
         program: getArabicProgramName(journeyType),
