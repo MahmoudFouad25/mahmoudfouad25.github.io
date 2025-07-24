@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة الرحلة - محمود فؤاد</title>
+    <title>إدارة رحلة العميل - محمود فؤاد</title>
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         :root {
             --primary: #2C5530;
             --secondary: #8B9467;
@@ -24,15 +25,26 @@
             --info: #17a2b8;
             --shadow: 0 5px 20px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 40px rgba(0,0,0,0.15);
+            
+            /* Journey Colors */
+            --eshraq-color: #3498db;
+            --baseera-color: #9b59b6;
+            --sakeena-color: #e74c3c;
+            
+            /* Status Colors */
+            --active-color: #2ecc71;
+            --pending-color: #f39c12;
+            --completed-color: #95a5a6;
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
             background: #f5f5f5;
             color: var(--dark);
+            line-height: 1.6;
             overflow-x: hidden;
         }
-
+        
         /* Loading Overlay */
         .loading-overlay {
             position: fixed;
@@ -49,12 +61,12 @@
             visibility: hidden;
             transition: all 0.3s;
         }
-
+        
         .loading-overlay.show {
             opacity: 1;
             visibility: visible;
         }
-
+        
         .loading-spinner {
             width: 50px;
             height: 50px;
@@ -63,21 +75,21 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
+        
         /* Main Layout */
         .main-container {
             display: flex;
             height: 100vh;
             background: #f5f5f5;
         }
-
-        /* Journeys List Sidebar */
-        .journeys-list {
+        
+        /* Sidebar */
+        .sidebar {
             width: 320px;
             background: white;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
@@ -85,76 +97,136 @@
             flex-direction: column;
             transition: all 0.3s;
         }
-
-        .journeys-list.collapsed {
+        
+        .sidebar.collapsed {
             width: 0;
             overflow: hidden;
         }
-
-        .list-header {
+        
+        /* Client Header */
+        .client-header {
             background: var(--gradient);
             color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .client-avatar {
+            width: 80px;
+            height: 80px;
+            background: white;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .client-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .client-info {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .journey-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        /* Journey Progress Overview */
+        .progress-overview {
             padding: 1.5rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .progress-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 0.3s;
+            position: relative;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 30px;
+            background: linear-gradient(to left, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-30px); }
+        }
+        
+        .progress-stats {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            font-size: 0.85rem;
+            color: #666;
         }
-
-        .list-header h2 {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .list-controls {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .search-box {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            color: white;
-            width: 100%;
-            margin-top: 1rem;
-        }
-
-        .search-box::placeholder {
-            color: rgba(255,255,255,0.7);
-        }
-
-        .journeys-container {
+        
+        /* Navigation Menu */
+        .sidebar-nav {
             flex: 1;
             overflow-y: auto;
-            padding: 1rem;
+            padding: 1rem 0;
         }
-
-        .journey-item {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            cursor: pointer;
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--dark);
+            text-decoration: none;
             transition: all 0.3s;
-            border: 2px solid transparent;
             position: relative;
-            overflow: hidden;
+            cursor: pointer;
         }
-
-        .journey-item:hover {
-            background: white;
-            box-shadow: var(--shadow);
-            transform: translateY(-2px);
+        
+        .nav-item:hover {
+            background: rgba(44, 85, 48, 0.05);
+            color: var(--primary);
         }
-
-        .journey-item.active {
-            background: white;
-            border-color: var(--primary);
-            box-shadow: var(--shadow);
+        
+        .nav-item.active {
+            background: rgba(44, 85, 48, 0.1);
+            color: var(--primary);
         }
-
-        .journey-item.active::before {
+        
+        .nav-item.active::before {
             content: '';
             position: absolute;
             right: 0;
@@ -163,834 +235,722 @@
             width: 4px;
             background: var(--primary);
         }
-
-        .journey-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
+        
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-left: 1rem;
+            width: 24px;
+            text-align: center;
         }
-
-        .client-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .client-avatar {
-            width: 40px;
-            height: 40px;
-            background: var(--gradient);
+        
+        .nav-badge {
+            margin-right: auto;
+            background: var(--danger);
             color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.1rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
         }
-
-        .client-details h4 {
-            font-size: 0.95rem;
-            color: var(--primary);
-            margin-bottom: 0.2rem;
+        
+        /* Quick Actions */
+        .quick-actions {
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
         }
-
-        .client-details p {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .journey-status {
-            display: flex;
-            align-items: center;
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 0.5rem;
         }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            animation: pulse 2s infinite;
+        
+        .action-btn {
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--dark);
         }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
-            70% { box-shadow: 0 0 0 6px rgba(40, 167, 69, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
         }
-
-        .journey-progress {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .progress-bar {
-            flex: 1;
-            height: 4px;
-            background: #e9ecef;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--gradient);
-            transition: width 0.3s;
-        }
-
-        /* Journey Details */
-        .journey-details {
+        
+        /* Main Content */
+        .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #f5f5f5;
+            overflow: hidden;
         }
-
-        /* Header */
-        .details-header {
+        
+        /* Content Header */
+        .content-header {
             background: white;
-            box-shadow: var(--shadow);
             padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: relative;
             z-index: 10;
         }
-
-        .header-info {
+        
+        .header-left {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 1rem;
         }
-
-        .header-avatar {
-            width: 60px;
-            height: 60px;
-            background: var(--gradient);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
             font-size: 1.5rem;
-            font-weight: bold;
-            box-shadow: var(--shadow);
+            cursor: pointer;
+            color: var(--dark);
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s;
         }
-
-        .header-details h1 {
+        
+        .toggle-sidebar:hover {
+            background: #f8f9fa;
+        }
+        
+        .page-title {
             font-size: 1.5rem;
             color: var(--primary);
-            margin-bottom: 0.25rem;
+            font-weight: 600;
         }
-
-        .header-meta {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .header-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
+        
         .header-actions {
             display: flex;
             gap: 1rem;
+            align-items: center;
         }
-
+        
         .btn {
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem;
             border: none;
             border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            white-space: nowrap;
         }
-
+        
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-
+        
         .btn-primary {
             background: var(--primary);
             color: white;
         }
-
+        
         .btn-secondary {
             background: white;
             color: var(--primary);
             border: 2px solid var(--primary);
         }
-
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
         .btn-icon {
-            padding: 0.5rem;
-            min-width: auto;
+            padding: 0.75rem;
+            width: auto;
         }
-
-        /* Quick Stats */
-        .quick-stats {
-            background: white;
-            padding: 1rem 2rem;
+        
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        
+        /* Tab Navigation */
+        .tab-nav {
             display: flex;
-            gap: 2rem;
-            border-bottom: 1px solid #e9ecef;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 1rem;
         }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .stat-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(44, 85, 48, 0.1);
-            color: var(--primary);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--dark);
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        /* Tabs Navigation */
-        .tabs-nav {
-            background: white;
-            padding: 0 2rem;
-            display: flex;
-            gap: 2rem;
-            border-bottom: 2px solid #e9ecef;
-            overflow-x: auto;
-        }
-
+        
         .tab-btn {
-            padding: 1rem 0;
+            padding: 0.75rem 1.5rem;
             background: none;
             border: none;
             cursor: pointer;
-            color: #666;
-            font-size: 0.95rem;
             font-weight: 500;
-            position: relative;
+            color: #666;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            white-space: nowrap;
+            position: relative;
         }
-
+        
         .tab-btn:hover {
             color: var(--primary);
         }
-
+        
         .tab-btn.active {
             color: var(--primary);
         }
-
+        
         .tab-btn.active::after {
             content: '';
             position: absolute;
-            bottom: -2px;
+            bottom: -1rem;
+            left: 0;
             right: 0;
-            width: 100%;
-            height: 2px;
+            height: 3px;
             background: var(--primary);
         }
-
-        .tab-badge {
-            background: var(--danger);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            min-width: 20px;
-            text-align: center;
-        }
-
-        /* Tab Content */
+        
         .tab-content {
-            flex: 1;
-            padding: 2rem;
-            overflow-y: auto;
             display: none;
         }
-
+        
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s;
         }
-
-        /* Overview Tab */
-        .overview-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 2rem;
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-
-        .timeline-section {
+        
+        /* Journey Path View */
+        .journey-path {
             background: white;
+            padding: 2rem;
             border-radius: 15px;
             box-shadow: var(--shadow);
-            padding: 1.5rem;
+            margin-bottom: 2rem;
         }
-
-        .section-header {
+        
+        .path-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 2rem;
         }
-
-        .section-title {
-            font-size: 1.1rem;
+        
+        .path-title {
+            font-size: 1.3rem;
             color: var(--primary);
             font-weight: 600;
         }
-
-        .timeline {
-            position: relative;
-        }
-
-        .timeline-item {
+        
+        .path-actions {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            position: relative;
+            gap: 0.5rem;
         }
-
-        .timeline-item:not(:last-child)::before {
-            content: '';
-            position: absolute;
-            right: 18px;
-            top: 40px;
-            bottom: -20px;
-            width: 2px;
-            background: #e9ecef;
+        
+        .view-toggle {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 0.25rem;
         }
-
-        .timeline-icon {
-            width: 36px;
-            height: 36px;
+        
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            color: #666;
+        }
+        
+        .view-btn.active {
             background: white;
-            border: 2px solid #e9ecef;
+            color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Phase Timeline */
+        .phase-timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            bottom: 40px;
+            width: 3px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+        
+        .phase-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .phase-marker {
+            width: 80px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .phase-number {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border: 3px solid #e0e0e0;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
-            color: #666;
-            flex-shrink: 0;
-            z-index: 1;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
         }
-
-        .timeline-icon.success {
+        
+        .phase-item.active .phase-number {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 8px rgba(44, 85, 48, 0.1);
+        }
+        
+        .phase-item.completed .phase-number {
             background: var(--success);
             color: white;
             border-color: var(--success);
         }
-
-        .timeline-icon.warning {
-            background: var(--warning);
-            color: white;
-            border-color: var(--warning);
+        
+        .phase-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
         }
-
-        .timeline-content {
+        
+        .phase-content {
             flex: 1;
             background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 10px;
-        }
-
-        .timeline-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .timeline-title {
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .timeline-time {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .timeline-description {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .timeline-actions {
-            margin-top: 0.5rem;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .timeline-action {
-            font-size: 0.8rem;
-            color: var(--primary);
-            cursor: pointer;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid transparent;
             transition: all 0.3s;
         }
-
-        .timeline-action:hover {
-            text-decoration: underline;
-        }
-
-        /* Side Panels */
-        .side-panels {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .panel {
+        
+        .phase-item.active .phase-content {
+            border-color: var(--primary);
             background: white;
-            border-radius: 15px;
             box-shadow: var(--shadow);
-            padding: 1.5rem;
         }
-
-        .phase-card {
-            text-align: center;
-        }
-
-        .phase-number {
-            font-size: 3rem;
-            font-weight: bold;
-            color: var(--primary);
-            line-height: 1;
-        }
-
+        
         .phase-name {
             font-size: 1.1rem;
-            color: var(--dark);
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .phase-status {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 12px;
+            background: #e0e0e0;
+            color: #666;
+        }
+        
+        .phase-status.active {
+            background: var(--active-color);
+            color: white;
+        }
+        
+        .phase-status.completed {
+            background: var(--completed-color);
+            color: white;
+        }
+        
+        .phase-description {
+            color: #666;
             margin: 0.5rem 0;
         }
-
-        .phase-progress {
-            margin-top: 1rem;
-        }
-
-        .circular-progress {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            margin: 0 auto;
-        }
-
-        .circular-progress svg {
-            transform: rotate(-90deg);
-        }
-
-        .progress-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
-
-        .action-btn {
-            padding: 0.75rem;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--dark);
-        }
-
-        .action-btn:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        /* Sessions Tab */
-        .sessions-container {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .session-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .session-card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .session-header {
-            background: var(--gradient);
-            color: white;
-            padding: 1.5rem;
+        
+        .phase-meta {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .session-number {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .session-status {
-            padding: 0.25rem 0.75rem;
-            background: rgba(255,255,255,0.2);
-            border-radius: 20px;
+            gap: 2rem;
+            margin-top: 1rem;
             font-size: 0.85rem;
-        }
-
-        .session-body {
-            padding: 1.5rem;
-        }
-
-        .session-info {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
             color: #666;
-            font-size: 0.9rem;
         }
-
-        .session-sections {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .session-section {
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .section-title {
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 0.75rem;
+        
+        .phase-meta-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-
-        .checklist {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .checklist-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .checklist-item:hover {
-            background: rgba(44, 85, 48, 0.05);
-        }
-
-        .checklist-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .checklist-item label {
-            flex: 1;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .notes-area {
-            width: 100%;
-            min-height: 100px;
-            padding: 0.75rem;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            resize: vertical;
-            font-family: inherit;
-            font-size: 0.9rem;
-        }
-
-        /* Tools Tab */
-        .tools-grid {
+        
+        /* Sessions Grid */
+        .sessions-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
+            margin-top: 1.5rem;
         }
-
-        .tool-card {
+        
+        .session-card {
             background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .session-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .session-card.completed {
+            background: #f8f9fa;
+            border-color: var(--success);
+        }
+        
+        .session-card.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .session-card.current {
+            border-color: var(--primary);
+            background: rgba(44, 85, 48, 0.05);
+        }
+        
+        .session-card.current::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .session-number {
+            background: #f8f9fa;
+            color: var(--primary);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .session-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .session-subtitle {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .session-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .session-date {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .session-duration {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        /* Tools Section */
+        .tools-section {
+            background: white;
+            padding: 2rem;
             border-radius: 15px;
             box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .tools-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tools-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .tool-card {
+            background: #f8f9fa;
             padding: 1.5rem;
-            position: relative;
+            border-radius: 10px;
+            border: 2px solid transparent;
             transition: all 0.3s;
+            cursor: pointer;
         }
-
+        
         .tool-card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
+            border-color: var(--secondary);
+            background: white;
         }
-
+        
+        .tool-card.active {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
         .tool-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem;
         }
-
-        .tool-info h4 {
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .tool-type {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .tool-options {
-            position: relative;
-        }
-
-        .options-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.25rem;
-            color: #666;
-            font-size: 1.2rem;
-        }
-
-        .tool-stats {
+        
+        .tool-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 8px;
             display: flex;
-            gap: 1rem;
-            margin: 1rem 0;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .stat {
-            flex: 1;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: #666;
-        }
-
-        .tool-schedule {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-
-        .tool-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .add-tool-card {
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #f8f9fa;
-            border: 2px dashed #dee2e6;
-            cursor: pointer;
-            transition: all 0.3s;
+            font-size: 1.2rem;
         }
-
-        .add-tool-card:hover {
-            background: white;
-            border-color: var(--primary);
-            transform: none;
+        
+        .tool-status {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            background: #e0e0e0;
+            color: #666;
         }
-
-        .add-tool-icon {
-            font-size: 3rem;
-            color: #dee2e6;
+        
+        .tool-status.active {
+            background: var(--active-color);
+            color: white;
+        }
+        
+        .tool-name {
+            font-weight: 600;
+            color: var(--primary);
             margin-bottom: 0.5rem;
         }
-
-        /* Communication Tab */
-        .communication-layout {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 2rem;
-            height: calc(100vh - 400px);
+        
+        .tool-description {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 1rem;
         }
-
-        .chat-section {
+        
+        .tool-progress {
+            margin-top: 1rem;
+        }
+        
+        .tool-progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tool-progress-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s;
+        }
+        
+        .tool-progress-text {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: left;
+        }
+        
+        /* Messages Section */
+        .messages-section {
             background: white;
+            padding: 2rem;
             border-radius: 15px;
             box-shadow: var(--shadow);
+            height: 600px;
             display: flex;
             flex-direction: column;
         }
-
-        .chat-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e9ecef;
+        
+        .messages-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 1.5rem;
         }
-
-        .chat-messages {
+        
+        .messages-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .messages-container {
             flex: 1;
-            padding: 1.5rem;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 1rem;
         }
-
+        
         .message {
             display: flex;
-            gap: 0.75rem;
-            max-width: 70%;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.3s;
         }
-
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
         .message.sent {
-            align-self: flex-end;
             flex-direction: row-reverse;
         }
-
+        
         .message-avatar {
-            width: 36px;
-            height: 36px;
-            background: var(--gradient);
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.9rem;
+            font-weight: bold;
             flex-shrink: 0;
         }
-
+        
         .message-content {
-            background: #f8f9fa;
-            padding: 0.75rem 1rem;
+            background: white;
+            padding: 1rem;
             border-radius: 15px;
-            border-bottom-right-radius: 5px;
+            max-width: 70%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-
+        
         .message.sent .message-content {
             background: var(--primary);
             color: white;
-            border-bottom-right-radius: 15px;
-            border-bottom-left-radius: 5px;
         }
-
+        
         .message-text {
-            font-size: 0.9rem;
-            line-height: 1.4;
+            margin-bottom: 0.3rem;
+            line-height: 1.5;
         }
-
+        
         .message-time {
             font-size: 0.75rem;
-            color: #666;
-            margin-top: 0.25rem;
+            opacity: 0.7;
         }
-
-        .message.sent .message-time {
-            color: rgba(255,255,255,0.8);
-        }
-
-        .chat-input {
-            padding: 1.5rem;
-            border-top: 1px solid #e9ecef;
+        
+        .message-input-container {
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem;
         }
-
-        .input-field {
+        
+        .message-input {
             flex: 1;
             padding: 0.75rem 1rem;
-            border: 1px solid #e9ecef;
+            border: 2px solid #e0e0e0;
             border-radius: 25px;
             resize: none;
             font-family: inherit;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
         }
-
+        
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
         .send-btn {
             width: 45px;
             height: 45px;
@@ -1004,198 +964,249 @@
             justify-content: center;
             transition: all 0.3s;
         }
-
+        
         .send-btn:hover {
             background: var(--secondary);
             transform: scale(1.1);
         }
-
-        /* Scheduled Messages */
-        .scheduled-section {
+        
+        /* Notes Section */
+        .notes-section {
             background: white;
+            padding: 2rem;
             border-radius: 15px;
             box-shadow: var(--shadow);
-            padding: 1.5rem;
         }
-
-        .scheduled-list {
-            margin-top: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .scheduled-item {
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-right: 3px solid var(--primary);
-        }
-
-        .scheduled-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .scheduled-time {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .scheduled-channel {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .scheduled-preview {
-            font-size: 0.85rem;
-            color: #666;
-            line-height: 1.4;
-        }
-
-        /* Analytics Tab */
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .chart-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-        }
-
-        .chart-header {
+        
+        .notes-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
         }
-
-        .chart-title {
-            font-size: 1.1rem;
+        
+        .notes-title {
+            font-size: 1.2rem;
             color: var(--primary);
             font-weight: 600;
         }
-
-        .chart-container {
-            height: 250px;
-            position: relative;
-        }
-
-        /* Notes Tab */
-        .notes-layout {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2rem;
-            height: calc(100vh - 400px);
-        }
-
+        
         .notes-list {
-            background: white;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            overflow-y: auto;
+            display: grid;
+            gap: 1rem;
         }
-
+        
         .note-item {
-            padding: 1rem;
             background: #f8f9fa;
+            padding: 1.5rem;
             border-radius: 10px;
-            margin-bottom: 0.75rem;
-            cursor: pointer;
+            border-right: 4px solid var(--primary);
             transition: all 0.3s;
-            border: 2px solid transparent;
         }
-
+        
         .note-item:hover {
             background: white;
-            border-color: var(--primary);
-        }
-
-        .note-item.active {
-            background: white;
-            border-color: var(--primary);
             box-shadow: var(--shadow);
         }
-
+        
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        
         .note-date {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #666;
-            margin-bottom: 0.25rem;
         }
-
-        .note-preview {
-            font-size: 0.9rem;
+        
+        .note-type {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .note-content {
             color: var(--dark);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            line-height: 1.6;
         }
-
-        .note-editor {
+        
+        /* Analytics Section */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stat-card {
             background: white;
+            padding: 2rem;
             border-radius: 15px;
             box-shadow: var(--shadow);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
+            text-align: center;
         }
-
-        .editor-header {
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(44, 85, 48, 0.1);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .stat-change {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--success);
+        }
+        
+        .stat-change.negative {
+            color: var(--danger);
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            height: 400px;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            background: var(--gradient);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px 15px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e9ecef;
         }
-
-        .editor-textarea {
-            flex: 1;
-            padding: 1rem;
-            border: 1px solid #e9ecef;
-            border-radius: 10px;
-            resize: none;
-            font-family: inherit;
+        
+        .modal-header h3 {
+            font-size: 1.2rem;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .close:hover {
+            opacity: 1;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 0.95rem;
-            line-height: 1.6;
+            transition: border-color 0.3s;
         }
-
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
         /* Floating Action Button */
-        .fab-container {
+        .fab {
             position: fixed;
             bottom: 2rem;
             left: 2rem;
-            z-index: 100;
-        }
-
-        .fab {
-            width: 56px;
-            height: 56px;
+            width: 60px;
+            height: 60px;
             background: var(--accent);
             color: white;
             border: none;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
             transition: all 0.3s;
-            position: relative;
+            z-index: 100;
         }
-
+        
         .fab:hover {
             transform: scale(1.1);
-            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
         }
-
+        
         .fab-menu {
             position: absolute;
             bottom: 70px;
@@ -1210,13 +1221,13 @@
             transform: translateY(10px);
             transition: all 0.3s;
         }
-
+        
         .fab-menu.show {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
         }
-
+        
         .fab-item {
             padding: 0.75rem 1rem;
             cursor: pointer;
@@ -1227,30 +1238,30 @@
             gap: 0.75rem;
             color: var(--dark);
         }
-
+        
         .fab-item:hover {
             background: #f8f9fa;
             color: var(--primary);
         }
-
-        /* Notifications */
+        
+        /* Notification */
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 1rem 1.5rem;
-            background: white;
-            border-radius: 10px;
-            box-shadow: var(--shadow-lg);
-            z-index: 1000;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideInNotification 0.3s;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            animation: slideIn 0.3s;
+            gap: 10px;
             max-width: 400px;
         }
-
-        @keyframes slideIn {
+        
+        @keyframes slideInNotification {
             from {
                 transform: translateX(100%);
                 opacity: 0;
@@ -1260,257 +1271,147 @@
                 opacity: 1;
             }
         }
-
+        
         .notification.success {
-            border-right: 4px solid var(--success);
+            background: var(--success);
+            color: white;
         }
-
+        
         .notification.error {
-            border-right: 4px solid var(--danger);
+            background: var(--danger);
+            color: white;
         }
-
-        .notification.warning {
-            border-right: 4px solid var(--warning);
-        }
-
+        
         .notification.info {
-            border-right: 4px solid var(--info);
-        }
-
-        .notification-icon {
-            font-size: 1.5rem;
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .notification-message {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .notification-close {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #999;
-            font-size: 1.2rem;
-            padding: 0.25rem;
-        }
-
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow: hidden;
-            animation: modalIn 0.3s;
-        }
-
-        @keyframes modalIn {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            background: var(--gradient);
+            background: var(--info);
             color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
-
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: 600;
+        
+        /* Journey Transition Modal */
+        .transition-modal {
+            text-align: center;
         }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.25rem;
+        
+        .transition-options {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
         }
-
-        .modal-body {
-            padding: 2rem;
-            max-height: calc(90vh - 200px);
-            overflow-y: auto;
-        }
-
-        .modal-footer {
+        
+        .transition-option {
             padding: 1.5rem;
             background: #f8f9fa;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-
+        
+        .transition-option:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+        
+        .transition-option h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .transition-option p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Assessment Summary */
+        .assessment-summary {
+            background: rgba(44, 85, 48, 0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-right: 4px solid var(--primary);
+            margin-bottom: 2rem;
+        }
+        
+        .assessment-scores {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .score-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
         /* Responsive */
         @media (max-width: 1200px) {
-            .overview-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .communication-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .scheduled-section {
-                display: none;
+            .sidebar {
+                width: 280px;
             }
         }
-
+        
         @media (max-width: 768px) {
             .main-container {
                 flex-direction: column;
             }
-
-            .journeys-list {
+            
+            .sidebar {
                 width: 100%;
-                height: 200px;
-                order: 2;
+                height: auto;
             }
-
-            .journey-details {
-                order: 1;
-                height: calc(100vh - 200px);
+            
+            .sidebar.collapsed {
+                height: 0;
             }
-
-            .header-info {
+            
+            .content-header {
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 0.75rem;
-            }
-
-            .header-actions {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .tabs-nav {
-                padding: 0 1rem;
                 gap: 1rem;
+                align-items: flex-start;
             }
-
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .sessions-grid,
             .tools-grid {
                 grid-template-columns: 1fr;
             }
-
-            .notes-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .notes-list {
-                display: none;
+            
+            .fab {
+                bottom: 1rem;
+                left: 1rem;
             }
         }
-
+        
         /* Print Styles */
         @media print {
-            .journeys-list,
-            .tabs-nav,
+            .sidebar,
             .header-actions,
-            .fab-container {
-                display: none;
+            .fab,
+            .action-btn {
+                display: none !important;
             }
-
-            .journey-details {
-                box-shadow: none;
+            
+            .main-content {
+                margin: 0;
             }
-
-            .tab-content {
-                display: block !important;
-                page-break-after: always;
+            
+            .content-area {
+                padding: 0;
             }
-        }
-
-        /* Loading States */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .skeleton-text {
-            height: 16px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-        }
-
-        .skeleton-card {
-            height: 150px;
-            border-radius: 15px;
-        }
-
-        /* Tooltips */
-        .tooltip {
-            position: relative;
-            cursor: help;
-        }
-
-        .tooltip::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-            pointer-events: none;
-        }
-
-        .tooltip:hover::after {
-            opacity: 1;
-            visibility: visible;
-            bottom: calc(100% + 5px);
         }
     </style>
 </head>
@@ -1519,1146 +1420,1615 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
     </div>
-
+    
     <!-- Main Container -->
     <div class="main-container">
-        <!-- Journeys List Sidebar -->
-        <aside class="journeys-list" id="journeysList">
-            <div class="list-header">
-                <div>
-                    <h2>الرحلات النشطة</h2>
-                    <input type="text" class="search-box" placeholder="بحث..." id="searchJourneys">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Client Header -->
+            <div class="client-header">
+                <div class="client-avatar" id="clientAvatar">م</div>
+                <h2 class="client-name" id="clientName">محمد أحمد</h2>
+                <p class="client-info">
+                    <span id="clientPhone">01234567890</span><br>
+                    <span id="clientEmail">mohamed@email.com</span>
+                </p>
+                <div class="journey-badge" id="journeyBadge">رحلة الإشراقة</div>
+            </div>
+            
+            <!-- Progress Overview -->
+            <div class="progress-overview">
+                <h3 class="progress-title">التقدم العام</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="overallProgress" style="width: 25%;"></div>
                 </div>
-                <div class="list-controls">
-                    <button class="btn btn-icon" onclick="toggleSidebar()">
-                        <span>⇄</span>
-                    </button>
+                <div class="progress-stats">
+                    <span>المرحلة الحالية: <strong id="currentPhase">الاستقبال</strong></span>
+                    <span><strong id="progressPercent">25%</strong></span>
                 </div>
             </div>
-            <div class="journeys-container" id="journeysContainer">
-                <!-- Journey items will be loaded here -->
+            
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="switchTab('journey')">
+                    <span class="nav-icon">🗺️</span>
+                    <span>مسار الرحلة</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('tools')">
+                    <span class="nav-icon">🛠️</span>
+                    <span>الأدوات</span>
+                    <span class="nav-badge" id="activeToolsCount">3</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('sessions')">
+                    <span class="nav-icon">📅</span>
+                    <span>الجلسات</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('messages')">
+                    <span class="nav-icon">💬</span>
+                    <span>الرسائل</span>
+                    <span class="nav-badge" id="unreadCount">2</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('notes')">
+                    <span class="nav-icon">📝</span>
+                    <span>الملاحظات</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('analytics')">
+                    <span class="nav-icon">📊</span>
+                    <span>التحليلات</span>
+                </a>
+            </nav>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h4 style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">إجراءات سريعة</h4>
+                <div class="action-grid">
+                    <button class="action-btn" onclick="sendQuickMessage()">
+                        <span>💬</span> رسالة
+                    </button>
+                    <button class="action-btn" onclick="scheduleSession()">
+                        <span>📅</span> جلسة
+                    </button>
+                    <button class="action-btn" onclick="assignTool()">
+                        <span>🛠️</span> أداة
+                    </button>
+                    <button class="action-btn" onclick="addNote()">
+                        <span>📝</span> ملاحظة
+                    </button>
+                </div>
             </div>
         </aside>
-
-        <!-- Journey Details -->
-        <main class="journey-details" id="journeyDetails">
-            <!-- Header -->
-            <header class="details-header">
-                <div class="header-info">
-                    <div class="header-avatar" id="headerAvatar">م</div>
-                    <div>
-                        <h1 id="clientName">محمد أحمد</h1>
-                        <div class="header-meta">
-                            <span>📱 01234567890</span>
-                            <span>✉️ mohamed@email.com</span>
-                            <span>📅 بدأت: 15 يوليو 2024</span>
-                        </div>
-                    </div>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Content Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+                    <h1 class="page-title" id="pageTitle">مسار الرحلة</h1>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-secondary" onclick="openWhatsApp()">
-                        <span>💬</span>
-                        <span>واتساب</span>
+                    <button class="btn btn-secondary" onclick="viewAssessment()">
+                        <span>📊</span> نتائج التقييم
                     </button>
-                    <button class="btn btn-primary" onclick="scheduleSession()">
-                        <span>📅</span>
-                        <span>جدولة جلسة</span>
+                    <button class="btn btn-primary" onclick="transitionJourney()">
+                        <span>🔄</span> تغيير الرحلة
                     </button>
                     <button class="btn btn-icon btn-secondary" onclick="exportReport()">
-                        <span>📊</span>
+                        <span>📥</span>
                     </button>
                 </div>
             </header>
-
-            <!-- Quick Stats -->
-            <div class="quick-stats">
-                <div class="stat-item">
-                    <div class="stat-icon">📅</div>
-                    <div>
-                        <div class="stat-value" id="sessionsCount">2/3</div>
-                        <div class="stat-label">الجلسات</div>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon">🛠️</div>
-                    <div>
-                        <div class="stat-value" id="toolsCount">5</div>
-                        <div class="stat-label">الأدوات</div>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon">📈</div>
-                    <div>
-                        <div class="stat-value" id="progressPercent">65%</div>
-                        <div class="stat-label">التقدم</div>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon">⚡</div>
-                    <div>
-                        <div class="stat-value" id="engagementScore">85</div>
-                        <div class="stat-label">المشاركة</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabs Navigation -->
-            <nav class="tabs-nav">
-                <button class="tab-btn active" onclick="switchTab('overview')">
-                    <span>🏠</span>
-                    <span>نظرة عامة</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('sessions')">
-                    <span>📅</span>
-                    <span>الجلسات</span>
-                    <span class="tab-badge">1</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('tools')">
-                    <span>🛠️</span>
-                    <span>الأدوات</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('communication')">
-                    <span>💬</span>
-                    <span>التواصل</span>
-                    <span class="tab-badge">3</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('analytics')">
-                    <span>📊</span>
-                    <span>التحليلات</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('notes')">
-                    <span>📝</span>
-                    <span>الملاحظات</span>
-                </button>
-            </nav>
-
-            <!-- Tab Contents -->
-            <div class="tab-content active" id="overviewTab">
-                <div class="overview-grid">
-                    <!-- Timeline Section -->
-                    <div class="timeline-section">
-                        <div class="section-header">
-                            <h3 class="section-title">النشاط والأحداث</h3>
-                            <select id="timelineFilter">
-                                <option value="all">كل النشاطات</option>
-                                <option value="sessions">الجلسات</option>
-                                <option value="tools">الممارسات</option>
-                                <option value="messages">الرسائل</option>
-                            </select>
-                        </div>
-                        <div class="timeline" id="timeline">
-                            <!-- Timeline items will be loaded here -->
-                        </div>
-                    </div>
-
-                    <!-- Side Panels -->
-                    <div class="side-panels">
-                        <!-- Current Phase -->
-                        <div class="panel phase-card">
-                            <h3 class="section-title">المرحلة الحالية</h3>
-                            <div class="phase-number" id="currentPhaseNumber">2</div>
-                            <div class="phase-name" id="currentPhaseName">بناء الوعي</div>
-                            <div class="phase-progress">
-                                <div class="circular-progress">
-                                    <svg width="120" height="120">
-                                        <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="10"/>
-                                        <circle cx="60" cy="60" r="50" fill="none" stroke="#2C5530" stroke-width="10"
-                                                stroke-dasharray="314" stroke-dashoffset="110" stroke-linecap="round"/>
-                                    </svg>
-                                    <div class="progress-text">65%</div>
+            
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Journey Tab -->
+                <div class="tab-content active" id="journeyTab">
+                    <!-- Journey Path -->
+                    <div class="journey-path">
+                        <div class="path-header">
+                            <h2 class="path-title">رحلة الإشراقة - المسار الكامل</h2>
+                            <div class="path-actions">
+                                <div class="view-toggle">
+                                    <button class="view-btn active" onclick="changeView('timeline')">
+                                        <span>📅</span> خط زمني
+                                    </button>
+                                    <button class="view-btn" onclick="changeView('kanban')">
+                                        <span>📋</span> كانبان
+                                    </button>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Quick Actions -->
-                        <div class="panel">
-                            <h3 class="section-title">إجراءات سريعة</h3>
-                            <div class="quick-actions">
-                                <button class="action-btn" onclick="sendMotivation()">
-                                    <span>💪 رسالة تحفيز</span>
-                                </button>
-                                <button class="action-btn" onclick="checkProgress()">
-                                    <span>📊 متابعة التقدم</span>
-                                </button>
-                                <button class="action-btn" onclick="assignChallenge()">
-                                    <span>🎯 تحدي جديد</span>
-                                </button>
-                                <button class="action-btn" onclick="scheduleCheckIn()">
-                                    <span>☎️ مكالمة متابعة</span>
-                                </button>
+                        
+                        <!-- Phase Timeline -->
+                        <div class="phase-timeline" id="phaseTimeline">
+                            <div class="timeline-line"></div>
+                            
+                            <!-- Phase 1 -->
+                            <div class="phase-item active">
+                                <div class="phase-marker">
+                                    <div class="phase-number">1</div>
+                                    <div class="phase-label">المرحلة الأولى</div>
+                                </div>
+                                <div class="phase-content">
+                                    <div class="phase-name">
+                                        الاستقبال والاحتواء
+                                        <span class="phase-status active">نشطة</span>
+                                    </div>
+                                    <p class="phase-description">
+                                        خلق مساحة آمنة للألم ليتكلم، وبناء الثقة مع تقديم أول الأدوات العملية
+                                    </p>
+                                    <div class="phase-meta">
+                                        <div class="phase-meta-item">
+                                            <span>📅</span> 1 جلسة
+                                        </div>
+                                        <div class="phase-meta-item">
+                                            <span>🛠️</span> 2 أدوات
+                                        </div>
+                                        <div class="phase-meta-item">
+                                            <span>⏱️</span> 90-120 دقيقة
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Sessions -->
+                                    <div class="sessions-grid">
+                                        <div class="session-card current" onclick="viewSession('session1')">
+                                            <div class="session-number">1</div>
+                                            <h4 class="session-title">الاستقبال</h4>
+                                            <p class="session-subtitle">بناء الأمان والثقة</p>
+                                            <div class="session-meta">
+                                                <span class="session-date">
+                                                    <span>📅</span> 15 يوليو
+                                                </span>
+                                                <span class="session-duration">
+                                                    <span>⏱️</span> 90 دقيقة
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Upcoming Events -->
-                        <div class="panel">
-                            <h3 class="section-title">الأحداث القادمة</h3>
-                            <div id="upcomingEvents">
-                                <!-- Upcoming events will be loaded here -->
+                            
+                            <!-- Phase 2 -->
+                            <div class="phase-item">
+                                <div class="phase-marker">
+                                    <div class="phase-number">2</div>
+                                    <div class="phase-label">المرحلة الثانية</div>
+                                </div>
+                                <div class="phase-content">
+                                    <div class="phase-name">
+                                        الاستجابة والأدوات
+                                        <span class="phase-status">قادمة</span>
+                                    </div>
+                                    <p class="phase-description">
+                                        تعميق الوعي وتوسيع الأدوات مع تقديم المثلث القلبي المبسط
+                                    </p>
+                                    <div class="phase-meta">
+                                        <div class="phase-meta-item">
+                                            <span>📅</span> 1 جلسة
+                                        </div>
+                                        <div class="phase-meta-item">
+                                            <span>🛠️</span> 3 أدوات
+                                        </div>
+                                        <div class="phase-meta-item">
+                                            <span>⏱️</span> 75-90 دقيقة
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Phase 3 -->
+                            <div class="phase-item">
+                                <div class="phase-marker">
+                                    <div class="phase-number">3</div>
+                                    <div class="phase-label">المرحلة الثالثة</div>
+                                </div>
+                                <div class="phase-content">
+                                    <div class="phase-name">
+                                        التمكين والاستقلال
+                                        <span class="phase-status">قادمة</span>
+                                    </div>
+                                    <p class="phase-description">
+                                        التكامل والاستقلالية مع فتح آفاق للنمو المستقبلي
+                                    </p>
+                                    <div class="phase-meta">
+                                        <div class="phase-meta-item">
+                                            <span>📅</span> 1 جلسة
+                                        </div>
+                                        <div class="phase-meta-item">
+                                            <span>🛠️</span> 2 أدوات
+                                        </div>
+                                        <div class="phase-meta-item">
+                                            <span>⏱️</span> 60-75 دقيقة
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="sessionsTab">
-                <div class="sessions-container" id="sessionsContainer">
-                    <!-- Sessions will be loaded here -->
-                </div>
-            </div>
-
-            <div class="tab-content" id="toolsTab">
-                <div class="tools-grid" id="toolsGrid">
-                    <!-- Tools will be loaded here -->
-                </div>
-            </div>
-
-            <div class="tab-content" id="communicationTab">
-                <div class="communication-layout">
-                    <!-- Chat Section -->
-                    <div class="chat-section">
-                        <div class="chat-header">
-                            <h3 class="section-title">المحادثة</h3>
-                            <div>
-                                <button class="btn btn-icon" onclick="toggleChatInfo()">
-                                    <span>ℹ️</span>
-                                </button>
+                    
+                    <!-- Assessment Summary (if available) -->
+                    <div class="assessment-summary" id="assessmentSummary" style="display: none;">
+                        <h3 style="color: var(--primary); margin-bottom: 1rem;">ملخص التقييم الأولي</h3>
+                        <p style="margin-bottom: 1rem;">بناءً على التقييم الشامل، تم توجيه العميل لرحلة الإشراقة</p>
+                        <div class="assessment-scores">
+                            <div class="score-item">
+                                <div class="score-value" id="eshraqScore">75</div>
+                                <div class="score-label">إشراقة</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-value" id="baseeraScore">45</div>
+                                <div class="score-label">بصيرة</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-value" id="sakeenaScore">20</div>
+                                <div class="score-label">سكينة</div>
                             </div>
                         </div>
-                        <div class="chat-messages" id="chatMessages">
+                        <button class="btn btn-secondary" onclick="viewFullAssessment()" style="margin-top: 1rem;">
+                            عرض التقييم الكامل
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tools Tab -->
+                <div class="tab-content" id="toolsTab">
+                    <div class="tools-section">
+                        <div class="tools-header">
+                            <h2 class="tools-title">الأدوات المخصصة</h2>
+                            <button class="btn btn-primary" onclick="assignNewTool()">
+                                <span>➕</span> إضافة أداة
+                            </button>
+                        </div>
+                        
+                        <div class="tools-grid" id="toolsGrid">
+                            <!-- Tools will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sessions Tab -->
+                <div class="tab-content" id="sessionsTab">
+                    <!-- Sessions content will be loaded here -->
+                </div>
+                
+                <!-- Messages Tab -->
+                <div class="tab-content" id="messagesTab">
+                    <div class="messages-section">
+                        <div class="messages-header">
+                            <h2 class="messages-title">المحادثة</h2>
+                            <button class="btn btn-secondary" onclick="scheduleMessage()">
+                                <span>⏰</span> جدولة رسالة
+                            </button>
+                        </div>
+                        
+                        <div class="messages-container" id="messagesContainer">
                             <!-- Messages will be loaded here -->
                         </div>
-                        <div class="chat-input">
-                            <textarea class="input-field" placeholder="اكتب رسالتك..." rows="1" id="messageInput"></textarea>
+                        
+                        <div class="message-input-container">
+                            <textarea class="message-input" id="messageInput" 
+                                      placeholder="اكتب رسالتك..." rows="1"></textarea>
                             <button class="send-btn" onclick="sendMessage()">
                                 <span>➤</span>
                             </button>
                         </div>
                     </div>
-
-                    <!-- Scheduled Messages -->
-                    <div class="scheduled-section">
-                        <h3 class="section-title">الرسائل المجدولة</h3>
-                        <button class="btn btn-primary" onclick="scheduleMessage()">
-                            جدولة رسالة جديدة
-                        </button>
-                        <div class="scheduled-list" id="scheduledMessages">
-                            <!-- Scheduled messages will be loaded here -->
+                </div>
+                
+                <!-- Notes Tab -->
+                <div class="tab-content" id="notesTab">
+                    <div class="notes-section">
+                        <div class="notes-header">
+                            <h2 class="notes-title">الملاحظات</h2>
+                            <button class="btn btn-primary" onclick="addNewNote()">
+                                <span>➕</span> إضافة ملاحظة
+                            </button>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="analyticsTab">
-                <div class="analytics-grid">
-                    <!-- Analytics charts will be loaded here -->
-                </div>
-            </div>
-
-            <div class="tab-content" id="notesTab">
-                <div class="notes-layout">
-                    <!-- Notes List -->
-                    <div class="notes-list">
-                        <h3 class="section-title">الملاحظات</h3>
-                        <button class="btn btn-primary" onclick="createNewNote()">
-                            ملاحظة جديدة
-                        </button>
-                        <div id="notesList">
+                        
+                        <div class="notes-list" id="notesList">
                             <!-- Notes will be loaded here -->
                         </div>
                     </div>
-
-                    <!-- Note Editor -->
-                    <div class="note-editor">
-                        <div class="editor-header">
-                            <input type="text" placeholder="عنوان الملاحظة..." id="noteTitle">
-                            <button class="btn btn-primary" onclick="saveNote()">حفظ</button>
+                </div>
+                
+                <!-- Analytics Tab -->
+                <div class="tab-content" id="analyticsTab">
+                    <div class="analytics-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-value">85%</div>
+                            <div class="stat-label">معدل المشاركة</div>
+                            <div class="stat-change">↑ 15% من الأسبوع الماضي</div>
                         </div>
-                        <textarea class="editor-textarea" id="noteContent" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">🛠️</div>
+                            <div class="stat-value">12/15</div>
+                            <div class="stat-label">الأدوات المكتملة</div>
+                            <div class="stat-change">3 أدوات هذا الأسبوع</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📅</div>
+                            <div class="stat-value">2/3</div>
+                            <div class="stat-label">الجلسات المكتملة</div>
+                            <div class="stat-change">الجلسة القادمة: غداً</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container" style="margin-top: 2rem;">
+                        <h3 style="color: var(--primary); margin-bottom: 1rem;">معدل الممارسة اليومية</h3>
+                        <!-- Chart will be rendered here -->
                     </div>
                 </div>
             </div>
         </main>
     </div>
-
+    
     <!-- Floating Action Button -->
-    <div class="fab-container">
-        <button class="fab" onclick="toggleFabMenu()">
-            <span>⚡</span>
-        </button>
-        <div class="fab-menu" id="fabMenu">
-            <div class="fab-item" onclick="quickAction('message')">
-                <span>💬</span>
-                <span>رسالة سريعة</span>
-            </div>
-            <div class="fab-item" onclick="quickAction('tool')">
-                <span>🛠️</span>
-                <span>إضافة أداة</span>
-            </div>
-            <div class="fab-item" onclick="quickAction('note')">
-                <span>📝</span>
-                <span>ملاحظة سريعة</span>
-            </div>
-            <div class="fab-item" onclick="quickAction('reminder')">
-                <span>⏰</span>
-                <span>تذكير</span>
-            </div>
+    <button class="fab" onclick="toggleFabMenu()">
+        <span>✨</span>
+    </button>
+    <div class="fab-menu" id="fabMenu">
+        <div class="fab-item" onclick="quickAction('message')">
+            <span>💬</span>
+            <span>رسالة سريعة</span>
+        </div>
+        <div class="fab-item" onclick="quickAction('tool')">
+            <span>🛠️</span>
+            <span>تخصيص أداة</span>
+        </div>
+        <div class="fab-item" onclick="quickAction('note')">
+            <span>📝</span>
+            <span>ملاحظة سريعة</span>
+        </div>
+        <div class="fab-item" onclick="quickAction('reminder')">
+            <span>⏰</span>
+            <span>تذكير</span>
         </div>
     </div>
-
+    
     <!-- Modals -->
-    <div class="modal" id="sessionModal">
+    <!-- Journey Transition Modal -->
+    <div id="transitionModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">جدولة جلسة جديدة</h3>
-                <button class="modal-close" onclick="closeModal('sessionModal')">×</button>
+                <h3>تغيير مسار الرحلة</h3>
+                <span class="close" onclick="closeModal('transitionModal')">&times;</span>
             </div>
-            <div class="modal-body">
-                <!-- Session scheduling form -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('sessionModal')">إلغاء</button>
-                <button class="btn btn-primary" onclick="confirmScheduleSession()">تأكيد</button>
+            <div class="modal-body transition-modal">
+                <p style="margin-bottom: 2rem;">اختر الرحلة الجديدة للعميل</p>
+                
+                <div class="transition-options">
+                    <div class="transition-option" onclick="selectNewJourney('eshraq')">
+                        <h4>🌅 رحلة الإشراقة</h4>
+                        <p>للتحديات المحددة والحلول العملية السريعة</p>
+                    </div>
+                    
+                    <div class="transition-option" onclick="selectNewJourney('baseera')">
+                        <h4>👁️ رحلة البصيرة</h4>
+                        <p>لفهم أعمق للذات واكتشاف الأنماط</p>
+                    </div>
+                    
+                    <div class="transition-option" onclick="selectNewJourney('sakeena')">
+                        <h4>🕊️ رحلة السكينة</h4>
+                        <p>للتحول الجذري والحياة الطيبة</p>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="closeModal('transitionModal')">إلغاء</button>
+                </div>
             </div>
         </div>
     </div>
-
+    
+    <!-- Add/Edit Note Modal -->
+    <div id="noteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>إضافة ملاحظة</h3>
+                <span class="close" onclick="closeModal('noteModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="noteForm">
+                    <div class="form-group">
+                        <label>نوع الملاحظة</label>
+                        <select id="noteType">
+                            <option value="general">عامة</option>
+                            <option value="session">ملاحظة جلسة</option>
+                            <option value="progress">تقدم</option>
+                            <option value="challenge">تحدي</option>
+                            <option value="insight">استبصار</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>المحتوى</label>
+                        <textarea id="noteContent" rows="5" placeholder="اكتب ملاحظتك هنا..."></textarea>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('noteModal')">إلغاء</button>
+                        <button type="button" class="btn btn-primary" onclick="saveNote()">حفظ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tool Assignment Modal -->
+    <div id="toolModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تخصيص أداة جديدة</h3>
+                <span class="close" onclick="closeModal('toolModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- Tool assignment form will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Assessment Details Modal -->
+    <div id="assessmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تفاصيل التقييم الشامل</h3>
+                <span class="close" onclick="closeModal('assessmentModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="assessmentDetails">
+                <!-- Assessment details will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
-
+    
     <script>
         // Initialize Firebase
         const auth = firebase.auth();
         const db = firebase.firestore();
-
+        
         // State Management
+        let currentClient = null;
         let currentJourney = null;
-        let currentTab = 'overview';
-        let journeys = [];
+        let currentPhase = null;
+        let currentSession = null;
+        let journeyDesign = null;
+        let clientTools = [];
         let messages = [];
-        let tools = [];
-        let sessions = [];
         let notes = [];
-
+        let activeTab = 'journey';
+        
+        // Journey Templates (matching the designer)
+        const journeyTemplates = {
+            eshraq: {
+                title: 'رحلة الإشراقة',
+                description: 'من ظلمة المحنة إلى نور الوعي الأول',
+                icon: '🌅',
+                phases: [
+                    {
+                        id: 'phase1',
+                        name: 'الاستقبال والاحتواء',
+                        sessions: [
+                            {
+                                id: 'session1',
+                                title: 'الاستقبال',
+                                subtitle: 'خلق مساحة آمنة للألم ليتكلم',
+                                duration: '90-120 دقيقة',
+                                objectives: [
+                                    'بناء الأمان والثقة',
+                                    'فهم التحدي الحالي بعمق',
+                                    'تقديم أول أداة عملية'
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 'phase2',
+                        name: 'الاستجابة والأدوات',
+                        sessions: [
+                            {
+                                id: 'session2',
+                                title: 'الاستجابة',
+                                subtitle: 'تعميق الوعي وتوسيع الأدوات',
+                                duration: '75-90 دقيقة',
+                                objectives: [
+                                    'تعميق الفهم للتحدي',
+                                    'تقديم المثلث القلبي المبسط',
+                                    'بناء خطة عمل واضحة'
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        id: 'phase3',
+                        name: 'التمكين والاستقلال',
+                        sessions: [
+                            {
+                                id: 'session3',
+                                title: 'الإنارة',
+                                subtitle: 'التكامل والاستقلالية',
+                                duration: '60-75 دقيقة',
+                                objectives: [
+                                    'تقييم التقدم',
+                                    'تثبيت المكتسبات',
+                                    'فتح آفاق للنمو المستقبلي'
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            baseera: {
+                title: 'رحلة البصيرة',
+                description: 'من سطح الوعي إلى أعماق المعرفة',
+                icon: '👁️',
+                phases: [
+                    {
+                        id: 'phase1',
+                        name: 'الكشف',
+                        sessions: [
+                            { id: 'session1', title: 'العودة للقصة', subtitle: 'إعادة قراءة قصة الحياة' },
+                            { id: 'session2', title: 'البنية النفسية', subtitle: 'فهم الخريطة الداخلية' },
+                            { id: 'session3', title: 'الشوق الخفي', subtitle: 'الوصول للشوق الأصيل' },
+                            { id: 'session4', title: 'تحديد المسلك', subtitle: 'الكشف الحكيم عن النمط' }
+                        ]
+                    },
+                    {
+                        id: 'phase2',
+                        name: 'التعمق',
+                        sessions: [
+                            { id: 'session5', title: 'خريطة المحفزات', subtitle: 'فهم ما يحركك' },
+                            { id: 'session6', title: 'العقليتان بعمق', subtitle: 'من التقييد إلى التطور' },
+                            { id: 'session7', title: 'المثلث القلبي المتقدم', subtitle: 'الممارسة العميقة' }
+                        ]
+                    },
+                    {
+                        id: 'phase3',
+                        name: 'التكامل',
+                        sessions: [
+                            { id: 'session8', title: 'التطبيق في العلاقات', subtitle: 'فهم الآخرين' },
+                            { id: 'session9', title: 'خطة التحول', subtitle: 'البناء المخصص' },
+                            { id: 'session10', title: 'البوابة للسكينة', subtitle: 'الاستعداد للعمق' }
+                        ]
+                    }
+                ]
+            },
+            sakeena: {
+                title: 'رحلة السكينة',
+                description: 'من المعرفة إلى التحقق والحياة الطيبة',
+                icon: '🕊️',
+                phases: [
+                    {
+                        id: 'phase1',
+                        name: 'التطهير العميق',
+                        sessions: Array.from({length: 12}, (_, i) => ({
+                            id: `session${i+1}`,
+                            title: `جلسة ${i+1}`,
+                            subtitle: 'تطهير وشفاء'
+                        }))
+                    },
+                    {
+                        id: 'phase2',
+                        name: 'البناء الجديد',
+                        sessions: Array.from({length: 12}, (_, i) => ({
+                            id: `session${i+13}`,
+                            title: `جلسة ${i+13}`,
+                            subtitle: 'بناء وتأسيس'
+                        }))
+                    },
+                    {
+                        id: 'phase3',
+                        name: 'الإشعاع والخدمة',
+                        sessions: [
+                            { id: 'session25', title: 'المراجعة والدعم', subtitle: 'تقييم الرحلة' }
+                        ]
+                    }
+                ]
+            }
+        };
+        
+        // URL Parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientId = urlParams.get('clientId');
+        const bookingId = urlParams.get('bookingId');
+        
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            //loadJourneys();      // تحميل قائمة الرحلات
-            setupEventListeners();
-            checkUrlParams();
-        });
-        
-        // Check authentication
-        function checkAuth() {
-            const authToken = sessionStorage.getItem('adminAuth');
-            if (!authToken) {
-                window.location.href = 'admin-dashboard.html';
+        window.onload = function() {
+            if (!clientId) {
+                showNotification('معرف العميل مفقود', 'error');
+                setTimeout(() => {
+                    window.location.href = 'central-dashboard.html';
+                }, 2000);
                 return;
             }
-        }
-
-// ابحث عن دالة checkUrlParams واستبدلها بهذه:
-async function checkUrlParams() {
-    const params = new URLSearchParams(window.location.search);
-    const journeyId = params.get('journey');
-    
-    if (!journeyId) {
-        showNotification('لم يتم تحديد رحلة', 'error');
-        setTimeout(() => {
-            window.location.href = 'central-dashboard.html';
-        }, 2000);
-        return;
-    }
-    
-    try {
-        showLoading(true);
-        
-        // جلب بيانات الرحلة من Firebase
-        const journeyDoc = await db.collection('journeys').doc(journeyId).get();
-        
-        if (!journeyDoc.exists) {
-            showNotification('الرحلة غير موجودة', 'error');
-            setTimeout(() => {
-                window.location.href = 'central-dashboard.html';
-            }, 2000);
-            return;
-        }
-        
-        // حفظ بيانات الرحلة
-        currentJourney = {
-            id: journeyDoc.id,
-            ...journeyDoc.data()
+            
+            loadClientData();
+            loadJourneyDesign();
+            initializeEventListeners();
         };
         
-        console.log('تم تحميل الرحلة:', currentJourney);
-        
-        // تحديث الواجهة بالبيانات
-        updateJourneyDetails();
-        
-        // تحميل البيانات الإضافية
-        await Promise.all([
-            loadSessions(),
-            loadTools(),
-            loadMessages(),
-            loadTimeline(),
-            loadNotes()
-        ]);
-        
-        // إضافة الرحلة لقائمة الرحلات في الـ sidebar
-        journeys = [currentJourney];
-        displayJourneysList();
-        
-        // فتح التبويب المطلوب إن وجد
-        const tab = params.get('tab');
-        if (tab) {
-            // البحث عن التبويب وتفعيله
-            const tabButtons = document.querySelectorAll('.tab-btn');
-            tabButtons.forEach(btn => {
-                if (btn.getAttribute('onclick').includes(tab)) {
-                    btn.click();
-                }
-            });
-        }
-        
-    } catch (error) {
-        console.error('خطأ في تحميل الرحلة:', error);
-        showNotification('خطأ في تحميل بيانات الرحلة', 'error');
-    } finally {
-        showLoading(false);
-    }
-}
-        
-        // Display journeys list
-        function displayJourneysList() {
-            const container = document.getElementById('journeysContainer');
-            
-            if (journeys.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">لا توجد رحلات نشطة</p>';
-                return;
-            }
-
-            let html = '';
-            journeys.forEach(journey => {
-                const isActive = currentJourney && currentJourney.id === journey.id;
-                const progress = journey.progress || 0;
-                
-                html += `
-                    <div class="journey-item ${isActive ? 'active' : ''}" onclick="selectJourney('${journey.id}')">
-                        <div class="journey-item-header">
-                            <div class="client-info">
-                                <div class="client-avatar">${getInitial(journey.clientName)}</div>
-                                <div class="client-details">
-                                    <h4>${journey.clientName}</h4>
-                                    <p>${getProgramName(journey.program)}</p>
-                                </div>
-                            </div>
-                            <div class="journey-status">
-                                <span class="status-indicator"></span>
-                            </div>
-                        </div>
-                        <div class="journey-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${progress}%"></div>
-                            </div>
-                            <span>${progress}%</span>
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        // Select journey
-// عدل دالة selectJourney لتصبح:
-async function selectJourney(journeyId) {
-    // إذا كانت نفس الرحلة، لا تفعل شيء
-    if (currentJourney && currentJourney.id === journeyId) return;
-    
-    try {
-        showLoading(true);
-        
-        // جلب بيانات الرحلة
-        const journeyDoc = await db.collection('journeys').doc(journeyId).get();
-        
-        if (!journeyDoc.exists) {
-            showNotification('الرحلة غير موجودة', 'error');
-            return;
-        }
-        
-        currentJourney = {
-            id: journeyDoc.id,
-            ...journeyDoc.data()
-        };
-        
-        // تحديث الـ URL
-        const url = new URL(window.location);
-        url.searchParams.set('journey', journeyId);
-        window.history.pushState({}, '', url);
-        
-        // تحديث الواجهة
-        displayJourneysList();
-        updateJourneyDetails();
-        
-        // تحميل البيانات
-        await Promise.all([
-            loadSessions(),
-            loadTools(),
-            loadMessages(),
-            loadTimeline(),
-            loadNotes()
-        ]);
-        
-    } catch (error) {
-        console.error('خطأ في تحديد الرحلة:', error);
-        showNotification('خطأ في تحميل الرحلة', 'error');
-    } finally {
-        showLoading(false);
-    }
-}
-
-        // Update journey details
-        function updateJourneyDetails() {
-            if (!currentJourney) return;
-
-            // Update header
-            document.getElementById('headerAvatar').textContent = getInitial(currentJourney.clientName);
-            document.getElementById('clientName').textContent = currentJourney.clientName;
-            
-            // Update stats
-            const completedSessions = currentJourney.completedSessions || 0;
-            const totalSessions = getTotalSessions(currentJourney.program);
-            document.getElementById('sessionsCount').textContent = `${completedSessions}/${totalSessions}`;
-            document.getElementById('toolsCount').textContent = currentJourney.assignedTools?.length || 0;
-            document.getElementById('progressPercent').textContent = (currentJourney.progress || 0) + '%';
-            document.getElementById('engagementScore').textContent = currentJourney.engagementScore || 85;
-
-            // Update current phase
-            const currentPhase = currentJourney.currentPhase || 1;
-            const phases = getProgramPhases(currentJourney.program);
-            document.getElementById('currentPhaseNumber').textContent = currentPhase;
-            document.getElementById('currentPhaseName').textContent = phases[currentPhase - 1]?.name || 'المرحلة ' + currentPhase;
-        }
-
-        // Tab switching
-        function switchTab(tabName) {
-            currentTab = tabName;
-            
-            // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.closest('.tab-btn').classList.add('active');
-
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName + 'Tab').classList.add('active');
-
-            // Load tab-specific data if needed
-            switch(tabName) {
-                case 'overview':
-                    loadTimeline();
-                    break;
-                case 'sessions':
-                    loadSessions();
-                    break;
-                case 'tools':
-                    loadTools();
-                    break;
-                case 'communication':
-                    loadMessages();
-                    break;
-                case 'analytics':
-                    loadAnalytics();
-                    break;
-                case 'notes':
-                    loadNotes();
-                    break;
-            }
-        }
-
-        // Load timeline
-        async function loadTimeline() {
-            if (!currentJourney) return;
-
-            const timeline = document.getElementById('timeline');
-            
-            // Sample timeline data (in real app, load from Firestore)
-            const events = [
-                {
-                    type: 'session',
-                    icon: '📅',
-                    title: 'جلسة مكتملة',
-                    description: 'تمت الجلسة الثانية - بناء الوعي',
-                    time: 'اليوم 5:00 م',
-                    status: 'success'
-                },
-                {
-                    type: 'tool',
-                    icon: '✅',
-                    title: 'ممارسة مكتملة',
-                    description: 'أكمل المثلث القلبي',
-                    time: 'اليوم 8:00 ص',
-                    status: 'success'
-                },
-                {
-                    type: 'message',
-                    icon: '💬',
-                    title: 'رسالة جديدة',
-                    description: 'شكراً على الجلسة، كانت مفيدة جداً',
-                    time: 'أمس 7:30 م',
-                    status: 'normal'
-                },
-                {
-                    type: 'tool',
-                    icon: '⚠️',
-                    title: 'ممارسة فائتة',
-                    description: 'لم يكمل دفتر الامتنان',
-                    time: 'أمس 9:00 م',
-                    status: 'warning'
-                }
-            ];
-
-            let html = '';
-            events.forEach(event => {
-                const iconClass = event.status === 'success' ? 'success' : 
-                                 event.status === 'warning' ? 'warning' : '';
-                
-                html += `
-                    <div class="timeline-item">
-                        <div class="timeline-icon ${iconClass}">${event.icon}</div>
-                        <div class="timeline-content">
-                            <div class="timeline-header">
-                                <div class="timeline-title">${event.title}</div>
-                                <div class="timeline-time">${event.time}</div>
-                            </div>
-                            <div class="timeline-description">${event.description}</div>
-                            ${event.type === 'tool' && event.status === 'warning' ? 
-                                '<div class="timeline-actions"><span class="timeline-action" onclick="sendReminder()">إرسال تذكير</span></div>' : ''}
-                        </div>
-                    </div>
-                `;
-            });
-
-            timeline.innerHTML = html;
-        }
-
-        // Load sessions
-        async function loadSessions() {
-            if (!currentJourney) return;
-
-            const container = document.getElementById('sessionsContainer');
+        // Load client data
+        async function loadClientData() {
+            showLoading(true);
             
             try {
-                // Get sessions for this journey
-                const sessionsSnapshot = await db.collection('bookings')
-                    .where('journeyId', '==', currentJourney.id)
-                    .orderBy('appointmentDate', 'desc')
+                // Load client from users collection
+                const userDoc = await db.collection('users').doc(clientId).get();
+                
+                if (!userDoc.exists) {
+                    throw new Error('العميل غير موجود');
+                }
+                
+                currentClient = {
+                    id: userDoc.id,
+                    ...userDoc.data()
+                };
+                
+                // Load booking data if available
+                if (bookingId) {
+                    const bookingDoc = await db.collection('bookings').doc(bookingId).get();
+                    if (bookingDoc.exists) {
+                        const bookingData = bookingDoc.data();
+                        
+                        // Merge booking data with client
+                        currentClient.booking = {
+                            id: bookingDoc.id,
+                            ...bookingData
+                        };
+                        
+                        // Set journey type from booking
+                        currentClient.journeyType = bookingData.journeyType || bookingData.program;
+                        
+                        // Load assessment if available
+                        if (bookingData.assessmentId) {
+                            await loadAssessment(bookingData.assessmentId);
+                        }
+                    }
+                }
+                
+                // Set current journey
+                currentJourney = currentClient.journeyType || 'eshraq';
+                
+                // Update UI with client data
+                updateClientInfo();
+                
+                // Load journey progress
+                await loadJourneyProgress();
+                
+                // Load other data
+                await Promise.all([
+                    loadClientTools(),
+                    loadMessages(),
+                    loadNotes()
+                ]);
+                
+                showLoading(false);
+                
+            } catch (error) {
+                console.error('Error loading client data:', error);
+                showLoading(false);
+                showNotification('خطأ في تحميل بيانات العميل', 'error');
+            }
+        }
+        
+        // Load assessment data
+        async function loadAssessment(assessmentId) {
+            try {
+                const assessmentDoc = await db.collection('assessments').doc(assessmentId).get();
+                
+                if (assessmentDoc.exists) {
+                    currentClient.assessment = {
+                        id: assessmentDoc.id,
+                        ...assessmentDoc.data()
+                    };
+                    
+                    // Show assessment summary
+                    showAssessmentSummary();
+                }
+            } catch (error) {
+                console.error('Error loading assessment:', error);
+            }
+        }
+        
+        // Update client info in UI
+        function updateClientInfo() {
+            // Update sidebar
+            document.getElementById('clientAvatar').textContent = getInitials(currentClient.name);
+            document.getElementById('clientName').textContent = currentClient.name || 'عميل جديد';
+            document.getElementById('clientPhone').textContent = currentClient.phone || '';
+            document.getElementById('clientEmail').textContent = currentClient.email || '';
+            
+            // Update journey badge
+            const journeyName = getJourneyName(currentJourney);
+            document.getElementById('journeyBadge').textContent = journeyName;
+            
+            // Update page title
+            updatePageTitle();
+        }
+        
+        // Get initials from name
+        function getInitials(name) {
+            if (!name) return '؟';
+            const parts = name.split(' ');
+            if (parts.length >= 2) {
+                return parts[0][0] + parts[1][0];
+            }
+            return name[0];
+        }
+        
+        // Get journey name in Arabic
+        function getJourneyName(journeyType) {
+            const names = {
+                'eshraq': 'رحلة الإشراقة',
+                'baseera': 'رحلة البصيرة',
+                'sakeena': 'رحلة السكينة',
+                'mixed-eshraq-baseera': 'مسار متدرج (إشراقة-بصيرة)',
+                'mixed-baseera-sakeena': 'مسار متدرج (بصيرة-سكينة)'
+            };
+            return names[journeyType] || journeyType;
+        }
+        
+        // Load journey design
+        async function loadJourneyDesign() {
+            try {
+                const designDoc = await db.collection('journeyDesigns').doc(currentJourney).get();
+                
+                if (designDoc.exists) {
+                    journeyDesign = designDoc.data().design;
+                }
+            } catch (error) {
+                console.error('Error loading journey design:', error);
+            }
+        }
+        
+        // Load journey progress
+        async function loadJourneyProgress() {
+            try {
+                // Load journey progress from database
+                const progressDoc = await db.collection('journeyProgress')
+                    .doc(`${clientId}_${currentJourney}`)
                     .get();
-
-                sessions = [];
-                sessionsSnapshot.forEach(doc => {
-                    sessions.push({
+                
+                if (progressDoc.exists) {
+                    const progress = progressDoc.data();
+                    currentPhase = progress.currentPhase || 0;
+                    currentSession = progress.currentSession || 0;
+                    
+                    // Update progress UI
+                    updateProgressUI(progress);
+                } else {
+                    // Initialize new progress
+                    currentPhase = 0;
+                    currentSession = 0;
+                    await saveJourneyProgress();
+                }
+                
+                // Load journey view
+                loadJourneyView();
+                
+            } catch (error) {
+                console.error('Error loading journey progress:', error);
+            }
+        }
+        
+        // Update progress UI
+        function updateProgressUI(progress) {
+            const totalSessions = getTotalSessions();
+            const completedSessions = progress.completedSessions || 0;
+            const progressPercent = Math.round((completedSessions / totalSessions) * 100);
+            
+            document.getElementById('overallProgress').style.width = `${progressPercent}%`;
+            document.getElementById('progressPercent').textContent = `${progressPercent}%`;
+            
+            const template = journeyTemplates[currentJourney];
+            if (template && template.phases[currentPhase]) {
+                document.getElementById('currentPhase').textContent = template.phases[currentPhase].name;
+            }
+        }
+        
+        // Get total sessions count
+        function getTotalSessions() {
+            const template = journeyTemplates[currentJourney];
+            if (!template) return 0;
+            
+            return template.phases.reduce((total, phase) => {
+                return total + phase.sessions.length;
+            }, 0);
+        }
+        
+        // Load journey view
+        function loadJourneyView() {
+            const template = journeyTemplates[currentJourney];
+            if (!template) return;
+            
+            // Update header
+            document.querySelector('.path-title').textContent = `${template.title} - المسار الكامل`;
+            
+            // Build phase timeline
+            let timelineHTML = '<div class="timeline-line"></div>';
+            
+            template.phases.forEach((phase, phaseIndex) => {
+                const isActive = phaseIndex === currentPhase;
+                const isCompleted = phaseIndex < currentPhase;
+                
+                timelineHTML += `
+                    <div class="phase-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}">
+                        <div class="phase-marker">
+                            <div class="phase-number">${phaseIndex + 1}</div>
+                            <div class="phase-label">المرحلة ${phaseIndex + 1}</div>
+                        </div>
+                        <div class="phase-content">
+                            <div class="phase-name">
+                                ${phase.name}
+                                <span class="phase-status ${isActive ? 'active' : isCompleted ? 'completed' : ''}">
+                                    ${isActive ? 'نشطة' : isCompleted ? 'مكتملة' : 'قادمة'}
+                                </span>
+                            </div>
+                            <p class="phase-description">
+                                ${getPhaseDescription(phase)}
+                            </p>
+                            <div class="phase-meta">
+                                <div class="phase-meta-item">
+                                    <span>📅</span> ${phase.sessions.length} جلسات
+                                </div>
+                                <div class="phase-meta-item">
+                                    <span>🛠️</span> ${getPhaseToolsCount(phaseIndex)} أدوات
+                                </div>
+                                <div class="phase-meta-item">
+                                    <span>⏱️</span> ${getPhaseDuration(phase)}
+                                </div>
+                            </div>
+                            
+                            ${isActive || isCompleted ? `
+                                <div class="sessions-grid">
+                                    ${phase.sessions.map((session, sessionIndex) => {
+                                        const sessionNumber = getSessionNumber(phaseIndex, sessionIndex);
+                                        const isCurrentSession = phaseIndex === currentPhase && sessionIndex === currentSession;
+                                        const isCompletedSession = phaseIndex < currentPhase || 
+                                                                 (phaseIndex === currentPhase && sessionIndex < currentSession);
+                                        
+                                        return `
+                                            <div class="session-card ${isCurrentSession ? 'current' : ''} ${isCompletedSession ? 'completed' : ''}"
+                                                 onclick="viewSession('${phase.id}_${session.id}')">
+                                                <div class="session-number">${sessionNumber}</div>
+                                                <h4 class="session-title">${session.title}</h4>
+                                                <p class="session-subtitle">${session.subtitle}</p>
+                                                <div class="session-meta">
+                                                    ${getSessionDate(phaseIndex, sessionIndex)}
+                                                    <span class="session-duration">
+                                                        <span>⏱️</span> ${session.duration || '90 دقيقة'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('phaseTimeline').innerHTML = timelineHTML;
+        }
+        
+        // Helper functions for journey view
+        function getPhaseDescription(phase) {
+            // Return appropriate description based on phase
+            return phase.description || 'مرحلة مهمة في رحلة التحول';
+        }
+        
+        function getPhaseToolsCount(phaseIndex) {
+            if (!journeyDesign || !journeyDesign.phases[phaseIndex]) return 0;
+            
+            const phase = journeyDesign.phases[phaseIndex];
+            let count = 0;
+            
+            if (phase.sessions) {
+                phase.sessions.forEach(session => {
+                    if (session.tools) {
+                        count += session.tools.length;
+                    }
+                });
+            }
+            
+            return count;
+        }
+        
+        function getPhaseDuration(phase) {
+            // Calculate total duration for phase
+            return `${phase.sessions.length * 90} دقيقة`;
+        }
+        
+        function getSessionNumber(phaseIndex, sessionIndex) {
+            let number = 1;
+            
+            for (let i = 0; i < phaseIndex; i++) {
+                number += journeyTemplates[currentJourney].phases[i].sessions.length;
+            }
+            
+            return number + sessionIndex;
+        }
+        
+        function getSessionDate(phaseIndex, sessionIndex) {
+            // Get session date from progress data or calculate estimated date
+            return `<span class="session-date"><span>📅</span> قريباً</span>`;
+        }
+        
+        // Load client tools
+        async function loadClientTools() {
+            try {
+                const toolsSnapshot = await db.collection('clientTools')
+                    .where('clientId', '==', clientId)
+                    .where('journeyType', '==', currentJourney)
+                    .get();
+                
+                clientTools = [];
+                
+                toolsSnapshot.forEach(doc => {
+                    clientTools.push({
                         id: doc.id,
                         ...doc.data()
                     });
                 });
-
-                // Add session cards
-                let html = '';
-                let sessionNumber = sessions.length;
                 
-                sessions.forEach((session, index) => {
-                    const sessionDate = session.appointmentDate?.toDate ? 
-                        session.appointmentDate.toDate() : new Date(session.appointmentDate);
-                    const isPast = sessionDate < new Date();
-                    const status = isPast ? 'completed' : 'scheduled';
-                    
-                    html += `
-                        <div class="session-card">
-                            <div class="session-header">
-                                <h3 class="session-number">الجلسة ${sessionNumber - index}</h3>
-                                <span class="session-status">${status === 'completed' ? 'مكتملة' : 'مجدولة'}</span>
-                            </div>
-                            <div class="session-body">
-                                <div class="session-info">
-                                    <div class="info-item">
-                                        <span>📅</span>
-                                        <span>${formatDate(sessionDate)}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>⏰</span>
-                                        <span>${session.appointmentTime || '5:00 م'}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span>📍</span>
-                                        <span>${getSessionTypeName(session.sessionType)}</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="session-sections">
-                                    ${status === 'scheduled' ? `
-                                        <div class="session-section">
-                                            <h4 class="section-title">
-                                                <span>📋</span>
-                                                <span>قبل الجلسة</span>
-                                            </h4>
-                                            <div class="checklist">
-                                                <div class="checklist-item">
-                                                    <input type="checkbox" id="prep1_${session.id}">
-                                                    <label for="prep1_${session.id}">إرسال تذكير للعميل</label>
-                                                </div>
-                                                <div class="checklist-item">
-                                                    <input type="checkbox" id="prep2_${session.id}">
-                                                    <label for="prep2_${session.id}">مراجعة الملاحظات السابقة</label>
-                                                </div>
-                                                <div class="checklist-item">
-                                                    <input type="checkbox" id="prep3_${session.id}">
-                                                    <label for="prep3_${session.id}">تحضير الأجندة</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ` : `
-                                        <div class="session-section">
-                                            <h4 class="section-title">
-                                                <span>📝</span>
-                                                <span>ملخص الجلسة</span>
-                                            </h4>
-                                            <textarea class="notes-area" placeholder="أضف ملخص الجلسة...">${session.summary || ''}</textarea>
-                                        </div>
-                                        <div class="session-section">
-                                            <h4 class="section-title">
-                                                <span>🎯</span>
-                                                <span>الواجبات والمتابعة</span>
-                                            </h4>
-                                            <textarea class="notes-area" placeholder="الواجبات والخطوات التالية...">${session.homework || ''}</textarea>
-                                        </div>
-                                    `}
-                                </div>
-                                
-                                <div class="session-actions">
-                                    ${status === 'scheduled' ? `
-                                        <button class="btn btn-primary" onclick="startSession('${session.id}')">بدء الجلسة</button>
-                                        <button class="btn btn-secondary" onclick="rescheduleSession('${session.id}')">إعادة جدولة</button>
-                                    ` : `
-                                        <button class="btn btn-primary" onclick="viewSessionDetails('${session.id}')">عرض التفاصيل</button>
-                                        <button class="btn btn-secondary" onclick="editSessionNotes('${session.id}')">تعديل الملاحظات</button>
-                                    `}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                // Add new session button
-                html += `
-                    <div class="session-card add-tool-card" onclick="scheduleSession()">
-                        <div class="add-tool-icon">+</div>
-                        <h4>جدولة جلسة جديدة</h4>
-                    </div>
-                `;
-
-                container.innerHTML = html;
+                updateToolsCount();
                 
             } catch (error) {
-                console.error('Error loading sessions:', error);
-                container.innerHTML = '<p style="text-align: center; color: #999;">خطأ في تحميل الجلسات</p>';
+                console.error('Error loading client tools:', error);
             }
         }
-
-        // Load tools
-        async function loadTools() {
-            if (!currentJourney) return;
-
-            const container = document.getElementById('toolsGrid');
-            
-            // Get assigned tools
-            const assignedTools = currentJourney.assignedTools || [];
-            
-            let html = '';
-            
-            assignedTools.forEach(tool => {
-                // Get practice stats (mock data for now)
-                const completedDays = Math.floor(Math.random() * 7) + 1;
-                const totalDays = 7;
-                const completionRate = Math.round((completedDays / totalDays) * 100);
-                
-                html += `
-                    <div class="tool-card">
-                        <div class="tool-header">
-                            <div class="tool-info">
-                                <h4>${tool.toolName || 'أداة غير مسماة'}</h4>
-                                <span class="tool-type">${getToolTypeName(tool.toolType)}</span>
-                            </div>
-                            <button class="options-btn" onclick="showToolOptions('${tool.toolId}')">⋮</button>
-                        </div>
-                        
-                        <div class="tool-stats">
-                            <div class="stat">
-                                <div class="stat-value">${completedDays}/${totalDays}</div>
-                                <div class="stat-label">الأيام</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value">${completionRate}%</div>
-                                <div class="stat-label">الإكمال</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value">4.5</div>
-                                <div class="stat-label">التقييم</div>
-                            </div>
-                        </div>
-                        
-                        <div class="tool-schedule">
-                            <span>⏰</span>
-                            <span>${getFrequencyName(tool.customSettings?.frequency)} - ${tool.customSettings?.reminderTime || '9:00 ص'}</span>
-                        </div>
-                        
-                        <div class="progress-bar" style="margin: 1rem 0;">
-                            <div class="progress-fill" style="width: ${completionRate}%"></div>
-                        </div>
-                        
-                        <div class="tool-actions">
-                            <button class="btn btn-sm btn-primary" onclick="viewToolProgress('${tool.toolId}')">عرض التقدم</button>
-                            <button class="btn btn-sm btn-secondary" onclick="editToolSettings('${tool.toolId}')">تعديل</button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            // Add new tool button
-            html += `
-                <div class="tool-card add-tool-card" onclick="addNewTool()">
-                    <div class="add-tool-icon">+</div>
-                    <h4>إضافة أداة جديدة</h4>
-                </div>
-            `;
-            
-            container.innerHTML = html;
+        
+        // Update tools count in sidebar
+        function updateToolsCount() {
+            const activeTools = clientTools.filter(tool => tool.status === 'active').length;
+            document.getElementById('activeToolsCount').textContent = activeTools;
         }
-
+        
         // Load messages
         async function loadMessages() {
-            if (!currentJourney) return;
-
-            const chatContainer = document.getElementById('chatMessages');
-            
             try {
-                // Get messages for this journey
                 const messagesSnapshot = await db.collection('messages')
-                    .where('journeyId', '==', currentJourney.id)
-                    .orderBy('timestamp', 'asc')
+                    .where('clientId', '==', clientId)
+                    .orderBy('timestamp', 'desc')
                     .limit(50)
                     .get();
-
+                
                 messages = [];
+                
                 messagesSnapshot.forEach(doc => {
                     messages.push({
                         id: doc.id,
                         ...doc.data()
                     });
                 });
-
-                // Display messages
-                let html = '';
-                messages.forEach(message => {
-                    const isSent = message.sender === 'coach';
-                    const time = message.timestamp?.toDate ? 
-                        formatTime(message.timestamp.toDate()) : 'الآن';
-                    
-                    html += `
-                        <div class="message ${isSent ? 'sent' : 'received'}">
-                            <div class="message-avatar">${isSent ? 'أنت' : getInitial(currentJourney.clientName)}</div>
-                            <div class="message-content">
-                                <div class="message-text">${message.content}</div>
-                                <div class="message-time">${time}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                chatContainer.innerHTML = html;
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-
-                // Load scheduled messages
-                loadScheduledMessages();
+                
+                updateUnreadCount();
                 
             } catch (error) {
                 console.error('Error loading messages:', error);
-                chatContainer.innerHTML = '<p style="text-align: center; color: #999;">خطأ في تحميل الرسائل</p>';
             }
         }
-
-        // Load scheduled messages
-        function loadScheduledMessages() {
-            const container = document.getElementById('scheduledMessages');
-            
-            // Mock scheduled messages
-            const scheduled = [
-                {
-                    time: 'غداً 9:00 ص',
-                    channel: 'واتساب',
-                    message: 'صباح الخير! تذكير بممارسة المثلث القلبي'
-                },
-                {
-                    time: 'بعد الجلسة',
-                    channel: 'إيميل',
-                    message: 'ملخص الجلسة والخطوات التالية'
-                }
-            ];
-
-            let html = '';
-            scheduled.forEach(item => {
-                html += `
-                    <div class="scheduled-item">
-                        <div class="scheduled-header">
-                            <span class="scheduled-time">${item.time}</span>
-                            <span class="scheduled-channel">${item.channel}</span>
-                        </div>
-                        <div class="scheduled-preview">${item.message}</div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
+        
+        // Update unread count
+        function updateUnreadCount() {
+            const unread = messages.filter(msg => !msg.read && msg.sender !== 'admin').length;
+            document.getElementById('unreadCount').textContent = unread || '';
         }
-
-        // Load analytics
-        function loadAnalytics() {
-            const container = document.querySelector('#analyticsTab .analytics-grid');
-            
-            // Create analytics cards
-            container.innerHTML = `
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3 class="chart-title">معدل إكمال الممارسات</h3>
-                        <select>
-                            <option>آخر 7 أيام</option>
-                            <option>آخر 30 يوم</option>
-                        </select>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="practicesChart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3 class="chart-title">مستوى الطاقة والمزاج</h3>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="moodChart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3 class="chart-title">التقدم العام</h3>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="progressChart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3 class="chart-title">إحصائيات التواصل</h3>
-                    </div>
-                    <div style="padding: 2rem;">
-                        <div class="stat-item" style="margin-bottom: 1rem;">
-                            <span>الرسائل المرسلة:</span>
-                            <strong>47</strong>
-                        </div>
-                        <div class="stat-item" style="margin-bottom: 1rem;">
-                            <span>معدل الرد:</span>
-                            <strong>89%</strong>
-                        </div>
-                        <div class="stat-item">
-                            <span>وقت الرد المتوسط:</span>
-                            <strong>2.5 ساعة</strong>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Initialize charts (using mock data)
-            setTimeout(() => {
-                initializeCharts();
-            }, 100);
-        }
-
-        // Initialize charts
-        function initializeCharts() {
-            // Practices completion chart
-            const practicesCtx = document.getElementById('practicesChart');
-            if (practicesCtx) {
-                // Here you would initialize actual chart using Chart.js or similar
-                // For now, just add placeholder
-                practicesCtx.parentElement.innerHTML = '<div style="text-align: center; padding: 3rem; color: #999;">الرسم البياني هنا</div>';
-            }
-
-            // Mood chart
-            const moodCtx = document.getElementById('moodChart');
-            if (moodCtx) {
-                moodCtx.parentElement.innerHTML = '<div style="text-align: center; padding: 3rem; color: #999;">الرسم البياني هنا</div>';
-            }
-
-            // Progress chart
-            const progressCtx = document.getElementById('progressChart');
-            if (progressCtx) {
-                progressCtx.parentElement.innerHTML = '<div style="text-align: center; padding: 3rem; color: #999;">الرسم البياني هنا</div>';
-            }
-        }
-
+        
         // Load notes
         async function loadNotes() {
-            if (!currentJourney) return;
-
-            const container = document.getElementById('notesList');
-            
             try {
-                // Get notes for this journey
-                const notesSnapshot = await db.collection('journeys')
-                    .doc(currentJourney.id)
-                    .collection('notes')
+                const notesSnapshot = await db.collection('clientNotes')
+                    .where('clientId', '==', clientId)
                     .orderBy('createdAt', 'desc')
                     .get();
-
+                
                 notes = [];
+                
                 notesSnapshot.forEach(doc => {
                     notes.push({
                         id: doc.id,
                         ...doc.data()
                     });
                 });
-
-                // Display notes list
-                let html = '';
-                notes.forEach(note => {
-                    const date = note.createdAt?.toDate ? 
-                        formatDate(note.createdAt.toDate()) : 'اليوم';
-                    
-                    html += `
-                        <div class="note-item" onclick="selectNote('${note.id}')">
-                            <div class="note-date">${date}</div>
-                            <div class="note-preview">${note.content?.substring(0, 100) || 'ملاحظة فارغة'}...</div>
-                        </div>
-                    `;
-                });
-
-                if (notes.length === 0) {
-                    html = '<p style="text-align: center; color: #999; margin-top: 2rem;">لا توجد ملاحظات بعد</p>';
-                }
-
-                container.innerHTML = html;
                 
             } catch (error) {
                 console.error('Error loading notes:', error);
             }
         }
-
-        // Event Listeners
-        function setupEventListeners() {
-            // Search journeys
-            document.getElementById('searchJourneys').addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                const filteredJourneys = journeys.filter(j => 
-                    j.clientName.toLowerCase().includes(searchTerm) ||
-                    j.clientEmail.toLowerCase().includes(searchTerm)
-                );
-                displayFilteredJourneys(filteredJourneys);
-            });
-
-            // Message input auto-resize
-            const messageInput = document.getElementById('messageInput');
-            messageInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = this.scrollHeight + 'px';
-            });
-
-            // Send message on Enter
-            messageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
-
-            // Timeline filter
-            document.getElementById('timelineFilter').addEventListener('change', (e) => {
-                filterTimeline(e.target.value);
-            });
-        }
-
-        // Display filtered journeys
-        function displayFilteredJourneys(filteredJourneys) {
-            const container = document.getElementById('journeysContainer');
+        
+        // Tab switching
+        function switchTab(tabName) {
+            activeTab = tabName;
             
-            if (filteredJourneys.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">لا توجد نتائج</p>';
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            
+            // Update page title
+            updatePageTitle();
+            
+            // Load tab-specific content
+            switch(tabName) {
+                case 'tools':
+                    loadToolsTab();
+                    break;
+                case 'sessions':
+                    loadSessionsTab();
+                    break;
+                case 'messages':
+                    loadMessagesTab();
+                    break;
+                case 'notes':
+                    loadNotesTab();
+                    break;
+                case 'analytics':
+                    loadAnalyticsTab();
+                    break;
+            }
+        }
+        
+        // Update page title
+        function updatePageTitle() {
+            const titles = {
+                'journey': 'مسار الرحلة',
+                'tools': 'الأدوات',
+                'sessions': 'الجلسات',
+                'messages': 'الرسائل',
+                'notes': 'الملاحظات',
+                'analytics': 'التحليلات'
+            };
+            
+            document.getElementById('pageTitle').textContent = titles[activeTab] || 'إدارة الرحلة';
+        }
+        
+        // Load tools tab
+        function loadToolsTab() {
+            const toolsGrid = document.getElementById('toolsGrid');
+            
+            if (clientTools.length === 0) {
+                toolsGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #999;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🛠️</div>
+                        <p>لم يتم تخصيص أدوات بعد</p>
+                        <button class="btn btn-primary" onclick="assignNewTool()" style="margin-top: 1rem;">
+                            إضافة أول أداة
+                        </button>
+                    </div>
+                `;
                 return;
             }
-
+            
             let html = '';
-            filteredJourneys.forEach(journey => {
-                const isActive = currentJourney && currentJourney.id === journey.id;
-                const progress = journey.progress || 0;
+            
+            clientTools.forEach(tool => {
+                const iconMap = {
+                    'practice': '🎯',
+                    'meditation': '🧘',
+                    'game': '🎮',
+                    'challenge': '🏆',
+                    'reflection': '📝',
+                    'voice': '🎤'
+                };
+                
+                const statusClass = tool.status === 'active' ? 'active' : '';
+                const progressPercent = tool.progress || 0;
                 
                 html += `
-                    <div class="journey-item ${isActive ? 'active' : ''}" onclick="selectJourney('${journey.id}')">
-                        <div class="journey-item-header">
-                            <div class="client-info">
-                                <div class="client-avatar">${getInitial(journey.clientName)}</div>
-                                <div class="client-details">
-                                    <h4>${journey.clientName}</h4>
-                                    <p>${getProgramName(journey.program)}</p>
-                                </div>
+                    <div class="tool-card ${statusClass}" onclick="viewTool('${tool.id}')">
+                        <div class="tool-header">
+                            <div class="tool-icon">
+                                ${iconMap[tool.type] || '❓'}
                             </div>
-                            <div class="journey-status">
-                                <span class="status-indicator"></span>
-                            </div>
+                            <span class="tool-status ${statusClass}">
+                                ${tool.status === 'active' ? 'نشط' : 'غير نشط'}
+                            </span>
                         </div>
-                        <div class="journey-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${progress}%"></div>
+                        <h4 class="tool-name">${tool.name}</h4>
+                        <p class="tool-description">${tool.description || ''}</p>
+                        <div class="tool-progress">
+                            <div class="tool-progress-bar">
+                                <div class="tool-progress-fill" style="width: ${progressPercent}%"></div>
                             </div>
-                            <span>${progress}%</span>
+                            <div class="tool-progress-text">${progressPercent}% مكتمل</div>
                         </div>
                     </div>
                 `;
             });
-
-            container.innerHTML = html;
+            
+            toolsGrid.innerHTML = html;
         }
-
+        
+        // Load sessions tab
+        function loadSessionsTab() {
+            // Implementation for sessions tab
+            const sessionsTab = document.getElementById('sessionsTab');
+            sessionsTab.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: #999;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                    <p>عرض الجلسات قيد التطوير</p>
+                </div>
+            `;
+        }
+        
+        // Load messages tab
+        function loadMessagesTab() {
+            const container = document.getElementById('messagesContainer');
+            
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #999;">
+                        <p>لا توجد رسائل بعد</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">ابدأ المحادثة بإرسال رسالة</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            messages.forEach(message => {
+                const isSent = message.sender === 'admin';
+                const avatar = isSent ? 'م' : getInitials(currentClient.name);
+                const time = formatMessageTime(message.timestamp);
+                
+                html += `
+                    <div class="message ${isSent ? 'sent' : 'received'}">
+                        <div class="message-avatar">${avatar}</div>
+                        <div class="message-content">
+                            <div class="message-text">${message.text}</div>
+                            <div class="message-time">${time}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Load notes tab
+        function loadNotesTab() {
+            const notesList = document.getElementById('notesList');
+            
+            if (notes.length === 0) {
+                notesList.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #999;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+                        <p>لا توجد ملاحظات بعد</p>
+                        <button class="btn btn-primary" onclick="addNewNote()" style="margin-top: 1rem;">
+                            إضافة أول ملاحظة
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            notes.forEach(note => {
+                const typeColors = {
+                    'general': 'var(--secondary)',
+                    'session': 'var(--primary)',
+                    'progress': 'var(--success)',
+                    'challenge': 'var(--warning)',
+                    'insight': 'var(--info)'
+                };
+                
+                const typeNames = {
+                    'general': 'عامة',
+                    'session': 'جلسة',
+                    'progress': 'تقدم',
+                    'challenge': 'تحدي',
+                    'insight': 'استبصار'
+                };
+                
+                html += `
+                    <div class="note-item">
+                        <div class="note-header">
+                            <span class="note-date">${formatDate(note.createdAt)}</span>
+                            <span class="note-type" style="background: ${typeColors[note.type] || 'var(--secondary)'}">
+                                ${typeNames[note.type] || 'عامة'}
+                            </span>
+                        </div>
+                        <div class="note-content">${note.content}</div>
+                    </div>
+                `;
+            });
+            
+            notesList.innerHTML = html;
+        }
+        
+        // Load analytics tab
+        function loadAnalyticsTab() {
+            // Implementation for analytics
+            // This would include charts and statistics
+        }
+        
+        // Show assessment summary
+        function showAssessmentSummary() {
+            if (!currentClient.assessment) return;
+            
+            const summary = document.getElementById('assessmentSummary');
+            const scores = currentClient.assessment.scores;
+            
+            document.getElementById('eshraqScore').textContent = scores.eshraq || 0;
+            document.getElementById('baseeraScore').textContent = scores.baseera || 0;
+            document.getElementById('sakeenaScore').textContent = scores.sakeena || 0;
+            
+            summary.style.display = 'block';
+        }
+        
+        // View full assessment
+        function viewFullAssessment() {
+            if (!currentClient.assessment) return;
+            
+            const modal = document.getElementById('assessmentModal');
+            const details = document.getElementById('assessmentDetails');
+            
+            // Build assessment details HTML
+            let html = `
+                <div style="max-height: 70vh; overflow-y: auto;">
+                    <h4 style="color: var(--primary); margin-bottom: 1rem;">نتائج التقييم</h4>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
+                            <div style="font-size: 2rem; color: var(--eshraq-color); font-weight: bold;">
+                                ${currentClient.assessment.scores.eshraq}
+                            </div>
+                            <div>إشراقة</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
+                            <div style="font-size: 2rem; color: var(--baseera-color); font-weight: bold;">
+                                ${currentClient.assessment.scores.baseera}
+                            </div>
+                            <div>بصيرة</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
+                            <div style="font-size: 2rem; color: var(--sakeena-color); font-weight: bold;">
+                                ${currentClient.assessment.scores.sakeena}
+                            </div>
+                            <div>سكينة</div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: var(--primary); margin-bottom: 1rem;">الإجابات على الأسئلة</h4>
+            `;
+            
+            // Add answers details (simplified for brevity)
+            const answers = currentClient.assessment.answers;
+            
+            // Add key answers
+            if (answers.q3_text) {
+                html += `
+                    <div style="margin-bottom: 1.5rem;">
+                        <strong>أكثر ما يؤلمه:</strong>
+                        <p style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">
+                            ${answers.q3_text}
+                        </p>
+                    </div>
+                `;
+            }
+            
+            if (answers.q6_text) {
+                html += `
+                    <div style="margin-bottom: 1.5rem;">
+                        <strong>رؤيته بعد عام:</strong>
+                        <p style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">
+                            ${answers.q6_text}
+                        </p>
+                    </div>
+                `;
+            }
+            
+            html += `
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="closeModal('assessmentModal')">إغلاق</button>
+                </div>
+            `;
+            
+            details.innerHTML = html;
+            modal.style.display = 'block';
+        }
+        
+        // Journey transition
+        function transitionJourney() {
+            document.getElementById('transitionModal').style.display = 'block';
+        }
+        
+        // Select new journey
+        async function selectNewJourney(newJourney) {
+            if (newJourney === currentJourney) {
+                showNotification('العميل بالفعل في هذه الرحلة', 'info');
+                return;
+            }
+            
+            if (!confirm(`هل أنت متأكد من تحويل العميل إلى ${getJourneyName(newJourney)}؟`)) {
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Update client journey
+                await db.collection('users').doc(clientId).update({
+                    journeyType: newJourney,
+                    lastModified: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Create new journey progress
+                await db.collection('journeyProgress').doc(`${clientId}_${newJourney}`).set({
+                    clientId: clientId,
+                    journeyType: newJourney,
+                    currentPhase: 0,
+                    currentSession: 0,
+                    completedSessions: 0,
+                    startedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'active'
+                });
+                
+                // Add transition note
+                await db.collection('clientNotes').add({
+                    clientId: clientId,
+                    type: 'transition',
+                    content: `تم تحويل العميل من ${getJourneyName(currentJourney)} إلى ${getJourneyName(newJourney)}`,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdBy: auth.currentUser?.uid || 'admin'
+                });
+                
+                showNotification('تم تحويل الرحلة بنجاح', 'success');
+                closeModal('transitionModal');
+                
+                // Reload page with new journey
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Error transitioning journey:', error);
+                showLoading(false);
+                showNotification('خطأ في تحويل الرحلة', 'error');
+            }
+        }
+        
+        // Save journey progress
+        async function saveJourneyProgress() {
+            try {
+                await db.collection('journeyProgress').doc(`${clientId}_${currentJourney}`).set({
+                    clientId: clientId,
+                    journeyType: currentJourney,
+                    currentPhase: currentPhase,
+                    currentSession: currentSession,
+                    completedSessions: getCompletedSessionsCount(),
+                    lastModified: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+            } catch (error) {
+                console.error('Error saving progress:', error);
+            }
+        }
+        
+        // Get completed sessions count
+        function getCompletedSessionsCount() {
+            let count = 0;
+            const template = journeyTemplates[currentJourney];
+            
+            for (let i = 0; i < currentPhase; i++) {
+                count += template.phases[i].sessions.length;
+            }
+            
+            count += currentSession;
+            return count;
+        }
+        
+        // View session details
+        function viewSession(sessionId) {
+            // Implementation for viewing session details
+            showNotification('عرض تفاصيل الجلسة قيد التطوير', 'info');
+        }
+        
+        // View tool details
+        function viewTool(toolId) {
+            const tool = clientTools.find(t => t.id === toolId);
+            if (!tool) return;
+            
+            // Implementation for viewing tool details
+            showNotification(`عرض تفاصيل الأداة: ${tool.name}`, 'info');
+        }
+        
+        // Quick actions
+        function sendQuickMessage() {
+            switchTab('messages');
+            document.getElementById('messageInput').focus();
+        }
+        
+        function scheduleSession() {
+            showNotification('جدولة الجلسات قيد التطوير', 'info');
+        }
+        
+        function assignTool() {
+            assignNewTool();
+        }
+        
+        function addNote() {
+            addNewNote();
+        }
+        
+        // Assign new tool
+        async function assignNewTool() {
+            // Load available tools from library
+            showLoading(true);
+            
+            try {
+                const toolsSnapshot = await db.collection('toolsLibrary')
+                    .orderBy('basicInfo.createdDate', 'desc')
+                    .get();
+                
+                const availableTools = [];
+                toolsSnapshot.forEach(doc => {
+                    availableTools.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Show tool selection modal
+                showToolSelectionModal(availableTools);
+                showLoading(false);
+                
+            } catch (error) {
+                console.error('Error loading tools:', error);
+                showLoading(false);
+                showNotification('خطأ في تحميل الأدوات', 'error');
+            }
+        }
+        
+        // Show tool selection modal
+        function showToolSelectionModal(tools) {
+            const modal = document.getElementById('toolModal');
+            const modalBody = modal.querySelector('.modal-body');
+            
+            let html = `
+                <div style="max-height: 60vh; overflow-y: auto;">
+                    <p style="margin-bottom: 1.5rem;">اختر أداة لتخصيصها للعميل:</p>
+                    
+                    <div style="display: grid; gap: 1rem;">
+            `;
+            
+            tools.forEach(tool => {
+                const iconMap = {
+                    'practice': '🎯',
+                    'meditation': '🧘',
+                    'game': '🎮',
+                    'challenge': '🏆',
+                    'reflection': '📝',
+                    'voice': '🎤'
+                };
+                
+                html += `
+                    <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; cursor: pointer; 
+                               transition: all 0.3s; border: 2px solid transparent;"
+                         onclick="selectToolForClient('${tool.id}')"
+                         onmouseover="this.style.borderColor='var(--primary)'"
+                         onmouseout="this.style.borderColor='transparent'">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="font-size: 2rem;">${iconMap[tool.basicInfo.type] || '❓'}</div>
+                            <div style="flex: 1;">
+                                <h4 style="color: var(--primary); margin-bottom: 0.3rem;">${tool.basicInfo.name}</h4>
+                                <p style="font-size: 0.85rem; color: #666; margin: 0;">
+                                    ${tool.basicInfo.description}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="closeModal('toolModal')">إلغاء</button>
+                </div>
+            `;
+            
+            modalBody.innerHTML = html;
+            modal.style.display = 'block';
+        }
+        
+        // Select tool for client
+        async function selectToolForClient(toolId) {
+            showLoading(true);
+            
+            try {
+                // Get tool details
+                const toolDoc = await db.collection('toolsLibrary').doc(toolId).get();
+                if (!toolDoc.exists) {
+                    throw new Error('الأداة غير موجودة');
+                }
+                
+                const toolData = toolDoc.data();
+                
+                // Create client tool
+                await db.collection('clientTools').add({
+                    clientId: clientId,
+                    toolId: toolId,
+                    journeyType: currentJourney,
+                    name: toolData.basicInfo.name,
+                    description: toolData.basicInfo.description,
+                    type: toolData.basicInfo.type,
+                    status: 'active',
+                    progress: 0,
+                    assignedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    assignedBy: auth.currentUser?.uid || 'admin',
+                    customization: {
+                        frequency: toolData.settings.frequency,
+                        duration: toolData.settings.defaultDuration,
+                        timing: 'flexible'
+                    }
+                });
+                
+                showNotification('تم تخصيص الأداة بنجاح', 'success');
+                closeModal('toolModal');
+                
+                // Reload tools
+                await loadClientTools();
+                if (activeTab === 'tools') {
+                    loadToolsTab();
+                }
+                
+                showLoading(false);
+                
+            } catch (error) {
+                console.error('Error assigning tool:', error);
+                showLoading(false);
+                showNotification('خطأ في تخصيص الأداة', 'error');
+            }
+        }
+        
         // Send message
         async function sendMessage() {
             const input = document.getElementById('messageInput');
-            const message = input.value.trim();
+            const text = input.value.trim();
             
-            if (!message || !currentJourney) return;
-
+            if (!text) return;
+            
             try {
-                // Add message to Firestore
+                // Add message to database
                 await db.collection('messages').add({
-                    journeyId: currentJourney.id,
-                    content: message,
-                    sender: 'coach',
+                    clientId: clientId,
+                    sender: 'admin',
+                    text: text,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     read: false
                 });
-
+                
                 // Clear input
                 input.value = '';
-                input.style.height = 'auto';
-
+                
                 // Reload messages
-                loadMessages();
-
-                // Show notification
+                await loadMessages();
+                loadMessagesTab();
+                
                 showNotification('تم إرسال الرسالة', 'success');
                 
             } catch (error) {
@@ -2666,410 +3036,216 @@ async function selectJourney(journeyId) {
                 showNotification('خطأ في إرسال الرسالة', 'error');
             }
         }
-
-        // Schedule session
-        function scheduleSession() {
-            document.getElementById('sessionModal').classList.add('show');
-        }
-
-        // Add new tool
-        function addNewTool() {
-            // Save current context
-            sessionStorage.setItem('currentJourney', currentJourney.id);
-            sessionStorage.setItem('currentPhase', currentJourney.currentPhase || 1);
-            
-            // Navigate to tools customization page
-            window.location.href = `admin-journey-tools.html?journey=${currentJourney.id}`;
-        }
-
-        // Quick actions
-        function sendMotivation() {
-            const messages = [
-                'أنت تبلي بلاءً حسناً! استمر 💪',
-                'كل خطوة صغيرة تقربك من هدفك 🌟',
-                'فخور بتقدمك! واصل العمل الرائع 👏'
-            ];
-            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-            
-            document.getElementById('messageInput').value = randomMessage;
-            document.getElementById('messageInput').focus();
-        }
-
-        function checkProgress() {
-            switchTab('analytics');
-        }
-
-        function assignChallenge() {
-            showNotification('قريباً: نظام التحديات', 'info');
-        }
-
-        function scheduleCheckIn() {
-            showNotification('قريباً: جدولة مكالمات المتابعة', 'info');
-        }
-
-        // FAB actions
-        function toggleFabMenu() {
-            document.getElementById('fabMenu').classList.toggle('show');
-        }
-
-        function quickAction(type) {
-            toggleFabMenu();
-            
-            switch(type) {
-                case 'message':
-                    switchTab('communication');
-                    document.getElementById('messageInput').focus();
-                    break;
-                case 'tool':
-                    addNewTool();
-                    break;
-                case 'note':
-                    switchTab('notes');
-                    createNewNote();
-                    break;
-                case 'reminder':
-                    showNotification('قريباً: نظام التذكيرات', 'info');
-                    break;
-            }
-        }
-
-        // Notes functions
-        function createNewNote() {
-            document.getElementById('noteTitle').value = '';
+        
+        // Add new note
+        function addNewNote() {
+            document.getElementById('noteType').value = 'general';
             document.getElementById('noteContent').value = '';
-            document.getElementById('noteTitle').focus();
+            document.getElementById('noteModal').style.display = 'block';
         }
-
+        
+        // Save note
         async function saveNote() {
-            const title = document.getElementById('noteTitle').value;
-            const content = document.getElementById('noteContent').value;
+            const type = document.getElementById('noteType').value;
+            const content = document.getElementById('noteContent').value.trim();
             
-            if (!content.trim()) return;
-
+            if (!content) {
+                showNotification('محتوى الملاحظة مطلوب', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
             try {
-                await db.collection('journeys')
-                    .doc(currentJourney.id)
-                    .collection('notes')
-                    .add({
-                        title: title || 'ملاحظة بدون عنوان',
-                        content: content,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
+                await db.collection('clientNotes').add({
+                    clientId: clientId,
+                    type: type,
+                    content: content,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdBy: auth.currentUser?.uid || 'admin'
+                });
+                
                 showNotification('تم حفظ الملاحظة', 'success');
-                loadNotes();
-                createNewNote();
+                closeModal('noteModal');
+                
+                // Reload notes
+                await loadNotes();
+                if (activeTab === 'notes') {
+                    loadNotesTab();
+                }
+                
+                showLoading(false);
                 
             } catch (error) {
                 console.error('Error saving note:', error);
+                showLoading(false);
                 showNotification('خطأ في حفظ الملاحظة', 'error');
             }
         }
-
-        function selectNote(noteId) {
-            const note = notes.find(n => n.id === noteId);
-            if (!note) return;
-
-            document.getElementById('noteTitle').value = note.title || '';
-            document.getElementById('noteContent').value = note.content || '';
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+        
+        // Toggle FAB menu
+        function toggleFabMenu() {
+            const menu = document.getElementById('fabMenu');
+            menu.classList.toggle('show');
+        }
+        
+        // Quick action from FAB
+        function quickAction(action) {
+            toggleFabMenu();
             
-            // Update active state
-            document.querySelectorAll('.note-item').forEach(item => {
-                item.classList.remove('active');
+            switch(action) {
+                case 'message':
+                    sendQuickMessage();
+                    break;
+                case 'tool':
+                    assignNewTool();
+                    break;
+                case 'note':
+                    addNewNote();
+                    break;
+                case 'reminder':
+                    showNotification('التذكيرات قيد التطوير', 'info');
+                    break;
+            }
+        }
+        
+        // Change view (timeline/kanban)
+        function changeView(view) {
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
-            event.target.closest('.note-item').classList.add('active');
-        }
-
-        // WhatsApp
-        function openWhatsApp() {
-            if (!currentJourney) return;
+            event.target.classList.add('active');
             
-            const phone = currentJourney.clientPhone?.replace(/\D/g, '');
-            const message = encodeURIComponent(`مرحباً ${currentJourney.clientName}! كيف حالك اليوم؟`);
-            
-            window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+            if (view === 'kanban') {
+                showNotification('عرض الكانبان قيد التطوير', 'info');
+            }
         }
-
+        
         // Export report
         function exportReport() {
-            showNotification('قريباً: تصدير التقارير', 'info');
+            showNotification('تصدير التقرير قيد التطوير', 'info');
         }
-
-        // Modal functions
+        
+        // View assessment (from header button)
+        function viewAssessment() {
+            if (currentClient.assessment) {
+                viewFullAssessment();
+            } else {
+                showNotification('لا يوجد تقييم متاح', 'info');
+            }
+        }
+        
+        // Schedule message
+        function scheduleMessage() {
+            showNotification('جدولة الرسائل قيد التطوير', 'info');
+        }
+        
+        // Close modal
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
+            document.getElementById(modalId).style.display = 'none';
         }
-
-        function confirmScheduleSession() {
-            showNotification('تم جدولة الجلسة بنجاح', 'success');
-            closeModal('sessionModal');
-            loadSessions();
-        }
-
-        // Utility functions
+        
+        // Helper functions
         function showLoading(show) {
-            document.getElementById('loadingOverlay').classList.toggle('show', show);
+            const overlay = document.getElementById('loadingOverlay');
+            if (show) {
+                overlay.classList.add('show');
+            } else {
+                overlay.classList.remove('show');
+            }
         }
-
+        
         function showNotification(message, type = 'success') {
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             
-            const icons = {
-                success: '✅',
-                error: '❌',
-                warning: '⚠️',
-                info: 'ℹ️'
+            const icon = {
+                success: '✓',
+                error: '✗',
+                info: 'ℹ',
+                warning: '⚠'
             };
             
             notification.innerHTML = `
-                <span class="notification-icon">${icons[type]}</span>
-                <div class="notification-content">
-                    <div class="notification-message">${message}</div>
-                </div>
-                <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+                <span>${icon[type] || icon.info}</span>
+                <span>${message}</span>
             `;
             
             document.body.appendChild(notification);
             
             setTimeout(() => {
-                notification.remove();
-            }, 5000);
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
-
-        function toggleSidebar() {
-            document.getElementById('journeysList').classList.toggle('collapsed');
-        }
-
-        function getInitial(name) {
-            return name ? name.charAt(0).toUpperCase() : '؟';
-        }
-
-        function getProgramName(program) {
-            const names = {
-                clarity: 'جلسة الوضوح',
-                discovery: 'رحلة الاكتشاف',
-                transformation: 'رحلة التحول'
-            };
-            return names[program] || program;
-        }
-
-        function getTotalSessions(program) {
-            const sessions = {
-                clarity: 1,
-                discovery: 3,
-                transformation: 6
-            };
-            return sessions[program] || 1;
-        }
-
-        function getProgramPhases(program) {
-            const phases = {
-                clarity: [
-                    { name: 'جلسة الوضوح', order: 1 }
-                ],
-                discovery: [
-                    { name: 'اكتشاف الذات', order: 1 },
-                    { name: 'بناء الوعي', order: 2 },
-                    { name: 'خطة العمل', order: 3 }
-                ],
-                transformation: [
-                    { name: 'الإنبات', order: 1 },
-                    { name: 'النمو', order: 2 },
-                    { name: 'الازدهار', order: 3 }
-                ]
-            };
-            return phases[program] || [];
-        }
-
-        function getSessionTypeName(type) {
-            const names = {
-                online: 'أونلاين',
-                phone: 'هاتفي',
-                inperson: 'حضوري'
-            };
-            return names[type] || type;
-        }
-
-        function getToolTypeName(type) {
-            const names = {
-                practice: 'ممارسة',
-                meditation: 'تأمل',
-                game: 'لعبة',
-                challenge: 'تحدي',
-                reflection: 'تأمل كتابي',
-                voice: 'تمرين صوتي'
-            };
-            return names[type] || type;
-        }
-
-        function getFrequencyName(frequency) {
-            const names = {
-                daily: 'يومياً',
-                every2days: 'كل يومين',
-                weekly: 'أسبوعياً',
-                asneeded: 'حسب الحاجة'
-            };
-            return names[frequency] || frequency;
-        }
-
-        function formatDate(date) {
-            return date.toLocaleDateString('ar-EG', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-
-        function formatTime(date) {
-            return date.toLocaleTimeString('ar-EG', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        // Session functions
-        function startSession(sessionId) {
-            showNotification('جاري بدء الجلسة...', 'info');
-            // Here you would implement session start logic
-        }
-
-        function rescheduleSession(sessionId) {
-            showNotification('قريباً: إعادة جدولة الجلسات', 'info');
-        }
-
-        function viewSessionDetails(sessionId) {
-            showNotification('قريباً: تفاصيل الجلسة', 'info');
-        }
-
-        function editSessionNotes(sessionId) {
-            const session = sessions.find(s => s.id === sessionId);
-            if (!session) return;
+        
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
             
-            // Find the textarea and enable it
-            const card = document.querySelector(`[onclick="editSessionNotes('${sessionId}')"]`).closest('.session-card');
-            const textareas = card.querySelectorAll('textarea');
-            textareas.forEach(textarea => {
-                textarea.focus();
-            });
-        }
-
-        // Tool functions
-        function showToolOptions(toolId) {
-            showNotification('قريباً: خيارات الأداة', 'info');
-        }
-
-        function viewToolProgress(toolId) {
-            showNotification('قريباً: تقدم الأداة التفصيلي', 'info');
-        }
-
-        function editToolSettings(toolId) {
-            // Navigate to tool customization with context
-            sessionStorage.setItem('editToolId', toolId);
-            window.location.href = `admin-journey-tools.html?journey=${currentJourney.id}&edit=${toolId}`;
-        }
-
-        function sendReminder() {
-            showNotification('تم إرسال التذكير', 'success');
-        }
-
-        function filterTimeline(filter) {
-            // Implement timeline filtering
-            loadTimeline(); // For now, just reload
-        }
-
-        // Real-time updates
-        function setupRealtimeUpdates() {
-            if (!currentJourney) return;
-
-            // Listen for new messages
-            db.collection('messages')
-                .where('journeyId', '==', currentJourney.id)
-                .orderBy('timestamp', 'desc')
-                .limit(1)
-                .onSnapshot(snapshot => {
-                    snapshot.docChanges().forEach(change => {
-                        if (change.type === 'added' && change.doc.data().sender !== 'coach') {
-                            // New message from client
-                            showNotification(`رسالة جديدة من ${currentJourney.clientName}`, 'info');
-                            loadMessages();
-                        }
-                    });
-                });
-
-            // Listen for journey updates
-            db.collection('journeys')
-                .doc(currentJourney.id)
-                .onSnapshot(doc => {
-                    if (doc.exists) {
-                        currentJourney = {
-                            id: doc.id,
-                            ...doc.data()
-                        };
-                        updateJourneyDetails();
-                    }
-                });
-        }
-
-        // Initialize real-time updates when journey is selected
-        let unsubscribeUpdates = null;
-        function initializeRealtimeUpdates() {
-            // Unsubscribe from previous updates
-            if (unsubscribeUpdates) {
-                unsubscribeUpdates();
-            }
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
             
-            // Setup new updates
-            setupRealtimeUpdates();
-        }
-
-        // Auto-save functionality
-        let autoSaveTimer = null;
-        function setupAutoSave() {
-            document.querySelectorAll('textarea').forEach(textarea => {
-                textarea.addEventListener('input', () => {
-                    clearTimeout(autoSaveTimer);
-                    autoSaveTimer = setTimeout(() => {
-                        // Auto-save logic here
-                        showNotification('تم الحفظ التلقائي', 'success');
-                    }, 2000);
-                });
-            });
-        }
-
-        // Initialize auto-save when content loads
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(setupAutoSave, 1000);
-        });
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + S to save
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                if (currentTab === 'notes') {
-                    saveNote();
-                }
-            }
+            if (diff < 60000) return 'الآن';
+            if (diff < 3600000) return `منذ ${Math.floor(diff / 60000)} دقيقة`;
+            if (diff < 86400000) return `منذ ${Math.floor(diff / 3600000)} ساعة`;
+            if (diff < 604800000) return `منذ ${Math.floor(diff / 86400000)} يوم`;
             
-            // Ctrl/Cmd + Enter to send message
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                if (currentTab === 'communication') {
+            return date.toLocaleDateString('ar-EG');
+        }
+        
+        function formatMessageTime(timestamp) {
+            if (!timestamp) return '';
+            
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'الآن';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)} د`;
+            
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const ampm = hours >= 12 ? 'م' : 'ص';
+            const displayHours = hours % 12 || 12;
+            
+            return `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+        }
+        
+        // Initialize event listeners
+        function initializeEventListeners() {
+            // Message input auto-resize
+            const messageInput = document.getElementById('messageInput');
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+            
+            // Send message on Enter
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
                     sendMessage();
                 }
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth < 768) {
-                document.getElementById('journeysList').classList.add('collapsed');
-            }
-        });
-
-        // Initialize on mobile
-        if (window.innerWidth < 768) {
-            document.getElementById('journeysList').classList.add('collapsed');
+            });
+            
+            // Close modals on outside click
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+                
+                // Close FAB menu on outside click
+                if (!e.target.closest('.fab') && !e.target.closest('.fab-menu')) {
+                    document.getElementById('fabMenu').classList.remove('show');
+                }
+            });
         }
     </script>
 </body>
