@@ -1806,6 +1806,22 @@
     
     <script>
 
+        const authToken = sessionStorage.getItem('adminAuth');
+const authTime = sessionStorage.getItem('authTime');
+const oneHour = 60 * 60 * 1000;
+
+if (!authToken || authToken !== 'true' || !authTime || (Date.now() - parseInt(authTime) > oneHour)) {
+    // غير مصرح له - توجيه فوري
+    window.location.replace('admin-dashboard.html');
+} else {
+    // مصرح له - إظهار الصفحة
+    document.body.style.display = 'block';
+    
+    // كود الصفحة هنا
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('تم تحميل صفحة الرحلات بأمان');
+        
+
         // Initialize Firebase
         const auth = firebase.auth();
         const db = firebase.firestore();
