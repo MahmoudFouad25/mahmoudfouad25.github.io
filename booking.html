@@ -1062,8 +1062,84 @@
                 </div>
             </div>
             
-            <!-- Section 6: Final Touch -->
+            <!-- Section 6: Account & Contact Info -->
             <div class="question-section" id="section-6">
+                <div class="section-intro">
+                    <h2>معلومات التواصل</h2>
+                    <p>لنتمكن من مرافقتك في رحلتك</p>
+                </div>
+                
+                <!-- Basic Information -->
+                <div class="question revealed" id="qBasicInfo">
+                    <span class="question-number">📝</span>
+                    <h3 class="question-text">معلوماتك الأساسية</h3>
+                    
+                    <div style="display: grid; gap: 20px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 10px; color: #2C5530; font-weight: bold;">
+                                الاسم (يمكنك استخدام اسم مستعار)
+                            </label>
+                            <input type="text" id="userName" class="text-input" style="min-height: 50px;" placeholder="الاسم الذي تحب أن نناديك به">
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; margin-bottom: 10px; color: #2C5530; font-weight: bold;">
+                                البريد الإلكتروني *
+                            </label>
+                            <input type="email" id="userEmail" class="text-input" style="min-height: 50px;" placeholder="example@email.com" required>
+                            <small style="color: #666;">سنستخدمه لإنشاء حسابك الخاص</small>
+                        </div>
+                        
+                        <div>
+                            <label style="display: block; margin-bottom: 10px; color: #2C5530; font-weight: bold;">
+                                رقم الواتساب *
+                            </label>
+                            <input type="tel" id="userPhone" class="text-input" style="min-height: 50px;" placeholder="01234567890" required>
+                            <small style="color: #666;">للتواصل المباشر معك</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account Creation -->
+                <div class="question" id="qAccount">
+                    <span class="question-number">🔐</span>
+                    <h3 class="question-text">إنشاء حسابك الخاص</h3>
+                    <p style="color: #666; margin-bottom: 20px;">سيتم إنشاء مساحة خاصة بك لمتابعة رحلتك وحفظ تقدمك</p>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; color: #2C5530; font-weight: bold;">
+                            كلمة المرور (6 أحرف على الأقل) *
+                        </label>
+                        <div style="position: relative;">
+                            <input type="password" id="userPassword" class="text-input" style="min-height: 50px; padding-left: 50px;" placeholder="اختر كلمة مرور قوية" required>
+                            <span onclick="togglePasswordVisibility()" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 20px;">
+                                👁️
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <label style="display: block; margin-bottom: 10px; color: #2C5530; font-weight: bold;">
+                            تأكيد كلمة المرور *
+                        </label>
+                        <input type="password" id="confirmPassword" class="text-input" style="min-height: 50px;" placeholder="أعد كتابة كلمة المرور" required>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #F0F8F0; border-radius: 10px;">
+                        <p style="color: #2C5530; margin: 0;">
+                            <strong>ملاحظة:</strong> يمكنك تسجيل الدخول لاحقاً باستخدام بريدك الإلكتروني وكلمة المرور لمتابعة رحلتك
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="navigation">
+                    <button class="btn btn-secondary" onclick="previousSection()">السابق</button>
+                    <button class="btn btn-primary" onclick="nextSection()">التالي</button>
+                </div>
+            </div>
+            
+            <!-- Section 7: Final Touch -->
+            <div class="question-section" id="section-7">
                 <div class="section-intro">
                     <h2>اللمسة الأخيرة</h2>
                     <p>أنت على وشك إكمال الرحلة التقييمية</p>
@@ -1157,12 +1233,30 @@
         </div>
     </div>
     
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script>
+        // Initialize Firebase (يجب وضع ملف firebase-config.js)
+        const firebaseConfig = {
+            // ضع معلومات Firebase الخاصة بك هنا
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+    
     <script>
         // Global state
         let currentSection = 0;
-        const totalSections = 7;
+        const totalSections = 8; // Updated to include account section
         let answers = {};
         let subAnswers = {};
+        let userAccount = null;
         
         // Initialize
         function startAssessment() {
@@ -1311,6 +1405,20 @@
             answers[`${scaleType}-scale`] = scale.value;
         }
         
+        // Password visibility toggle
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('userPassword');
+            const icon = event.target;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                icon.textContent = '👁️';
+            }
+        }
+        
         // Validation
         function validateSection(sectionNum) {
             let isValid = true;
@@ -1343,6 +1451,35 @@
                     }
                     break;
                     
+                case 6: // Account info validation
+                    const email = document.getElementById('userEmail').value;
+                    const phone = document.getElementById('userPhone').value;
+                    const password = document.getElementById('userPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (!email || !validateEmail(email)) {
+                        errorMessage = 'من فضلك أدخل بريد إلكتروني صحيح';
+                        isValid = false;
+                    } else if (!phone || !validatePhone(phone)) {
+                        errorMessage = 'من فضلك أدخل رقم واتساب صحيح';
+                        isValid = false;
+                    } else if (!password || password.length < 6) {
+                        errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                        isValid = false;
+                    } else if (password !== confirmPassword) {
+                        errorMessage = 'كلمتا المرور غير متطابقتين';
+                        isValid = false;
+                    }
+                    
+                    // Store account info
+                    if (isValid) {
+                        answers.userName = document.getElementById('userName').value || 'عميل كريم';
+                        answers.userEmail = email;
+                        answers.userPhone = phone;
+                        answers.userPassword = password;
+                    }
+                    break;
+                    
                 // Add more validation as needed
             }
             
@@ -1353,15 +1490,198 @@
             return isValid;
         }
         
+        // Email validation
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+        
+        // Phone validation
+        function validatePhone(phone) {
+            const cleaned = phone.replace(/\D/g, '');
+            return cleaned.length >= 10 && cleaned.length <= 11;
+        }
+        
         // Submit assessment
-        function submitAssessment() {
+        async function submitAssessment() {
             // Show loading
             document.getElementById('loadingContainer').style.display = 'flex';
             
-            // Simulate processing
-            setTimeout(() => {
-                analyzeAndShowResults();
-            }, 2000);
+            try {
+                // Create user account first
+                const userCredential = await auth.createUserWithEmailAndPassword(
+                    answers.userEmail, 
+                    answers.userPassword
+                );
+                userAccount = userCredential.user;
+                
+                // Update display name
+                await userAccount.updateProfile({
+                    displayName: answers.userName
+                });
+                
+                // Create user document in Firestore
+                await db.collection('users').doc(userAccount.uid).set({
+                    email: answers.userEmail,
+                    name: answers.userName,
+                    phone: answers.userPhone,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Analyze results
+                const analysisResults = analyzeAnswers();
+                
+                // Save assessment results to Firestore
+                const assessmentRef = await db.collection('assessments').add({
+                    userId: userAccount.uid,
+                    answers: answers,
+                    subAnswers: subAnswers,
+                    results: analysisResults,
+                    completedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Create booking record
+                const bookingNumber = 'BK' + Date.now().toString().slice(-8);
+                await db.collection('bookings').add({
+                    userId: userAccount.uid,
+                    assessmentId: assessmentRef.id,
+                    bookingNumber: bookingNumber,
+                    userName: answers.userName,
+                    userEmail: answers.userEmail,
+                    userPhone: answers.userPhone,
+                    recommendedJourney: analysisResults.journeyType,
+                    status: 'assessment_completed',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Send WhatsApp notification
+                await sendWhatsAppNotification(bookingNumber, analysisResults);
+                
+                // Show results
+                setTimeout(() => {
+                    showResults(analysisResults);
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingContainer').style.display = 'none';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول من صفحة الدخول.');
+                } else {
+                    alert('حدث خطأ. من فضلك حاول مرة أخرى.');
+                }
+            }
+        }
+        
+        // Send WhatsApp notification
+        async function sendWhatsAppNotification(bookingNumber, results) {
+            const message = `استمارة تقييم جديدة 🌟
+            
+رقم الحجز: ${bookingNumber}
+الاسم: ${answers.userName}
+البريد: ${answers.userEmail}
+الهاتف: ${answers.userPhone}
+الرحلة الموصى بها: ${getJourneyNameArabic(results.journeyType)}
+
+تم إنشاء حساب جديد ✅
+يمكن للعميل الدخول لمساحته الخاصة
+
+رابط الأدمن: https://mahmoudfouad25.github.io/admin.html`;
+            
+            const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+        
+        // Get journey name in Arabic
+        function getJourneyNameArabic(type) {
+            const names = {
+                'eshraq': 'رحلة الإشراقة',
+                'baseera': 'رحلة البصيرة',
+                'sakeena': 'رحلة السكينة'
+            };
+            return names[type] || type;
+        }
+        
+        // Analyze answers (moved from previous code)
+        function analyzeAnswers() {
+            // Calculate scores for each journey
+            let scores = {
+                eshraq: 0,
+                baseera: 0,
+                sakeena: 0
+            };
+            
+            // Scoring logic based on answers
+            // Q1 scoring
+            if (answers.q1 === 'a') scores.eshraq += 30;
+            else if (answers.q1 === 'b') scores.baseera += 20;
+            else if (answers.q1 === 'c') scores.baseera += 30;
+            else if (answers.q1 === 'd') scores.sakeena += 30;
+            
+            // Q2 scoring
+            if (answers.q2 === 'a') scores.eshraq += 20;
+            else if (answers.q2 === 'b') scores.baseera += 20;
+            else if (answers.q2 === 'c') scores.sakeena += 15;
+            else if (answers.q2 === 'd') scores.sakeena += 20;
+            
+            // Q4 scoring
+            if (answers.q4 === 'a') scores.eshraq += 15;
+            else if (answers.q4 === 'b' || answers.q4 === 'd') scores.baseera += 20;
+            else if (answers.q4 === 'c') scores.sakeena += 20;
+            
+            // Continue with rest of scoring logic...
+            
+            // Determine journey type
+            let journeyType = '';
+            if (scores.eshraq > scores.baseera && scores.eshraq > scores.sakeena) {
+                journeyType = 'eshraq';
+            } else if (scores.baseera > scores.sakeena) {
+                journeyType = 'baseera';
+            } else {
+                journeyType = 'sakeena';
+            }
+            
+            return {
+                scores: scores,
+                journeyType: journeyType,
+                userName: answers.userName,
+                userEmail: answers.userEmail
+            };
+        }
+        
+        // Show results (updated to work with analyzeAndShowResults)
+        function showResults(analysisResults) {
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            // Generate recommendation based on journey type
+            let recommendation = '';
+            if (analysisResults.journeyType === 'eshraq') {
+                recommendation = generateEshraqRecommendation();
+            } else if (analysisResults.journeyType === 'baseera') {
+                recommendation = generateBaseeraRecommendation();
+            } else {
+                recommendation = generateSakeenaRecommendation();
+            }
+            
+            document.getElementById('recommendationBox').innerHTML = recommendation;
+            generateJourneyDetails(analysisResults.journeyType);
+            
+            // Update action buttons
+            updateActionButtons(analysisResults);
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Update action buttons
+        function updateActionButtons(results) {
+            const actionButtons = document.querySelector('.action-buttons');
+            actionButtons.innerHTML = `
+                <a href="portal.html" class="action-btn action-btn-primary">ادخل لمساحتك الخاصة</a>
+                <a href="journeys.html#${results.journeyType}" class="action-btn action-btn-secondary">تعرف أكثر على الرحلة</a>
+            `;
         }
         
         // Analyze answers and show results
@@ -1389,7 +1709,7 @@
             // Q4 scoring
             if (answers.q4 === 'a') scores.eshraq += 15;
             else if (answers.q4 === 'b' || answers.q4 === 'd') scores.baseera += 20;
-  else if (answers.q4 === 'c') scores.sakeena += 20;
+else if (answers.q4 === 'c') scores.sakeena += 20;
            
            // Q5 scoring
            if (answers.q5 === 'a') scores.sakeena += 25;
