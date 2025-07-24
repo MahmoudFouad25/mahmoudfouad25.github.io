@@ -1825,11 +1825,16 @@ let unsubscribeListeners = [];
 
 // Check authentication first
 auth.onAuthStateChanged(user => {
+    console.log('Auth state changed, user:', user);
+    
     if (!user) {
-        // لا يوجد مستخدم مسجل دخول
-        window.location.href = 'admin-login.html';
+        console.log('No user, redirecting to login...');
+            console.log('تحذير: لا يوجد مستخدم مسجل دخول، لكن سنكمل التحميل');
+        //window.location.href = 'admin-login.html';
         return;
     }
+    
+    console.log('User found:', user.email);
     
     // التحقق من البريد الإلكتروني للأدمن
     const adminEmails = ['coach.s.fouad@gmail.com']; // ضع بريدك هنا
@@ -1841,9 +1846,12 @@ auth.onAuthStateChanged(user => {
         return;
     }
     
+    console.log('User authorized, initializing dashboard...');
+    
     // إذا كان المستخدم مصرح له، حمّل البيانات
     initializeDashboard();
 });
+        
 
 // Initialize dashboard after auth check
 function initializeDashboard() {
