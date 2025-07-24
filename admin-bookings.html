@@ -2001,33 +2001,30 @@ async function convertToJourney(bookingId) {
     }
 }
 // دالة إنشاء رحلة جديدة - نسخة واحدة محدثة
+// دالة إنشاء رحلة جديدة
 async function createNewJourney(booking) {
-    // تحديد نوع الرحلة الصحيح
-    const journeyTypeMapping = {
-        'eshraq': 'eshraq',
-        'baseera': 'baseera', 
-        'sakeena': 'sakeena',
-        'mixed-eshraq-baseera': 'eshraq', // نبدأ بالإشراقة
-        'mixed-baseera-sakeena': 'baseera', // نبدأ بالبصيرة
-        // للتوافق مع القديم
+    // خريطة تحويل البرامج
+    const programToJourneyType = {
+        'جلسة الوضوح': 'eshraq',
+        'رحلة االكتشاف': 'baseera',
+        'رحلة التحول': 'sakeena',
         'clarity': 'eshraq',
         'discovery': 'baseera',
         'transformation': 'sakeena',
-        'جلسة الوضوح': 'eshraq',
-        'رحلة الاكتشاف': 'baseera',
-        'رحلة التحول': 'sakeena'
+        'اإلشراقة': 'eshraq',
+        'البصيرة': 'baseera',
+        'السكينة': 'sakeena',
+        'eshraq': 'eshraq',
+        'baseera': 'baseera',
+        'sakeena': 'sakeena',
+        'mixed-eshraq-baseera': 'eshraq',
+        'mixed-baseera-sakeena': 'baseera'
     };
     
-    const journeyType = journeyTypeMapping[booking.journeyType] || 
-                       journeyTypeMapping[booking.program] || 
+    // تحديد نوع الرحلة
+    const journeyType = booking.journeyType || 
+                       programToJourneyType[booking.program] || 
                        'eshraq';
-    
-    // أسماء البرامج بالعربية
-    const programNames = {
-        'eshraq': 'رحلة الإشراقة',
-        'baseera': 'رحلة البصيرة',
-        'sakeena': 'رحلة السكينة'
-    };
     
     const journeyData = {
         // معلومات العميل
@@ -2036,21 +2033,21 @@ async function createNewJourney(booking) {
         clientPhone: booking.phone,
         userId: booking.userId || null,
         
-        // معلومات الرحلة - مهم جداً
-        program: programNames[journeyType],
+        // معلومات الرحلة
+        program: getArabicProgramName(journeyType),
         journeyType: journeyType,
         status: 'active',
         startDate: firebase.firestore.FieldValue.serverTimestamp(),
         
-        // التقدم الأولي
+        // التقدم األولي
         currentPhase: 1,
         totalPhases: getProgramPhases(journeyType),
         progress: 0,
         completedSessions: 0,
         totalSessions: getProgramSessions(journeyType),
         
-        // البيانات الأولية للإحصائيات
-        engagementScore: 80, // نبدأ بـ 80 بدلاً من 100
+        // البيانات األولية
+        engagementScore: 80,
         assignedTools: [],
         practicesCompleted: 0,
         practicesAssigned: 0,
@@ -2058,31 +2055,64 @@ async function createNewJourney(booking) {
         // بيانات النشاط
         lastActivityDate: firebase.firestore.FieldValue.serverTimestamp(),
         
-        // معلومات إضافية من التقييم
+        // معلومات إضافية من الحجز
         goals: booking.goals || booking.message || '',
         challenges: booking.challenges || '',
         notes: booking.notes || '',
+        
+        // معلومات التقييم إن وجدت
         assessmentId: booking.assessmentId || null,
         
         // Metadata
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
     // إنشاء الرحلة
     const journeyRef = await db.collection('journeys').add(journeyData);
     
-    // إنشاء نشاط أولي
+    // إنشاء المراحل
+    const phases = getDefaultPhases(journeyType);
+    const batch = db.batch();
+    
+    phases.forEach((phase, index) => {
+        const phaseRef = journeyRef.collection('phases').doc();
+        batch.set(phaseRef, {
+            ...phase,
+            order: index + 1,
+            status: index === 0 ? 'in_progress' : 'pending',
+            startDate: index === 0 ? firebase.firestore.FieldValue.serverTimestamp() : null
+        });
+    });
+    
+    await batch.commit();
+    
+    // إنشاء الجلسة األولى
+    await db.collection('sessions').add({
+        journeyId: journeyRef.id,
+        sessionNumber: 1,
+        type: booking.sessionType || 'online',
+        status: 'scheduled',
+        scheduledDate: booking.appointmentDate || firebase.firestore.FieldValue.serverTimestamp(),
+        scheduledTime: booking.appointmentTime || '10:00 AM',
+        duration: 90,
+        clientName: booking.name,
+        clientPhone: booking.phone,
+        phase: 1,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // إنشاء نشاط البداية
     await db.collection('activities').add({
         journeyId: journeyRef.id,
         clientId: booking.userId,
         clientName: booking.name,
         type: 'milestone',
-        description: `بدأ ${booking.name} رحلة ${programNames[journeyType]}`,
+        description: `بدأ ${booking.name} ${getArabicProgramName(journeyType)}`,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
     
-    // تحديث الحجز
+    // ربط الحجز بالرحلة
     await db.collection('bookings').doc(booking.id).update({
         status: 'converted',
         journeyId: journeyRef.id,
@@ -2093,7 +2123,7 @@ async function createNewJourney(booking) {
     if (booking.userId) {
         await db.collection('users').doc(booking.userId).update({
             activeJourneyId: journeyRef.id,
-            currentProgram: programNames[journeyType],
+            currentProgram: getArabicProgramName(journeyType),
             journeyStartDate: firebase.firestore.FieldValue.serverTimestamp()
         });
     }
@@ -2119,15 +2149,19 @@ async function addSessionToJourney(journeyId, booking) {
 }
 
 // دالة الحصول على عدد المراحل - نسخة واحدة
+// دالة الحصول على عدد المراحل
 function getProgramPhases(program) {
     const phases = {
+        'eshraq': 1,
+        'baseera': 3,
+        'sakeena': 3,
         'clarity': 1,
         'discovery': 3,
         'transformation': 3,
         'جلسة الوضوح': 1,
         'رحلة الاكتشاف': 3,
         'رحلة التحول': 3,
-        'الإشراقة': 1,
+        'اإلشراقة': 1,
         'البصيرة': 3,
         'السكينة': 3
     };
@@ -2149,35 +2183,70 @@ function getProgramJourneyType(program) {
     };
     return mapping[program] || 'eshraq';
 }
-        
+
+        // دالة الحصول على اسم البرنامج بالعربية
+function getArabicProgramName(journeyType) {
+    const names = {
+        'eshraq': 'رحلة الإشراقة',
+        'baseera': 'رحلة البصيرة',
+        'sakeena': 'رحلة السكينة',
+        'mixed-eshraq-baseera': 'مسار متدرج (إشراقة-بصيرة)',
+        'mixed-baseera-sakeena': 'مسار متدرج (بصيرة-سكينة)'
+    };
+    return names[journeyType] || journeyType;
+}
+// دالة الحصول على عدد الجلسات
 // دالة الحصول على عدد الجلسات
 function getProgramSessions(program) {
     const sessions = {
-        clarity: 1,
-        discovery: 3,
-        transformation: 6
+        'eshraq': 3,
+        'baseera': 12,
+        'sakeena': 24,
+        'clarity': 3,
+        'discovery': 12,
+        'transformation': 24,
+        'جلسة الوضوح': 3,
+        'رحلة الاكتشاف': 12,
+        'رحلة التحول': 24,
+        'اإلشراقة': 3,
+        'البصيرة': 12,
+        'السكينة': 24
     };
-    return sessions[program] || 1;
+    return sessions[program] || 3;
 }
-
+// دالة الحصول على تفاصيل المراحل
 // دالة الحصول على تفاصيل المراحل
 function getDefaultPhases(program) {
     const phases = {
-        clarity: [
-            { name: 'جلسة الوضوح', description: 'جلسة واحدة مكثفة للوضوح' }
+        'eshraq': [
+            { name: 'جلسة الإشراقة', description: 'جلسات مكثفة للوضوح والحلول العملية' }
         ],
-        discovery: [
-            { name: 'اكتشاف الذات', description: 'فهم الأنماط والقيم الأساسية' },
+        'baseera': [
+            { name: 'اكتشاف الذات', description: 'فهم األنماط والقيم األساسية' },
             { name: 'بناء الوعي', description: 'تحديد نقاط القوة والفرص' },
             { name: 'خطة العمل', description: 'رسم خارطة التغيير' }
         ],
-        transformation: [
-            { name: 'الإنبات', description: 'كشف الجذور وبداية التحول' },
+        'sakeena': [
+            { name: 'اإلنبات', description: 'كشف الجذور وبداية التحول' },
             { name: 'النمو', description: 'بناء الهوية الجديدة' },
-            { name: 'الازدهار', description: 'دمج التغيير والاستدامة' }
+            { name: 'االزدهار', description: 'دمج التغيير واالستدامة' }
+        ],
+        // للتوافق مع القديم
+        'clarity': [
+            { name: 'جلسة الوضوح', description: 'جلسة واحدة مكثفة للوضوح' }
+        ],
+        'discovery': [
+            { name: 'اكتشاف الذات', description: 'فهم األنماط والقيم األساسية' },
+            { name: 'بناء الوعي', description: 'تحديد نقاط القوة والفرص' },
+            { name: 'خطة العمل', description: 'رسم خارطة التغيير' }
+        ],
+        'transformation': [
+            { name: 'اإلنبات', description: 'كشف الجذور وبداية التحول' },
+            { name: 'النمو', description: 'بناء الهوية الجديدة' },
+            { name: 'االزدهار', description: 'دمج التغيير واالستدامة' }
         ]
     };
-    return phases[program] || [];
+    return phases[program] || phases['eshraq'];
 }
 
         // Cancel booking - دالة جديدة
