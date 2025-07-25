@@ -10,8 +10,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-if (typeof firebase === 'undefined') {
     firebase.initializeApp(firebaseConfig);
  //const auth = firebase.auth();
 //const db = firebase.firestore();
-}
+
