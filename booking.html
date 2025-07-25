@@ -3903,7 +3903,12 @@ if (typeof firebase === 'undefined') {
                            </div>
                            <p class="option-description">
                                ${deepQuestions ? 
-                                   `للتركيز على سؤالك "${getDeepQuestionText(deepQuestions)}" والفهم العميق.` :
+                                   `للتركيز على سؤالك "${
+                                       deepQuestions === '1' ? 'لماذا أتصرف بالطريقة التي أتصرف بها؟' :
+                                       deepQuestions === '2' ? 'من أنا حقاً خلف كل الأقنعة؟' :
+                                       deepQuestions === '3' ? 'ما هو دوري الحقيقي في الحياة؟' :
+                                       'كيف أحقق إمكانياتي الكامنة؟'
+                                   }" والفهم العميق.` :
                                    'للفهم العميق دون الالتزام بالتحول الجذري حالياً.'}
                                يمكنك دائماً الانتقال للسكينة لاحقاً.
                            </p>
@@ -3966,191 +3971,131 @@ if (typeof firebase === 'undefined') {
            `;
        }
 
-
-
-   // Helper functions for profile creation
-   function createDetailedProfile() {
-       const profile = {
-           challengeType: '',
-           awarenessLevel: '',
-           timeAvailability: '',
-           supportSystem: '',
-           previousExperience: '',
-           specificNeeds: [],
-           keyPhrases: [],
-           emotionalState: ''
-       };
-
-       // Challenge type from Q1 sub-answers
-       if (answers.q1 === 'a' && subAnswers['q1-sub-a']) {
-           const types = {
-               '1': 'work',
-               '2': 'relationships', 
-               '3': 'self',
-               '4': 'decision'
-           };
-           profile.challengeType = types[subAnswers['q1-sub-a']] || 'general';
-       }
-
-       // Awareness level from Q4
-       if (answers.q4 === 'c') profile.awarenessLevel = 'high';
-       else if (answers.q4 === 'b' || answers.q4 === 'd') profile.awarenessLevel = 'medium';
-       else profile.awarenessLevel = 'low';
-
-       // Time availability from Q7
-       profile.timeAvailability = answers.q7 || 'unknown';
-
-       // Support system from Q8
-       const supportCount = (answers['q8-checks'] || []).length;
-       if (supportCount >= 4) profile.supportSystem = 'strong';
-       else if (supportCount >= 2) profile.supportSystem = 'moderate';
-       else profile.supportSystem = 'weak';
-
-       // Previous experience from Q11
-       const experiences = answers['q11-checks'] || [];
-       if (experiences.length > 3) profile.previousExperience = 'extensive';
-       else if (experiences.length > 0) profile.previousExperience = 'some';
-       else profile.previousExperience = 'none';
-
-       // Extract key phrases from text answers
-       const texts = [
-           answers['q3-text'] || '',
-           answers['q6-text'] || '',
-           answers['q9-text'] || '',
-           answers['q12-text'] || ''
-       ];
-       texts.forEach(text => {
-           if (text.length > 20) {
-               const phrase = text.substring(0, 100).trim();
-               if (phrase) profile.keyPhrases.push(phrase);
+       // Return HTML based on recommendation type
+       if (results.isMixed) {
+           if (results.mixedType === 'eshraq-baseera') {
+               return generateEshraqBaseeraMixed(results);
+           } else {
+               return generateBaseeraSakeenaMixed(results);
            }
-       });
-
-       // Emotional state based on urgency
-       const urgency = parseInt(answers['urgency-scale'] || 5);
-       if (urgency >= 8) profile.emotionalState = 'urgent';
-       else if (urgency >= 5) profile.emotionalState = 'motivated';
-       else profile.emotionalState = 'exploring';
-
-       return profile;
+       } else {
+           if (results.journeyType === 'eshraq') {
+               return generateEshraqRecommendation(results);
+           } else if (results.journeyType === 'baseera') {
+               return generateBaseeraRecommendation(results);
+           } else {
+               return generateSakeenaRecommendation(results);
+           }
+       }
    }
 
-   // Helper function to get deep question text
-   function getDeepQuestionText(questionNumber) {
-       const questions = {
-           '1': 'لماذا أتصرف بالطريقة التي أتصرف بها؟',
-           '2': 'من أنا حقاً خلف كل الأقنعة؟',
-           '3': 'ما هو دوري الحقيقي في الحياة؟',
-           '4': 'كيف أحقق إمكانياتي الكامنة؟'
-       };
-       return questions[questionNumber] || '';
-   }
-
-   // Journey selection handler
+   // Function to handle journey selection
    function selectJourney(journey, element) {
+       // Remove previous selection
        document.querySelectorAll('.journey-option').forEach(option => {
            option.classList.remove('selected');
        });
        
+       // Add selection to clicked element
        element.classList.add('selected');
        selectedJourney = journey;
        
+       // Show justification section
        const justificationSection = document.getElementById('justificationSection');
        const justificationLabel = document.getElementById('justificationLabel');
        const justificationInput = document.getElementById('justificationInput');
        
        justificationSection.classList.add('active');
-       justificationInput.value = '';
+       justificationInput.value = ''; // Clear previous text
        
-       // Customize justification question based on selection
-       const questions = {
-           'eshraq': 'رائع! يبدو أن رحلة الإشراقة تناسبك. ما الذي جذبك فيها تحديداً؟',
-           'baseera': 'جميل! رحلة البصيرة تتحدث إلى روحك. ما الذي ترجو اكتشافه عن نفسك؟',
-           'sakeena': 'طموح رائع! رحلة السكينة تحول جذري. ما الذي يجعلك تشعر أنك مستعد لهذا العمق؟',
-           'mixed-eshraq-baseera': 'ممتاز! المسار المتدرج يبدو مناسباً. ما أكثر ما أعجبك في فكرة البدء بالحل العملي ثم التعمق؟',
-           'mixed-baseera-sakeena': 'اختيار حكيم! البناء التدريجي نحو التحول. ما الذي يجعلك تفضل هذا التدرج؟',
-           'other': 'أحب الأرواح التي تبحث عن طريقها الخاص. أخبرني، ما الذي تحتاجه بالضبط؟'
-       };
+       // Customize question based on selection
+       const recommendedJourney = document.querySelector('.journey-option.recommended').dataset.journey || 
+                                  getRecommendedJourneyFromAnalysis();
        
-       justificationLabel.textContent = questions[journey] || 'شاركنا: لماذا تشعر أن هذا الاختيار هو الأنسب لك؟';
+       if (journey === recommendedJourney) {
+           justificationLabel.textContent = getJustificationQuestion(journey, true);
+       } else {
+           justificationLabel.textContent = getJustificationQuestion(journey, false);
+       }
        
        // Enable confirm button after writing
-       justificationInput.addEventListener('input', function() {
+       justificationInput.oninput = function() {
            const confirmButton = document.getElementById('confirmButton');
            confirmButton.disabled = this.value.trim().length <= 10;
-       });
+       };
    }
 
-   // Confirm choice handler
+   // Function to get justification question based on journey type
+   function getJustificationQuestion(journey, isRecommended) {
+       const questions = {
+           'eshraq': {
+               recommended: 'رائع! يبدو أن رحلة الإشراقة تناسبك. ما الذي جذبك فيها تحديداً؟',
+               notRecommended: 'أفهمك. أحياناً نحتاج للبدء بخطوات صغيرة. لكن ما رأيك أن تفكر في رحلة أعمق بعدها؟ على كل حال، أخبرني ما الذي يجعلك تختار الإشراقة؟'
+           },
+           'baseera': {
+               recommended: 'جميل! يبدو أن رحلة البصيرة تتحدث إلى روحك. ما الذي ترجو اكتشافه عن نفسك؟',
+               notRecommended: 'اختيار شجاع! رحلة البصيرة تحتاج التزاماً. ما الذي يجعلك تشعر أنك مستعد لها؟'
+           },
+           'sakeena': {
+               recommended: 'ما شاء الله! طاقتك تشير لاستعداد عالٍ. ما الذي يؤكد لك أنك جاهز لهذا التحول العميق؟',
+               notRecommended: 'طموح جميل! رحلة السكينة تحول جذري. ما الذي يدفعك لهذا الاختيار العميق؟'
+           },
+           'mixed-eshraq-baseera': {
+               recommended: 'ممتاز! المسار المتدرج يبدو مناسباً لك. ما أكثر ما أعجبك فيه؟',
+               notRecommended: 'تفكير مثير! ما الذي يجعلك تفضل البدء بالحل العملي ثم التعمق؟'
+           },
+           'mixed-baseera-sakeena': {
+               recommended: 'اختيار حكيم! البناء التدريجي نحو التحول. ما الذي يجعلك تفضل هذا التدرج؟',
+               notRecommended: 'رؤية عميقة! ما الذي يجذبك في فكرة التدرج من البصيرة للسكينة؟'
+           },
+           'other': {
+               recommended: 'أحترم رؤيتك الخاصة. أخبرني، ما الذي تبحث عنه بالضبط؟',
+               notRecommended: 'أحب الأرواح التي تبحث عن طريقها الخاص. أخبرني، ما الذي تحتاجه بالضبط؟'
+           }
+       };
+       
+       return questions[journey]?.[isRecommended ? 'recommended' : 'notRecommended'] || 
+              'شاركنا: لماذا تشعر أن هذا الاختيار هو الأنسب لك؟';
+   }
+
+   // Function to get recommended journey from analysis
+   function getRecommendedJourneyFromAnalysis() {
+       // This would be set when showing results
+       return window.currentRecommendedJourney || 'eshraq';
+   }
+
+   // Function to confirm choice
    async function confirmChoice() {
        const justification = document.getElementById('justificationInput').value;
-       answers.selectedJourney = selectedJourney;
-       answers.justification = justification;
+       
+       if (!selectedJourney || justification.trim().length <= 10) {
+           alert('من فضلك اختر رحلة واكتب سبب اختيارك');
+           return;
+       }
        
        // Show loading
        document.getElementById('loadingContainer').style.display = 'flex';
        
        try {
-           // Create user account with password
+           // Store the final data
+           assessmentData.selectedJourney = selectedJourney;
+           assessmentData.justification = justification;
+           
+           // Create user account
            const userCredential = await auth.createUserWithEmailAndPassword(
-               answers.userEmail,
-               answers.userPassword
+               assessmentData.userEmail,
+               assessmentData.userPassword
            );
+           
            const userId = userCredential.user.uid;
            
            // Update display name
            await userCredential.user.updateProfile({
-               displayName: answers.userName || 'عميل كريم'
+               displayName: assessmentData.userName
            });
            
-           // Get final analysis
-           const analysis = analyzeAnswers();
-           
-           // Save user data
-           await db.collection('users').doc(userId).set({
-               email: answers.userEmail,
-               name: answers.userName,
-               phone: answers.userPhone,
-               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-               lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-           });
-           
-           // Save assessment data
-           const assessmentRef = await db.collection('assessments').add({
-               userId: userId,
-               answers: answers,
-               subAnswers: subAnswers,
-               results: analysis,
-               completedAt: firebase.firestore.FieldValue.serverTimestamp()
-           });
-           
-           // Create booking record
-           const bookingNumber = 'BK' + Date.now().toString().slice(-8);
-           await db.collection('bookings').add({
-               userId: userId,
-               assessmentId: assessmentRef.id,
-               bookingNumber: bookingNumber,
-               userName: answers.userName,
-               userEmail: answers.userEmail,
-               userPhone: answers.userPhone,
-               recommendedJourney: analysis.recommendedJourney,
-               selectedJourney: selectedJourney,
-               justification: justification,
-               status: 'pending_review',
-               createdAt: firebase.firestore.FieldValue.serverTimestamp()
-           });
-           
-           // Store data for final message
-           assessmentData = {
-               bookingNumber: bookingNumber,
-               analysisResults: analysis,
-               userName: answers.userName,
-               userEmail: answers.userEmail,
-               userPhone: answers.userPhone,
-               recommendedJourney: analysis.recommendedJourney,
-               selectedJourney: selectedJourney,
-               justification: justification
-           };
+           // Save all data to Firestore
+           await saveAssessmentData(userId);
            
            // Show final message
            setTimeout(() => {
@@ -4164,255 +4109,63 @@ if (typeof firebase === 'undefined') {
            if (error.code === 'auth/email-already-in-use') {
                alert('هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول من صفحة الدخول.');
            } else {
-               alert('حدث خطأ. من فضلك حاول مرة أخرى.');
+               alert('حدث خطأ. من فضلك حاول مرة أخرى.\n' + error.message);
            }
        }
+   }
+
+   // Save assessment data to Firestore
+   async function saveAssessmentData(userId) {
+       const bookingNumber = 'BK' + Date.now().toString().slice(-8);
+       
+       // Save user profile
+       await db.collection('users').doc(userId).set({
+           email: assessmentData.userEmail,
+           name: assessmentData.userName,
+           phone: assessmentData.userPhone,
+           createdAt: firebase.firestore.FieldValue.serverTimestamp()
+       });
+       
+       // Save assessment details
+       const assessmentRef = await db.collection('assessments').add({
+           userId: userId,
+           answers: answers,
+           subAnswers: subAnswers,
+           results: assessmentData.analysisResults,
+           selectedJourney: assessmentData.selectedJourney,
+           justification: assessmentData.justification,
+           completedAt: firebase.firestore.FieldValue.serverTimestamp()
+       });
+       
+       // Save booking
+       await db.collection('bookings').add({
+           userId: userId,
+           assessmentId: assessmentRef.id,
+           bookingNumber: bookingNumber,
+           userName: assessmentData.userName,
+           userEmail: assessmentData.userEmail,
+           userPhone: assessmentData.userPhone,
+           recommendedJourney: assessmentData.recommendedJourney,
+           selectedJourney: assessmentData.selectedJourney,
+           justification: assessmentData.justification,
+           status: 'pending_review',
+           createdAt: firebase.firestore.FieldValue.serverTimestamp()
+       });
+       
+       assessmentData.bookingNumber = bookingNumber;
    }
 
    // Show final message
    function showFinalMessage() {
        document.getElementById('loadingContainer').style.display = 'none';
        document.getElementById('questionContainer').style.display = 'none';
-       document.getElementById('resultsContainer').style.display = 'none';
-       
-       const journeyNames = {
-           'eshraq': 'الإشراقة',
-           'baseera': 'البصيرة',
-           'sakeena': 'السكينة',
-           'mixed-eshraq-baseera': 'المسار المتدرج (إشراقة ← بصيرة)',
-           'mixed-baseera-sakeena': 'المسار المتدرج (بصيرة ← سكينة)'
-       };
-       
-       const selectedJourneyName = journeyNames[assessmentData.selectedJourney] || assessmentData.selectedJourney;
-       const recommendedJourneyName = journeyNames[assessmentData.recommendedJourney] || assessmentData.recommendedJourney;
-       const matchedChoice = assessmentData.selectedJourney === assessmentData.recommendedJourney;
-       
-       const finalMessageHTML = `
-           <style>
-               .final-container {
-                   max-width: 800px;
-                   margin: 0 auto;
-                   padding: 40px 20px;
-                   text-align: center;
-               }
-               
-               .success-animation {
-                   font-size: 100px;
-                   margin-bottom: 30px;
-                   animation: successPulse 2s ease-in-out infinite;
-               }
-               
-               @keyframes successPulse {
-                   0%, 100% { transform: scale(1); opacity: 1; }
-                   50% { transform: scale(1.1); opacity: 0.8; }
-               }
-               
-               .final-title {
-                   font-size: 36px;
-                   color: #2C5530;
-                   margin-bottom: 20px;
-                   font-weight: 300;
-               }
-               
-               .final-message {
-                   background: white;
-                   padding: 50px 40px;
-                   border-radius: 30px;
-                   box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-                   margin-bottom: 30px;
-               }
-               
-               .booking-info {
-                   background: #F8F7F4;
-                   padding: 30px;
-                   border-radius: 20px;
-                   margin: 30px 0;
-                   border-right: 5px solid #D4AF37;
-               }
-               
-               .booking-number {
-                   font-size: 28px;
-                   color: #2C5530;
-                   font-weight: bold;
-                   margin: 10px 0;
-               }
-               
-               .journey-selection {
-                   background: linear-gradient(135deg, rgba(44, 85, 48, 0.05) 0%, rgba(212, 175, 55, 0.05) 100%);
-                   padding: 25px;
-                   border-radius: 15px;
-                   margin: 20px 0;
-               }
-               
-               .journey-label {
-                   font-size: 16px;
-                   color: #666;
-                   margin-bottom: 5px;
-               }
-               
-               .journey-name {
-                   font-size: 24px;
-                   color: #2C5530;
-                   font-weight: 500;
-               }
-               
-               .match-indicator {
-                   display: inline-block;
-                   margin-right: 10px;
-                   padding: 5px 15px;
-                   border-radius: 20px;
-                   font-size: 14px;
-                   font-weight: bold;
-               }
-               
-               .match-indicator.matched {
-                   background: #E8F5E9;
-                   color: #2E7D32;
-               }
-               
-               .match-indicator.different {
-                   background: #FFF3E0;
-                   color: #E65100;
-               }
-               
-               .next-steps {
-                   background: #F0F8F0;
-                   padding: 30px;
-                   border-radius: 20px;
-                   margin: 30px 0;
-                   text-align: right;
-               }
-               
-               .step-item {
-                   display: flex;
-                   align-items: center;
-                   margin-bottom: 15px;
-                   font-size: 18px;
-                   color: #555;
-               }
-               
-               .step-number {
-                   background: #2C5530;
-                   color: white;
-                   width: 30px;
-                   height: 30px;
-                   border-radius: 50%;
-                   display: flex;
-                   align-items: center;
-                   justify-content: center;
-                   margin-left: 15px;
-                   font-weight: bold;
-               }
-               
-               .whatsapp-button {
-                   display: inline-block;
-                   background: #25D366;
-                   color: white;
-                   padding: 20px 50px;
-                   border-radius: 50px;
-                   text-decoration: none;
-                   font-size: 20px;
-                   font-weight: bold;
-                   margin-top: 30px;
-                   transition: all 0.3s ease;
-                   box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3);
-               }
-               
-               .whatsapp-button:hover {
-                   background: #1EBE56;
-                   transform: translateY(-3px);
-                   box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
-               }
-               
-               .whatsapp-icon {
-                   font-size: 24px;
-                   margin-left: 10px;
-                   vertical-align: middle;
-               }
-               
-               .privacy-note {
-                   font-size: 14px;
-                   color: #999;
-                   margin-top: 20px;
-                   font-style: italic;
-               }
-           </style>
-           
-           <div class="final-container">
-               <div class="success-animation">✨</div>
-               <h1 class="final-title">تم تسجيل اختيارك بنجاح!</h1>
-               
-               <div class="final-message">
-                   <p style="font-size: 20px; color: #666; margin-bottom: 30px;">
-                       ${assessmentData.userName}، شكراً لك على الوقت والصدق في مشاركة قصتك معنا
-                   </p>
-                   
-                   <div class="booking-info">
-                       <p class="journey-label">رقم الحجز الخاص بك:</p>
-                       <p class="booking-number">${assessmentData.bookingNumber}</p>
-                       <p style="color: #666; margin-top: 10px;">احتفظ بهذا الرقم للمتابعة</p>
-                   </div>
-                   
-                   <div class="journey-selection">
-                       <p class="journey-label">الرحلة التي اخترتها:</p>
-                       <p class="journey-name">
-                           ${matchedChoice ? 
-                               '<span class="match-indicator matched">✓ توافق مع ترشيحنا</span>' :
-                               '<span class="match-indicator different">⚡ اختيار مختلف</span>'
-                           }
-                           رحلة ${selectedJourneyName}
-                       </p>
-                       ${!matchedChoice ? 
-                           `<p style="margin-top: 15px; color: #666; font-size: 16px;">
-                               (ترشيحنا كان: رحلة ${recommendedJourneyName})
-                           </p>` : ''
-                       }
-                   </div>
-                   
-                   <div class="next-steps">
-                       <h3 style="color: #2C5530; margin-bottom: 20px;">الخطوات التالية:</h3>
-                       <div class="step-item">
-                           <span class="step-number">1</span>
-                           <span>سنراجع طلبك خلال أسبوع عمل</span>
-                       </div>
-                       <div class="step-item">
-                           <span class="step-number">2</span>
-                           <span>سنرسل لك رسالة تأكيد على الواتساب</span>
-                       </div>
-                       <div class="step-item">
-                           <span class="step-number">3</span>
-                           <span>ستحصل على بيانات الدخول لمساحتك الخاصة</span>
-                       </div>
-                       <div class="step-item">
-                           <span class="step-number">4</span>
-                           <span>سنحدد معاً موعد الجلسة الأولى</span>
-                       </div>
-                   </div>
-                   
-                   <p style="font-size: 18px; color: #2C5530; margin: 30px 0;">
-                       للتأكيد النهائي، اضغط على الزر أدناه لإرسال رسالة واتساب
-                   </p>
-                   
-                   <a href="#" class="whatsapp-button" onclick="sendWhatsAppMessage(); return false;">
-                       <span>أكد حجزك عبر الواتساب</span>
-                       <span class="whatsapp-icon">📱</span>
-                   </a>
-                   
-                   <p class="privacy-note">
-                       * جميع بياناتك محفوظة بسرية تامة ولن تُستخدم إلا لأغراض رحلتك معنا
-                   </p>
-               </div>
-           </div>
-       `;
-       
-       document.getElementById('resultsContainer').innerHTML = finalMessageHTML;
-       document.getElementById('resultsContainer').style.display = 'block';
+       document.getElementById('resultsContainer').innerHTML = generateFinalMessage();
        
        window.scrollTo({ top: 0, behavior: 'smooth' });
    }
 
-   // Send WhatsApp message
-   function sendWhatsAppMessage() {
+   // Generate final message HTML
+   function generateFinalMessage() {
        const journeyNames = {
            'eshraq': 'الإشراقة',
            'baseera': 'البصيرة',
@@ -4421,88 +4174,146 @@ if (typeof firebase === 'undefined') {
            'mixed-baseera-sakeena': 'المسار المتدرج (بصيرة ← سكينة)'
        };
        
-       const selectedJourneyName = journeyNames[assessmentData.selectedJourney] || assessmentData.selectedJourney;
-       const recommendedJourneyName = journeyNames[assessmentData.recommendedJourney] || assessmentData.recommendedJourney;
+       const selectedName = journeyNames[assessmentData.selectedJourney] || assessmentData.selectedJourney;
+       const recommendedName = journeyNames[assessmentData.recommendedJourney] || assessmentData.recommendedJourney;
+       const isMatch = assessmentData.selectedJourney === assessmentData.recommendedJourney;
        
-       // Admin message
-       const adminMessage = `🌟 حجز جديد من التقييم الشامل
+       return `
+           <div class="final-message">
+               <div class="final-icon">✨</div>
+               <h1 class="final-title">تم تسجيل اختيارك بنجاح!</h1>
+               <p class="final-text">
+                   ${assessmentData.userName}، شكراً لك على الوقت والصدق في مشاركة قصتك معنا.
+               </p>
+               
+               <div class="booking-info">
+                   <h3>رقم الحجز الخاص بك:</h3>
+                   <div class="booking-number">${assessmentData.bookingNumber}</div>
+                   <p>احتفظ بهذا الرقم للمتابعة</p>
+               </div>
+               
+               <div class="journey-confirmation">
+                   <h3>الرحلة التي اخترتها:</h3>
+                   <div class="selected-journey">
+                       <span class="journey-name">رحلة ${selectedName}</span>
+                       ${isMatch ? 
+                           '<span class="match-badge matched">✓ يتوافق مع ترشيحنا</span>' :
+                           '<span class="match-badge different">⚡ اختيار مختلف عن ترشيحنا</span>'
+                       }
+                   </div>
+                   ${!isMatch ? 
+                       `<p class="recommendation-note">
+                           (كان ترشيحنا: رحلة ${recommendedName})
+                       </p>` : ''
+                   }
+               </div>
+               
+               <div class="next-steps">
+                   <h3>الخطوات التالية:</h3>
+                   <ol>
+                       <li>سنراجع طلبك خلال أسبوع عمل</li>
+                       <li>سنرسل لك رسالة تأكيد على الواتساب</li>
+                       <li>ستحصل على بيانات الدخول لحسابك</li>
+                       <li>سنحدد معاً موعد الجلسة الأولى</li>
+                   </ol>
+               </div>
+               
+               <div class="whatsapp-section">
+                   <p>للتأكيد النهائي، اضغط على الزر أدناه:</p>
+                   <button class="whatsapp-btn" onclick="sendWhatsAppMessage()">
+                       أرسل تأكيد الحجز عبر الواتساب 📱
+                   </button>
+               </div>
+               
+               <p class="privacy-note">
+                   * جميع بياناتك محفوظة بسرية تامة
+               </p>
+           </div>
+       `;
+   }
 
-📋 البيانات الأساسية:
+   // Send WhatsApp message
+   function sendWhatsAppMessage() {
+       const message = createWhatsAppMessage();
+       const phoneNumber = '201224938330'; // Your business WhatsApp number
+       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+       
+       window.open(whatsappUrl, '_blank');
+   }
+
+   // Create WhatsApp message
+   function createWhatsAppMessage() {
+       const journeyNames = {
+           'eshraq': 'الإشراقة',
+           'baseera': 'البصيرة',
+           'sakeena': 'السكينة',
+           'mixed-eshraq-baseera': 'المسار المتدرج (إشراقة ← بصيرة)',
+           'mixed-baseera-sakeena': 'المسار المتدرج (بصيرة ← سكينة)'
+       };
+       
+       const selectedName = journeyNames[assessmentData.selectedJourney];
+       const recommendedName = journeyNames[assessmentData.recommendedJourney];
+       const isMatch = assessmentData.selectedJourney === assessmentData.recommendedJourney;
+       
+       return `🌟 *حجز جديد من الاستمارة الشاملة*
+
+📋 *البيانات الأساسية:*
 - رقم الحجز: ${assessmentData.bookingNumber}
 - الاسم: ${assessmentData.userName}
 - البريد: ${assessmentData.userEmail}
 - الهاتف: ${assessmentData.userPhone}
 
-🎯 الترشيح والاختيار:
-- الرحلة الموصى بها: ${recommendedJourneyName}
-- الرحلة المختارة: ${selectedJourneyName}
-- التطابق: ${assessmentData.selectedJourney === assessmentData.recommendedJourney ? '✅ نعم' : '❌ لا'}
+🎯 *الترشيح والاختيار:*
+- الرحلة الموصى بها: ${recommendedName}
+- الرحلة المختارة: ${selectedName}
+- التطابق: ${isMatch ? '✅ نعم' : '❌ لا'}
 
-📊 نتائج التحليل:
+📊 *نتائج التحليل:*
 - إشراقة: ${Math.round(assessmentData.analysisResults.percentages.eshraq)}%
-- بصيرة: ${Math.round(assessmentData.analysisResults.percentages.baseera)}%
+- بصيرة: ${Math.round(assessmentData.analysisResults.percentages.baseera)}%  
 - سكينة: ${Math.round(assessmentData.analysisResults.percentages.sakeena)}%
 
-💬 تبرير الاختيار:
+💬 *تبرير الاختيار:*
 "${assessmentData.justification}"
 
-🔗 رابط الأدمن:
-https://yourwebsite.com/admin.html`;
-
-       const whatsappUrl = `https://wa.me/201224938330?text=${encodeURIComponent(adminMessage)}`;
-       window.open(whatsappUrl, '_blank');
+🔗 *رابط الأدمن:*
+https://yourwebsite.com/admin/booking/${assessmentData.bookingNumber}`;
    }
 
-   // Event listeners
-   document.addEventListener('DOMContentLoaded', function() {
-       // Start assessment
-       document.getElementById('startBtn')?.addEventListener('click', startAssessment);
+   // Initialize
+   function init() {
+       // Update progress on load
+       updateProgress();
        
-       // Navigation buttons
-       document.querySelectorAll('.btn-secondary').forEach(btn => {
-           btn.addEventListener('click', previousSection);
-       });
-       
-       document.querySelectorAll('.btn-primary:not(#submitBtn)').forEach(btn => {
-           btn.addEventListener('click', nextSection);
-       });
-       
-       // Submit button
-       document.getElementById('submitBtn')?.addEventListener('click', submitAssessment);
-       
-       // Option clicks
-       document.querySelectorAll('.option').forEach(option => {
-           option.addEventListener('click', function(e) {
-               if (e.target.tagName !== 'INPUT') {
-                   const input = this.querySelector('input');
-                   if (input) {
-                       input.click();
-                   }
-               }
-           });
-       });
-       
-       // Initialize scale displays
-       updateScaleValue('urgency');
-       updateScaleValue('investment');
-       updateScaleValue('confidence');
-       
-       // Password visibility toggle
-       document.getElementById('togglePassword')?.addEventListener('click', function() {
-           const passwordInput = document.getElementById('userPassword');
-           const icon = this;
-           
-           if (passwordInput.type === 'password') {
-               passwordInput.type = 'text';
-               icon.textContent = '👁️‍🗨️';
-           } else {
-               passwordInput.type = 'password';
-               icon.textContent = '👁️';
+       // Add event listeners for text areas
+       const textAreas = ['q3-text', 'q6-text', 'q9-text', 'q11-text', 'q12-text', 'q14-text'];
+       textAreas.forEach(id => {
+           const element = document.getElementById(id);
+           if (element) {
+               element.addEventListener('keyup', function() {
+                   updateCharCount(id, 500);
+               });
            }
        });
-   });
-// تأكد من تحميل الدالة
-window.startAssessment = startAssessment;
-   </script>
+       
+       // Add event listeners for scales
+       const scales = ['urgency', 'investment', 'confidence'];
+       scales.forEach(scale => {
+           const element = document.getElementById(`${scale}-scale`);
+           if (element) {
+               element.addEventListener('change', function() {
+                   updateScaleValue(scale);
+               });
+           }
+       });
+   }
+
+   // Call init when DOM is loaded
+   if (document.readyState === 'loading') {
+       document.addEventListener('DOMContentLoaded', init);
+   } else {
+       init();
+   }
+</script>
 </body>
 </html>
