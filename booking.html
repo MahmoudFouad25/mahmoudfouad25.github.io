@@ -1150,10 +1150,25 @@
     </div>
     
     <!-- Firebase Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-        <script src="firebase-config.js"></script>
+<!-- Firebase Scripts -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+<!-- Firebase Configuration -->
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyC41YCkGqczoN1fXNfQ3I71s",
+    authDomain: "fouad-coaching.firebaseapp.com",
+    projectId: "fouad-coaching",
+    storageBucket: "fouad-coaching.firebasestorage.app",
+    messagingSenderId: "1820417164",
+    appId: "1:1820417164:web:d40eea0bc24NF1b13b436",
+    measurementId: "G-NBSPVZQHS"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+</script>
     
     <script>
         // Global state
