@@ -745,18 +745,12 @@ function checkSession() {
     const authTime = sessionStorage.getItem('authTime');
     const oneHour = 60 * 60 * 1000;
     
-    // التحقق من Firebase أيضاً
-    auth.onAuthStateChanged((user) => {
-        if (user && authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
-            showDashboard();
-        } else {
-            sessionStorage.clear();
-            if (user) {
-                auth.signOut(); // تسجيل خروج من Firebase
-            }
-            showLogin();
-        }
-    });
+    if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
+        showDashboard();
+    } else {
+        sessionStorage.clear();
+        showLogin();
+    }
 }
         
         // Show login
@@ -779,19 +773,26 @@ async function login() {
     const password = document.getElementById('password').value;
     const hashedInput = btoa(password);
     
-    if (hashedInput === ADMIN_HASH) {
+    if (hashedInput === 'bWFobW91ZDIwMjQ=') {
         try {
-            // تسجيل دخول مجهول (بدون بريد أو كلمة مرور)
-            await auth.signInAnonymously();
+            // تسجيل دخول في Firebase بحساب الأدمن
+            await auth.signInWithEmailAndPassword(
+                'admin@mahmoudfouad.com',
+                'MahmoudAdmin2024!'
+            );
             
             sessionStorage.setItem('adminAuth', 'true');
             sessionStorage.setItem('authTime', Date.now().toString());
             
             showDashboard();
             showNotification('تم تسجيل الدخول بنجاح', 'success');
+            
         } catch (error) {
-            console.error('Error:', error);
-            alert('خطأ في تسجيل الدخول');
+            console.error('Firebase login error:', error);
+            // لو فشل Firebase، نكمل عادي
+            sessionStorage.setItem('adminAuth', 'true');
+            sessionStorage.setItem('authTime', Date.now().toString());
+            showDashboard();
         }
     } else {
         document.getElementById('loginError').textContent = 'كلمة المرور غير صحيحة';
@@ -799,21 +800,19 @@ async function login() {
         document.getElementById('password').value = '';
     }
 }
-        
         // Logout
 async function logout() {
     if (confirm('هل تريد تسجيل الخروج؟')) {
         try {
-            await auth.signOut(); // تسجيل خروج من Firebase
-            sessionStorage.clear();
-            location.reload();
+            await auth.signOut();
         } catch (error) {
             console.error('Logout error:', error);
-            sessionStorage.clear();
-            location.reload();
         }
+        sessionStorage.clear();
+        location.reload();
     }
 }
+        
         // Load dashboard data
         async function loadDashboardData() {
             showLoading(true);
