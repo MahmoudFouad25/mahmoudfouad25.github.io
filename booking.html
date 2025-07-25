@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>رحلة اكتشاف الذات - التقييم العميق</title>
-        <script src="firebase-config.js"></script>
-
     <style>
         * {
             margin: 0;
@@ -1152,25 +1150,21 @@
     </div>
     
     <!-- Firebase Scripts -->
-<!-- Firebase Scripts -->
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-<!-- Firebase Configuration -->
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyC41YCkGqczoN1fXNfQ3I71s",
-    authDomain: "fouad-coaching.firebaseapp.com",
-    projectId: "fouad-coaching",
-    storageBucket: "fouad-coaching.firebasestorage.app",
-    messagingSenderId: "1820417164",
-    appId: "1:1820417164:web:d40eea0bc24NF1b13b436",
-    measurementId: "G-NBSPVZQHS"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-</script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script>
+        // Initialize Firebase (يجب وضع معلومات Firebase الخاصة بك)
+        const firebaseConfig = {
+            // ضع معلومات Firebase الخاصة بك هنا
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
     
     <script>
         // Global state
@@ -4512,6 +4506,5 @@ https://yourwebsite.com/admin.html`;
    });
 
    </script>
-    <script src="firebase-config.js"></script>
 </body>
 </html>
