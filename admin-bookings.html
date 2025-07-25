@@ -2049,7 +2049,7 @@ showLoading(false);
 }
 
 // View booking details
-// استبدل دالة viewDetails القديمة بهذه كاملة
+// استبدل دالة viewDetails بهذه النسخة الصحيحة
 async function viewDetails(bookingId) {
     const booking = allBookings.find(b => b.id === bookingId);
     if (!booking) return;
@@ -2057,291 +2057,154 @@ async function viewDetails(bookingId) {
     let detailsHTML = `
         <div class="info-box">
             <h4>معلومات العميل:</h4>
-            <p><strong>الاسم:</strong> ${booking.name || booking.basicInfo?.name || 'غير محدد'}</p>
-            <p><strong>البريد الإلكتروني:</strong> ${booking.email || booking.basicInfo?.email || ''}</p>
-            <p><strong>رقم الهاتف:</strong> ${booking.phone || booking.basicInfo?.phone || 'غير محدد'}</p>
-            <p><strong>العمر:</strong> ${booking.age || booking.basicInfo?.age || 'غير محدد'}</p>
+            <p><strong>الاسم:</strong> ${booking.name || 'غير محدد'}</p>
+            <p><strong>البريد الإلكتروني:</strong> ${booking.email || ''}</p>
+            <p><strong>رقم الهاتف:</strong> ${booking.phone || 'غير محدد'}</p>
+            <p><strong>العمر:</strong> ${booking.age || 'غير محدد'}</p>
+            <p><strong>رقم الحجز:</strong> ${booking.bookingNumber || ''}</p>
             <p><strong>تاريخ الحجز:</strong> ${formatDate(booking.createdAt)}</p>
         </div>`;
     
-    // تحليل الاحتياجات من analysis object
-    if (booking.analysis) {
-        detailsHTML += `
+    // تحليل الاحتياجات
+    detailsHTML += `
         <div class="info-box">
             <h4>تحليل الاحتياجات:</h4>
-            <p><strong>نوع التحدي:</strong> ${getChallengeDisplayName(booking.analysis.challengeType || booking.challengeType)}</p>
-            <p><strong>مستوى الوعي:</strong> ${booking.analysis.awarenessLevel || 'غير محدد'}</p>
-            <p><strong>مستوى الإلحاح:</strong> ${booking.analysis.urgencyLevel || booking.urgencyLevel || '-'}/10</p>
-            <p><strong>مستوى الموارد:</strong> ${booking.analysis.resourceLevel || 'غير محدد'}</p>
+            <p><strong>نوع التحدي:</strong> ${getChallengeDisplayName(booking.challengeType)}</p>
+            <p><strong>مستوى الإلحاح:</strong> ${booking.urgencyLevel || '-'}/10</p>
+            <p><strong>الوقت المتاح:</strong> ${booking.timeAvailable || 'غير محدد'}</p>
         </div>`;
-    }
     
-    // اختيار الرحلة من recommendation object
-    if (booking.recommendation) {
-        detailsHTML += `
+    // اختيار الرحلة
+    detailsHTML += `
         <div class="info-box">
             <h4>اختيار الرحلة:</h4>
-            <p><strong>الرحلة المختارة:</strong> ${getJourneyDisplayName(booking.recommendation.selectedJourney || booking.journeyType)}</p>
-            <p><strong>الرحلة الموصى بها:</strong> ${getJourneyDisplayName(booking.recommendation.recommendedJourney || booking.recommendedJourney)}</p>
-            <p><strong>تطابق مع التوصية:</strong> ${booking.recommendation.matchedRecommendation || booking.matchedRecommendation ? 
+            <p><strong>الرحلة المختارة:</strong> ${getJourneyDisplayName(booking.selectedJourney || booking.journeyType)}</p>
+            <p><strong>الرحلة الموصى بها:</strong> ${getJourneyDisplayName(booking.recommendedJourney)}</p>
+            <p><strong>تطابق مع التوصية:</strong> ${booking.matchedRecommendation ? 
                 '<span style="color: green;">نعم ✓</span>' : 
                 '<span style="color: orange;">لا - اختار مساراً مختلفاً</span>'}</p>
-            ${booking.recommendation.justification || booking.journeyJustification ? 
+            ${booking.justificationForChoice ? 
                 `<p><strong>تبرير الاختيار:</strong></p>
                 <div style="background: #f5f5f5; padding: 10px; border-radius: 5px; margin-top: 5px;">
-                    "${booking.recommendation.justification || booking.journeyJustification}"
+                    "${booking.justificationForChoice}"
                 </div>` : ''}
         </div>`;
+    
+    // إجابات الاستمارة الرئيسية
+    detailsHTML += `
+        <div class="info-box" style="background: #e8f4f8; border-right: 4px solid #2C5530;">
+            <h4>إجابات الأسئلة الأساسية:</h4>`;
+    
+    // النقطة الأساسية للألم
+    if (booking.mainPainPoint) {
+        detailsHTML += `
+            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
+                <strong>أكثر ما يؤلمه في حياته:</strong>
+                <p style="margin: 10px 20px; padding: 10px; background: #f9f9f9; border-right: 3px solid #2C5530; border-radius: 3px;">
+                    "${booking.mainPainPoint}"
+                </p>
+            </div>`;
     }
     
-    // نتائج التحليل من analysis.scores
-    if (booking.analysis?.scores || booking.analysisScores) {
-        const scores = booking.analysis?.scores || booking.analysisScores;
+    // الرؤية المستقبلية
+    if (booking.futureVision) {
         detailsHTML += `
-        <div class="info-box">
-            <h4>نتائج التحليل:</h4>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
-                <div style="text-align: center; padding: 10px; background: #f0f0f0; border-radius: 5px;">
-                    <div style="font-size: 24px; font-weight: bold; color: #2C5530;">
-                        ${scores.eshraq || 0}
+            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
+                <strong>رؤيته بعد عام من الآن:</strong>
+                <p style="margin: 10px 20px; padding: 10px; background: #f9f9f9; border-right: 3px solid #8B9467; border-radius: 3px;">
+                    "${booking.futureVision}"
+                </p>
+            </div>`;
+    }
+    
+    // التقييمات الذاتية
+    detailsHTML += `
+        <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 5px;">
+            <strong>التقييمات الذاتية:</strong>
+            <div style="display: grid; gap: 10px; margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>إلحاح الحاجة للدعم:</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 150px; height: 8px; background: #e0e0e0; border-radius: 4px; position: relative;">
+                            <div style="width: ${(booking.urgencyLevel || 0) * 10}%; height: 100%; 
+                                background: ${booking.urgencyLevel >= 7 ? '#dc3545' : booking.urgencyLevel >= 4 ? '#ffc107' : '#28a745'}; 
+                                border-radius: 4px;"></div>
+                        </div>
+                        <strong>${booking.urgencyLevel || 0}/10</strong>
                     </div>
-                    <div style="font-size: 12px; color: #666;">إشراقة</div>
                 </div>
-                <div style="text-align: center; padding: 10px; background: #f0f0f0; border-radius: 5px;">
-                    <div style="font-size: 24px; font-weight: bold; color: #8B9467;">
-                        ${scores.baseera || 0}
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>الاستعداد للاستثمار:</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 150px; height: 8px; background: #e0e0e0; border-radius: 4px; position: relative;">
+                            <div style="width: ${(parseInt(booking.investmentLevel) || 0) * 10}%; height: 100%; 
+                                background: ${parseInt(booking.investmentLevel) >= 7 ? '#28a745' : parseInt(booking.investmentLevel) >= 4 ? '#ffc107' : '#dc3545'}; 
+                                border-radius: 4px;"></div>
+                        </div>
+                        <strong>${booking.investmentLevel || 0}/10</strong>
                     </div>
-                    <div style="font-size: 12px; color: #666;">بصيرة</div>
                 </div>
-                <div style="text-align: center; padding: 10px; background: #f0f0f0; border-radius: 5px;">
-                    <div style="font-size: 24px; font-weight: bold; color: #D4AF37;">
-                        ${scores.sakeena || 0}
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>الثقة في التغيير:</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 150px; height: 8px; background: #e0e0e0; border-radius: 4px; position: relative;">
+                            <div style="width: ${(parseInt(booking.confidenceLevel) || 0) * 10}%; height: 100%; 
+                                background: ${parseInt(booking.confidenceLevel) >= 7 ? '#28a745' : parseInt(booking.confidenceLevel) >= 4 ? '#ffc107' : '#dc3545'}; 
+                                border-radius: 4px;"></div>
+                        </div>
+                        <strong>${booking.confidenceLevel || 0}/10</strong>
                     </div>
-                    <div style="font-size: 12px; color: #666;">سكينة</div>
                 </div>
             </div>
         </div>`;
-    }
     
-    // إجابات الاستمارة التفصيلية - الآن نقرأها من booking.answers
-    if (booking.answers) {
+    // التجارب السابقة
+    if (booking.previousExperience && booking.previousExperience.length > 0) {
         detailsHTML += `
-        <div class="info-box" style="background: #e8f4f8; border-right: 4px solid #2C5530;">
-            <h4>إجابات الاستمارة الكاملة:</h4>`;
-        
-        // السؤال 1
-        if (booking.answers.q1) {
-            detailsHTML += `
             <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>1. ما الذي جعله يبحث عن الدعم؟</strong>
+                <strong>التجارب السابقة:</strong>
                 <p style="margin: 5px 0 0 20px; color: #333;">
-                    ${getAnswerText('q1', booking.answers.q1)}
-                </p>
-                ${booking.answers.q1_sub ? `
-                <p style="margin: 5px 0 0 40px; color: #666; font-style: italic;">
-                    ← ${getSubAnswerText('q1', booking.answers.q1, booking.answers.q1_sub)}
-                </p>` : ''}
-            </div>`;
-        }
-        
-        // السؤال 2
-        if (booking.answers.q2) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>2. كيف يفكر عند مواجهة التحديات؟</strong>
-                <p style="margin: 5px 0 0 20px; color: #333;">
-                    ${getAnswerText('q2', booking.answers.q2)}
+                    ${booking.previousExperience.map(e => getExperienceText(e)).join('، ')}
                 </p>
             </div>`;
-        }
-        
-        // السؤال 3 - نص
-        if (booking.answers.q3_text) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>3. أكثر ما يؤلمه في حياته:</strong>
-                <p style="margin: 10px 20px; padding: 10px; background: #f9f9f9; border-right: 3px solid #2C5530; border-radius: 3px;">
-                    "${booking.answers.q3_text}"
-                </p>
-            </div>`;
-        }
-        
-        // السؤال 4
-        if (booking.answers.q4) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>4. الوعي بالأنماط المتكررة:</strong>
-                <p style="margin: 5px 0 0 20px; color: #333;">
-                    ${getAnswerText('q4', booking.answers.q4)}
-                </p>
-                ${booking.answers.q4_patterns && booking.answers.q4_patterns.length > 0 ? `
-                <p style="margin: 5px 0 0 40px; color: #666;">
-                    الأنماط الملاحظة: ${booking.answers.q4_patterns.map(p => getPatternText(p)).join('، ')}
-                </p>` : ''}
-            </div>`;
-        }
-        
-        // السؤال 5 - نص
-        if (booking.answers.q5_text) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>5. رؤيته بعد عام من الآن:</strong>
-                <p style="margin: 10px 20px; padding: 10px; background: #f9f9f9; border-right: 3px solid #8B9467; border-radius: 3px;">
-                    "${booking.answers.q5_text}"
-                </p>
-            </div>`;
-        }
-        
-        // السؤال 6
-        if (booking.answers.q6) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>6. الاستعداد لمواجهة الحقائق:</strong>
-                <p style="margin: 5px 0 0 20px; color: #333;">
-                    ${getAnswerText('q6', booking.answers.q6)}
-                </p>
-            </div>`;
-        }
-        
-        // السؤال 7 - نص
-        if (booking.answers.q7_text) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>7. رسالة الألم:</strong>
-                <p style="margin: 10px 20px; padding: 10px; background: #f9f9f9; border-right: 3px solid #D4AF37; border-radius: 3px;">
-                    "${booking.answers.q7_text}"
-                </p>
-            </div>`;
-        }
-        
-        // السؤال 8
-        if (booking.answers.q8) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>8. أكبر مخاوفه من اكتشاف نفسه:</strong>
-                <p style="margin: 5px 0 0 20px; color: #333;">
-                    ${getAnswerText('q8', booking.answers.q8)}
-                </p>
-            </div>`;
-        }
-        
-        // السؤال 9
-        if (booking.answers.q9) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>9. الوقت والطاقة المتاحة:</strong>
-                <p style="margin: 5px 0 0 20px; color: #333;">
-                    ${getAnswerText('q9', booking.answers.q9)}
-                </p>
-            </div>`;
-        }
-        
-        // السؤال 10 - الدعم المتاح
-        if (booking.answers.support && booking.answers.support.length > 0) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>10. مصادر الدعم في حياته:</strong>
-                <p style="margin: 5px 0 0 20px; color: #333;">
-                    ${booking.answers.support.map(s => getSupportText(s)).join('، ')}
-                </p>
-            </div>`;
-        }
-        
-        // السؤال 11 - التجارب السابقة
-        if (booking.answers.experience && booking.answers.experience.length > 0) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>11. التجارب السابقة:</strong>
-                <p style="margin: 5px 0 0 20px; color: #333;">
-                    ${booking.answers.experience.map(e => getExperienceText(e)).join('، ')}
-                </p>
-                ${booking.answers.experience_text ? `
-                <p style="margin: 10px 20px; padding: 10px; background: #f9f9f9; border-radius: 3px;">
-                    "${booking.answers.experience_text}"
-                </p>` : ''}
-            </div>`;
-        }
-        
-        // السؤال 12 - نص
-        if (booking.answers.q12_text) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>12. ما يتمنى الاحتفال به بعد 6 شهور:</strong>
-                <p style="margin: 10px 20px; padding: 10px; background: #f9f9f9; border-right: 3px solid #28a745; border-radius: 3px;">
-                    "${booking.answers.q12_text}"
-                </p>
-            </div>`;
-        }
-        
-        // المقاييس
-        if (booking.answers.urgency || booking.answers.investment || booking.answers.confidence) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 5px;">
-                <strong>13. التقييمات الذاتية:</strong>
-                <div style="display: grid; gap: 10px; margin-top: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>إلحاح الحاجة للدعم:</span>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 150px; height: 8px; background: #e0e0e0; border-radius: 4px; position: relative;">
-                                <div style="width: ${(booking.answers.urgency || 0) * 10}%; height: 100%; 
-                                    background: ${booking.answers.urgency >= 7 ? '#dc3545' : booking.answers.urgency >= 4 ? '#ffc107' : '#28a745'}; 
-                                    border-radius: 4px;"></div>
-                            </div>
-                            <strong>${booking.answers.urgency || 0}/10</strong>
-                        </div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>الاستعداد للاستثمار:</span>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 150px; height: 8px; background: #e0e0e0; border-radius: 4px; position: relative;">
-                                <div style="width: ${(booking.answers.investment || 0) * 10}%; height: 100%; 
-                                    background: ${booking.answers.investment >= 7 ? '#28a745' : booking.answers.investment >= 4 ? '#ffc107' : '#dc3545'}; 
-                                    border-radius: 4px;"></div>
-                            </div>
-                            <strong>${booking.answers.investment || 0}/10</strong>
-                        </div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>الثقة في التغيير:</span>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 150px; height: 8px; background: #e0e0e0; border-radius: 4px; position: relative;">
-                                <div style="width: ${(booking.answers.confidence || 0) * 10}%; height: 100%; 
-                                    background: ${booking.answers.confidence >= 7 ? '#28a745' : booking.answers.confidence >= 4 ? '#ffc107' : '#dc3545'}; 
-                                    border-radius: 4px;"></div>
-                            </div>
-                            <strong>${booking.answers.confidence || 0}/10</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-        }
-        
-        // السؤال 14 - معلومات إضافية
-        if (booking.answers.q14_text) {
-            detailsHTML += `
-            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
-                <strong>14. معلومات إضافية:</strong>
-                <p style="margin: 10px 20px; padding: 10px; background: #f9f9f9; border-radius: 3px;">
-                    "${booking.answers.q14_text}"
-                </p>
-            </div>`;
-        }
-        
-        detailsHTML += `</div>`;
     }
     
-    // Add account info if exists
+    // مصادر الدعم
+    if (booking.supportSystems && booking.supportSystems.length > 0) {
+        detailsHTML += `
+            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
+                <strong>مصادر الدعم في حياته:</strong>
+                <p style="margin: 5px 0 0 20px; color: #333;">
+                    ${booking.supportSystems.map(s => getSupportText(s)).join('، ')}
+                </p>
+            </div>`;
+    }
+    
+    // معلومات إضافية
+    if (booking.additionalInfo && booking.additionalInfo !== 'لا') {
+        detailsHTML += `
+            <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
+                <strong>معلومات إضافية:</strong>
+                <p style="margin: 10px 20px; padding: 10px; background: #f9f9f9; border-radius: 3px;">
+                    "${booking.additionalInfo}"
+                </p>
+            </div>`;
+    }
+    
+    detailsHTML += `</div>`;
+    
+    // معلومات الحساب
     if (booking.accountCreated) {
         detailsHTML += `
         <div class="info-box">
             <h4>معلومات الحساب:</h4>
             <p><strong>تم إنشاء حساب:</strong> نعم</p>
             <p><strong>طريقة التسجيل:</strong> ${booking.authProvider === 'google' ? 'Google' : 'البريد الإلكتروني'}</p>
-            ${booking.temporaryPassword ? `<p><strong>كلمة المرور المؤقتة:</strong> ${booking.temporaryPassword}</p>` : ''}
+            <p><strong>معرف المستخدم:</strong> ${booking.userId || ''}</p>
         </div>`;
     }
     
-    // Add notes if exist
+    // الملاحظات
     if (booking.notes) {
         detailsHTML += `
         <div class="info-box">
@@ -2350,7 +2213,7 @@ async function viewDetails(bookingId) {
         </div>`;
     }
     
-    // Add appointment details if confirmed
+    // تفاصيل الموعد
     if (booking.status === 'confirmed' && booking.appointmentDate) {
         const date = booking.appointmentDate.toDate ?
             booking.appointmentDate.toDate() : new Date(booking.appointmentDate);
@@ -2364,7 +2227,17 @@ async function viewDetails(bookingId) {
         </div>`;
     }
     
-    // Quick actions
+    // معلومات النظام
+    detailsHTML += `
+    <div class="info-box">
+        <h4>معلومات النظام:</h4>
+        <p><strong>رقم الحجز:</strong> ${booking.bookingNumber || ''}</p>
+        <p><strong>معرف التقييم:</strong> ${booking.assessmentId || ''}</p>
+        <p><strong>المصدر:</strong> ${booking.source || ''}</p>
+        <p><strong>الحالة:</strong> <span class="status-badge ${booking.status || 'pending'}">${getStatusName(booking.status)}</span></p>
+    </div>`;
+    
+    // الإجراءات السريعة
     detailsHTML += `
     <div class="info-box">
         <h4>إجراءات سريعة:</h4>
@@ -2377,117 +2250,23 @@ async function viewDetails(bookingId) {
     openModal('detailsModal');
 }
 
-// أضف هذه الدوال المساعدة بعد دالة viewDetails
-function getAnswerText(question, answer) {
-    const answerTexts = {
-        q1: {
-            a: 'يواجه تحدياً محدداً يريد حلاً له',
-            b: 'يشعر بأن شيئاً ما "ليس صحيحاً" في حياته',
-            c: 'يريد أن يفهم نفسه بشكل أعمق',
-            d: 'مستعد لتحول جذري في حياته'
-        },
-        q2: {
-            a: '"كيف أحل هذه المشكلة بسرعة؟"',
-            b: '"لماذا يحدث لي هذا دائماً؟"',
-            c: '"ما الرسالة التي تحملها هذه التجربة؟"',
-            d: '"هذا امتحان/فرصة للنمو"'
-        },
-        q4: {
-            a: 'لا، كل موقف مختلف تماماً',
-            b: 'نعم، يلاحظ بعض التشابه',
-            c: 'نعم، هناك نمط واضح يراه',
-            d: 'الآن بعد السؤال، بدأ يلاحظ...'
-        },
-        q6: {
-            a: 'مستعد تماماً - يريد الحقيقة مهما كانت',
-            b: 'مستعد بحذر - يريد التدرج',
-            c: 'قلق لكن مستعد - يحتاج دعماً كبيراً',
-            d: 'غير متأكد - يريد البدء بهدوء'
-        },
-        q8: {
-            a: 'أنه ليس بالقوة التي يظنها',
-            b: 'أنه السبب في معظم مشاكله',
-            c: 'أنه يحتاج تغييراً جذرياً',
-            d: 'أنه بخير كما هو ولا يحتاج كل هذا',
-            e: 'يفضل عدم التفكير في هذا'
-        },
-        q9: {
-            a: 'محدود جداً - ساعة أسبوعياً أو أقل',
-            b: 'متوسط - 2-3 ساعات أسبوعياً',
-            c: 'جيد - 3-5 ساعات أسبوعياً',
-            d: 'ملتزم تماماً - أكثر من 5 ساعات'
-        }
+// تحديث دالة getChallengeDisplayName لتشمل القيم الجديدة
+function getChallengeDisplayName(challengeType) {
+    const types = {
+        'work': 'تحدي في العمل',
+        'relationships': 'تحدي في العلاقات',
+        'self': 'تحدي مع الذات',
+        'decision': 'اتخاذ قرار مهم',
+        'emptiness': 'شعور بالفراغ',
+        'patterns': 'أنماط متكررة',
+        'passion': 'فقدان الشغف',
+        'misplaced': 'عدم الانتماء',
+        'clear-vision': 'رؤية واضحة تحتاج تنفيذ',
+        'need-change': 'حاجة لتغيير جذري',
+        'awakening': 'يقظة روحية',
+        'enough': 'وصول لنقطة التحول'
     };
-    return answerTexts[question]?.[answer] || answer;
-}
-
-function getSubAnswerText(question, mainAnswer, subAnswer) {
-    const subAnswerTexts = {
-        q1: {
-            a: {
-                'work': 'التحدي في العمل/المهنة',
-                'relationships': 'التحدي في العلاقات',
-                'self': 'التحدي مع نفسه',
-                'decision': 'التحدي في اتخاذ قرار مهم'
-            },
-            b: {
-                'emptiness': 'شعور بالفراغ رغم الإنجازات',
-                'patterns': 'تكرار نفس الأنماط المؤلمة',
-                'passion': 'فقدان الشغف والمعنى',
-                'misplaced': 'إحساس بأنه ليس في مكانه الصحيح'
-            },
-            c: {
-                'why-behavior': 'لماذا يتصرف بالطريقة التي يتصرف بها؟',
-                'true-self': 'من هو حقاً خلف كل الأقنعة؟',
-                'life-role': 'ما هو دوره الحقيقي في الحياة؟',
-                'potential': 'كيف يحقق إمكانياته الكامنة؟'
-            },
-            d: {
-                'clear-vision': 'لديه رؤية واضحة ويحتاج دعماً للتنفيذ',
-                'need-change': 'يعرف أنه يحتاج تغييراً جذرياً لكن لا يعرف كيف',
-                'awakening': 'مر بتجربة أيقظته ويريد البناء عليها',
-                'enough': 'وصل لمرحلة "كفى" ويريد حياة مختلفة'
-            }
-        }
-    };
-    return subAnswerTexts[question]?.[mainAnswer]?.[subAnswer] || subAnswer;
-}
-
-function getPatternText(pattern) {
-    const patterns = {
-        'people': 'نفس نوع الأشخاص يسبب له المشاكل',
-        'mistakes': 'يكرر نفس الأخطاء',
-        'situations': 'يجد نفسه في نفس المواقف',
-        'reactions': 'ردود أفعاله متشابهة'
-    };
-    return patterns[pattern] || pattern;
-}
-
-function getSupportText(support) {
-    const supports = {
-        'family': 'عائلة داعمة',
-        'friends': 'أصدقاء واعون',
-        'spiritual': 'ممارسة روحية/دينية',
-        'learning': 'قراءة وتعلم ذاتي',
-        'physical': 'رياضة أو ممارسة جسدية',
-        'work': 'عمل يحبه',
-        'hobby': 'هواية أو شغف',
-        'none': 'لا شيء مما سبق'
-    };
-    return supports[support] || support;
-}
-
-function getExperienceText(experience) {
-    const experiences = {
-        'therapy': 'علاج نفسي تقليدي',
-        'coaching': 'كوتشينج حياة',
-        'workshops': 'ورش تطوير ذات',
-        'meditation': 'ممارسات تأملية/يوغا',
-        'reading': 'قراءات في علم النفس/التنمية',
-        'spiritual': 'رحلة روحية/دينية عميقة',
-        'none': 'لا شيء مما سبق'
-    };
-    return experiences[experience] || experience;
+    return types[challengeType] || challengeType || 'غير محدد';
 }
 
 
