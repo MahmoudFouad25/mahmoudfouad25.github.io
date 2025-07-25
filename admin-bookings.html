@@ -1155,44 +1155,52 @@ document.getElementById('completedCount').textContent = stats.completed + stats.
 
 // Apply filters
 function applyFilters() {
-const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-const journeyFilter = document.getElementById('journeyFilter').value;
-const challengeFilter = document.getElementById('challengeFilter').value;
-const statusFilter = document.getElementById('statusFilter').value;
-filteredBookings = allBookings.filter(booking => {
-// Search filter
-if (searchTerm) {
-const searchableText = [
-booking.name,
-booking.email,
-booking.phone,
-booking.message
-].join(' ').toLowerCase();
-if (!searchableText.includes(searchTerm)) {
-return false;
-}
-}
-// Journey filter
-if (journeyFilter) {
-if (journeyFilter === 'multi') {
-if (!booking.journeyType || !booking.journeyType.includes('-')) {
-return false;
-}
-} else if (!booking.journeyType || booking.journeyType !== journeyFilter) {
-return false;
-}
-}
-// Challenge filter
-if (challengeFilter && booking.challengeType !== challengeFilter) {
-return false;
-}
-// Status filter
-if (statusFilter && (booking.status || 'pending') !== statusFilter) {
-return false;
-}
-return true;
-});
-displayBookingsByCategory();
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const journeyFilter = document.getElementById('journeyFilter').value;
+    const challengeFilter = document.getElementById('challengeFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    
+    filteredBookings = allBookings.filter(booking => {
+        // Search filter
+        if (searchTerm) {
+            const searchableText = [
+                booking.name,
+                booking.email,
+                booking.phone,
+                booking.message
+            ].filter(Boolean).join(' ').toLowerCase();
+            
+            if (!searchableText.includes(searchTerm)) {
+                return false;
+            }
+        }
+        
+        // Journey filter - تعديل للتعامل مع الحقول الجديدة
+        if (journeyFilter) {
+            const bookingJourney = booking.selectedJourney || booking.journeyType;
+            if (journeyFilter === 'multi') {
+                if (!bookingJourney || !bookingJourney.includes('-')) {
+                    return false;
+                }
+            } else if (!bookingJourney || bookingJourney !== journeyFilter) {
+                return false;
+            }
+        }
+        
+        // Challenge filter
+        if (challengeFilter && booking.challengeType !== challengeFilter) {
+            return false;
+        }
+        
+        // Status filter
+        if (statusFilter && (booking.status || 'pending') !== statusFilter) {
+            return false;
+        }
+        
+        return true;
+    });
+    
+    displayBookingsByCategory();
 }
 
 // Display bookings by category
@@ -1293,60 +1301,61 @@ tbody.innerHTML = html;
 
 // Generate booking row
 function generateBookingRow(booking) {
-const date = booking.createdAt;
-const journeyName = getJourneyDisplayName(booking.journeyType);
-const recommendedName = getJourneyDisplayName(booking.recommendedJourney);
-const isMatched = booking.matchedRecommendation;
-const urgencyClass = booking.urgencyLevel >= 8 ? 'urgent' : 
-booking.urgencyLevel >= 5 ? 'moderate' : 'low';
-return `
-<tr>
-<td>${formatDate(date)}</td>
-<td>
-<div class="client-info">
-<span class="client-name">${booking.name || 'غير محدد'}</span>
-<span class="client-contact">${booking.email}</span>
-<span class="client-contact">${booking.phone}</span>
-</div>
-</td>
-<td>
-<span class="type-badge ${getChallengeClass(booking.challengeType)}">
-${getChallengeDisplayName(booking.challengeType)}
-</span>
-</td>
-<td>
-<div class="journey-info">
-<span class="journey-badge ${booking.journeyType}">
-${journeyName}
-</span>
-${booking.journeyType !== booking.recommendedJourney ? 
-`<small class="recommended-note">
-(موصى به: ${recommendedName})
-</small>` : ''}
-</div>
-</td>
-<td>
-${isMatched ? 
-'<span class="match-icon yes">✓</span>' : 
-'<span class="match-icon no">✗</span>'}
-</td>
-<td>
-<span class="urgency-level ${urgencyClass}">
-${booking.urgencyLevel || '-'}/10
-</span>
-</td>
-<td>
-<span class="status-badge ${booking.status || 'pending'}">
-${getStatusName(booking.status)}
-</span>
-</td>
-<td>
-<div class="actions-cell">
-${generateActions(booking)}
-</div>
-</td>
-</tr>
-`;
+    const date = booking.createdAt;
+    const journeyName = getJourneyDisplayName(booking.selectedJourney || booking.journeyType);
+    const recommendedName = getJourneyDisplayName(booking.recommendedJourney);
+    const isMatched = booking.matchedRecommendation;
+    const urgencyClass = booking.urgencyLevel >= 8 ? 'urgent' : 
+                        booking.urgencyLevel >= 5 ? 'moderate' : 'low';
+    
+    return `
+        <tr>
+            <td>${formatDate(date)}</td>
+            <td>
+                <div class="client-info">
+                    <span class="client-name">${booking.name || 'غير محدد'}</span>
+                    <span class="client-contact">${booking.email || ''}</span>
+                    <span class="client-contact">${booking.phone || ''}</span>
+                </div>
+            </td>
+            <td>
+                <span class="type-badge ${getChallengeClass(booking.challengeType)}">
+                    ${getChallengeDisplayName(booking.challengeType)}
+                </span>
+            </td>
+            <td>
+                <div class="journey-info">
+                    <span class="journey-badge ${booking.selectedJourney || booking.journeyType || ''}">
+                        ${journeyName}
+                    </span>
+                    ${booking.selectedJourney !== booking.recommendedJourney ? 
+                        `<small class="recommended-note">
+                            (موصى به: ${recommendedName})
+                        </small>` : ''}
+                </div>
+            </td>
+            <td>
+                ${isMatched ? 
+                    '<span class="match-icon yes">✓</span>' : 
+                    '<span class="match-icon no">✗</span>'}
+            </td>
+            <td>
+                <span class="urgency-level ${urgencyClass}">
+                    ${booking.urgencyLevel || '-'}/10
+                </span>
+            </td>
+            <td>
+                <span class="status-badge ${booking.status || 'pending'}">
+                    ${getStatusName(booking.status)}
+                </span>
+            </td>
+            <td>
+                <div class="actions-cell">
+                    ${generateActions(booking)}
+                </div>
+            </td>
+        </tr>
+    `;
 }
 
 // Generate action buttons
