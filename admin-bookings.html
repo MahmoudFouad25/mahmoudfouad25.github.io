@@ -1001,6 +1001,26 @@ onkeyup="applyFilters()">
 // Initialize
 const auth = firebase.auth();
 const db = firebase.firestore();
+// التحقق من تسجيل الدخول في Firebase
+auth.onAuthStateChanged((user) => {
+    if (!user) {
+        // مش مسجل دخول في Firebase
+        const adminAuth = sessionStorage.getItem('adminAuth');
+        if (adminAuth === 'true') {
+            // مسجل في الجلسة بس مش في Firebase
+            // نسجله تلقائياً
+            auth.signInAnonymously().catch((error) => {
+                console.error('Error signing in:', error);
+            });
+        } else {
+            // مش مسجل خالص
+            alert('يجب تسجيل الدخول أولاً');
+            window.location.href = 'admin-dashboard.html';
+        }
+    }
+});
+
+    
 let allBookings = [];
 let filteredBookings = [];
 let currentBookingId = null;
