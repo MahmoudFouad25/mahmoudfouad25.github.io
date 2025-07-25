@@ -731,7 +731,34 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
         const ADMIN_HASH = 'bWFobW91ZDIwMjQ='; // mahmoud2024
+        // التحقق من تسجيل الدخول
+auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+        // مش مسجل دخول
+        const adminAuth = sessionStorage.getItem('adminAuth');
         
+        if (adminAuth === 'true') {
+            // مسجل في الجلسة، نسجله في Firebase
+            try {
+                await auth.signInWithEmailAndPassword(
+                    'admin@mahmoudfouad.com',
+                    'MahmoudAdmin2024!'
+                );
+            } catch (error) {
+                console.error('Auto login failed:', error);
+                alert('يجب تسجيل الدخول من الصفحة الرئيسية');
+                window.location.href = 'admin-dashboard.html';
+            }
+        } else {
+            // مش مسجل خالص
+            alert('يجب تسجيل الدخول أولاً');
+            window.location.href = 'admin-dashboard.html';
+        }
+    } else {
+        // مسجل دخول - حمّل البيانات
+        loadBookings();
+    }
+});
         // Check session on load
         window.onload = function() {
             checkSession();
