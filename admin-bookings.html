@@ -1048,6 +1048,13 @@ input.min = today;
 }
 
 // Load bookings
+    function showLoading(show) {
+
+document.querySelector('.loading-overlay').style.display = show ? 'flex' : 'none';
+
+}
+
+
 async function loadBookings(forceRefresh = false) {
     // Check cache first
     if (!forceRefresh && cachedBookings && cacheTime &&
