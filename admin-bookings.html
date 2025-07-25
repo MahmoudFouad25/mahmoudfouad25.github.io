@@ -2051,8 +2051,22 @@ showLoading(false);
 // View booking details
 // استبدل دالة viewDetails بهذه النسخة الصحيحة
 async function viewDetails(bookingId) {
+    // تأكد من وجود bookingId
+    if (!bookingId) {
+        console.error('No booking ID provided');
+        showNotification('خطأ: لا يوجد معرف للحجز', 'error');
+        return;
+    }
+    
+    // ابحث عن الحجز
     const booking = allBookings.find(b => b.id === bookingId);
-    if (!booking) return;
+    
+    // تأكد من وجود الحجز
+    if (!booking) {
+        console.error('Booking not found:', bookingId);
+        showNotification('خطأ: لم يتم العثور على الحجز', 'error');
+        return;
+    }
     
     let detailsHTML = `
         <div class="info-box">
@@ -2158,8 +2172,8 @@ async function viewDetails(bookingId) {
             </div>
         </div>`;
     
-    // التجارب السابقة
-    if (booking.previousExperience && booking.previousExperience.length > 0) {
+    // التجارب السابقة - مع التحقق من الوجود
+    if (booking.previousExperience && Array.isArray(booking.previousExperience) && booking.previousExperience.length > 0) {
         detailsHTML += `
             <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
                 <strong>التجارب السابقة:</strong>
@@ -2169,8 +2183,8 @@ async function viewDetails(bookingId) {
             </div>`;
     }
     
-    // مصادر الدعم
-    if (booking.supportSystems && booking.supportSystems.length > 0) {
+    // مصادر الدعم - مع التحقق من الوجود
+    if (booking.supportSystems && Array.isArray(booking.supportSystems) && booking.supportSystems.length > 0) {
         detailsHTML += `
             <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
                 <strong>مصادر الدعم في حياته:</strong>
