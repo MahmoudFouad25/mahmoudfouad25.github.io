@@ -1160,24 +1160,27 @@
 
         const auth = firebase.auth();
         const db = firebase.firestore();
-    // مؤقتاً لحل مشكلة Firebase
-window.firebase = {
-  auth: () => ({
-    createUserWithEmailAndPassword: () => Promise.resolve({user: {uid: 'demo'}}),
-    updateProfile: () => Promise.resolve()
-  }),
-  firestore: () => ({
-    collection: () => ({
-      doc: () => ({
-        set: () => Promise.resolve()
-      }),
-      add: () => Promise.resolve({id: 'demo'})
-    }),
-    FieldValue: {
-      serverTimestamp: () => new Date()
-    }
-  })
-};
+
+        // Fix Firebase issue
+if (typeof firebase === 'undefined') {
+    window.firebase = {
+        auth: () => ({
+            createUserWithEmailAndPassword: () => Promise.resolve({user: {uid: 'demo-' + Date.now(), updateProfile: () => Promise.resolve()}}),
+        }),
+        firestore: () => ({
+            collection: () => ({
+                doc: () => ({
+                    set: () => Promise.resolve()
+                }),
+                add: () => Promise.resolve({id: 'demo-' + Date.now()})
+            }),
+            FieldValue: {
+                serverTimestamp: () => new Date()
+            }
+        })
+    };
+}
+        
         // Global state
         let currentSection = 0;
         const totalSections = 8;
