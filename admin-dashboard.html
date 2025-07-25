@@ -781,41 +781,17 @@ async function login() {
     
     if (hashedInput === ADMIN_HASH) {
         try {
-            // تسجيل دخول في Firebase باستخدام حساب الأدمن
-            const adminEmail = 'admin@fouad-coaching.com'; // بريد وهمي ثابت
-            const adminPassword = 'Admin@Fouad2024!'; // كلمة مرور قوية ثابتة
+            // تسجيل دخول مجهول (بدون بريد أو كلمة مرور)
+            await auth.signInAnonymously();
             
-            // تسجيل الدخول
-            await auth.signInWithEmailAndPassword(adminEmail, adminPassword);
-            
-            // حفظ في الجلسة
             sessionStorage.setItem('adminAuth', 'true');
             sessionStorage.setItem('authTime', Date.now().toString());
             
             showDashboard();
             showNotification('تم تسجيل الدخول بنجاح', 'success');
         } catch (error) {
-            if (error.code === 'auth/user-not-found') {
-                // أول مرة - إنشاء حساب الأدمن
-                try {
-                    await auth.createUserWithEmailAndPassword(adminEmail, adminPassword);
-                    
-                    // تسجيل الدخول بعد الإنشاء
-                    await auth.signInWithEmailAndPassword(adminEmail, adminPassword);
-                    
-                    sessionStorage.setItem('adminAuth', 'true');
-                    sessionStorage.setItem('authTime', Date.now().toString());
-                    
-                    showDashboard();
-                    showNotification('تم إنشاء حساب الأدمن وتسجيل الدخول', 'success');
-                } catch (createError) {
-                    console.error('Error creating admin:', createError);
-                    alert('خطأ في إنشاء حساب الأدمن');
-                }
-            } else {
-                console.error('Login error:', error);
-                alert('خطأ في تسجيل الدخول');
-            }
+            console.error('Error:', error);
+            alert('خطأ في تسجيل الدخول');
         }
     } else {
         document.getElementById('loginError').textContent = 'كلمة المرور غير صحيحة';
