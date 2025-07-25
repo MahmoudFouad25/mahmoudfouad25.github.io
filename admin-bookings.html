@@ -1007,7 +1007,216 @@ let currentBookingId = null;
 let availableSlots = JSON.parse(localStorage.getItem('availableSlots') || '[]');
 let cachedBookings = null;
 let cacheTime = null;
+// Helper functions - MUST BE DEFINED FIRST
+function showLoading(show) {
+    const loadingOverlay = document.querySelector('.loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = show ? 'flex' : 'none';
+    }
+}
 
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notification.onclick = () => notification.remove();
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function formatDate(date) {
+    if (!date) return '';
+    return date.toLocaleDateString('ar-EG', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function getStatusName(status) {
+    const names = {
+        pending: 'في الانتظار',
+        confirming: 'قيد التأكيد',
+        confirmed: 'مؤكد',
+        completed: 'مكتمل',
+        converted: 'تم التحويل',
+        cancelled: 'ملغي'
+    };
+    return names[status] || 'في الانتظار';
+}
+
+function getJourneyDisplayName(journeyType) {
+    const names = {
+        'eshraq': 'رحلة الإشراقة',
+        'baseera': 'رحلة البصيرة',
+        'sakeena': 'رحلة السكينة',
+        'eshraq-baseera': 'مسار متدرج (إشراقة ← بصيرة)',
+        'baseera-sakeena': 'مسار متدرج (بصيرة ← سكينة)'
+    };
+    return names[journeyType] || journeyType || 'غير محدد';
+}
+
+function getChallengeDisplayName(challengeType) {
+    const types = {
+        'work': 'تحدي في العمل',
+        'relationships': 'تحدي في العلاقات',
+        'self': 'تحدي مع الذات',
+        'decision': 'اتخاذ قرار مهم',
+        'emptiness': 'شعور بالفراغ',
+        'patterns': 'أنماط متكررة',
+        'passion': 'فقدان الشغف',
+        'misplaced': 'عدم الانتماء',
+        'clear-vision': 'رؤية واضحة تحتاج تنفيذ',
+        'need-change': 'حاجة لتغيير جذري',
+        'awakening': 'يقظة روحية',
+        'enough': 'وصول لنقطة التحول'
+    };
+    return types[challengeType] || challengeType || 'غير محدد';
+}
+
+function getChallengeClass(challengeType) {
+    const classes = {
+        'work': 'challenge-work',
+        'relationships': 'challenge-relationships',
+        'self': 'challenge-self',
+        'decision': 'challenge-decision'
+    };
+    return classes[challengeType] || 'challenge-default';
+}
+
+function getSessionTypeName(type) {
+    const names = {
+        online: 'أونلاين',
+        phone: 'هاتفي',
+        inperson: 'حضوري'
+    };
+    return names[type] || 'أونلاين';
+}
+
+function getExperienceText(experience) {
+    const experiences = {
+        'therapy': 'علاج نفسي تقليدي',
+        'coaching': 'كوتشينج حياة',
+        'workshops': 'ورش تطوير ذات',
+        'meditation': 'ممارسات تأملية/يوغا',
+        'reading': 'قراءات في علم النفس/التنمية',
+        'spiritual': 'رحلة روحية/دينية عميقة',
+        'none': 'لا شيء مما سبق'
+    };
+    return experiences[experience] || experience;
+}
+
+function getSupportText(support) {
+    const supports = {
+        'family': 'عائلة داعمة',
+        'friends': 'أصدقاء واعون',
+        'spiritual': 'ممارسة روحية/دينية',
+        'learning': 'قراءة وتعلم ذاتي',
+        'physical': 'رياضة أو ممارسة جسدية',
+        'work': 'عمل يحبه',
+        'hobby': 'هواية أو شغف',
+        'none': 'لا شيء مما سبق'
+    };
+    return supports[support] || support;
+}
+
+function getAnswerText(question, answer) {
+    const answerTexts = {
+        q1: {
+            a: 'يواجه تحدياً محدداً يريد حلاً له',
+            b: 'يشعر بأن شيئاً ما "ليس صحيحاً" في حياته',
+            c: 'يريد أن يفهم نفسه بشكل أعمق',
+            d: 'مستعد لتحول جذري في حياته'
+        },
+        q2: {
+            a: '"كيف أحل هذه المشكلة بسرعة؟"',
+            b: '"لماذا يحدث لي هذا دائماً؟"',
+            c: '"ما الرسالة التي تحملها هذه التجربة؟"',
+            d: '"هذا امتحان/فرصة للنمو"'
+        },
+        q4: {
+            a: 'لا، كل موقف مختلف تماماً',
+            b: 'نعم، يلاحظ بعض التشابه',
+            c: 'نعم، هناك نمط واضح يراه',
+            d: 'الآن بعد السؤال، بدأ يلاحظ...'
+        },
+        q6: {
+            a: 'مستعد تماماً - يريد الحقيقة مهما كانت',
+            b: 'مستعد بحذر - يريد التدرج',
+            c: 'قلق لكن مستعد - يحتاج دعماً كبيراً',
+            d: 'غير متأكد - يريد البدء بهدوء'
+        },
+        q8: {
+            a: 'أنه ليس بالقوة التي يظنها',
+            b: 'أنه السبب في معظم مشاكله',
+            c: 'أنه يحتاج تغييراً جذرياً',
+            d: 'أنه بخير كما هو ولا يحتاج كل هذا',
+            e: 'يفضل عدم التفكير في هذا'
+        },
+        q9: {
+            a: 'محدود جداً - ساعة أسبوعياً أو أقل',
+            b: 'متوسط - 2-3 ساعات أسبوعياً',
+            c: 'جيد - 3-5 ساعات أسبوعياً',
+            d: 'ملتزم تماماً - أكثر من 5 ساعات'
+        }
+    };
+    return answerTexts[question]?.[answer] || answer;
+}
+
+function getSubAnswerText(question, mainAnswer, subAnswer) {
+    const subAnswerTexts = {
+        q1: {
+            a: {
+                'work': 'التحدي في العمل/المهنة',
+                'relationships': 'التحدي في العلاقات',
+                'self': 'التحدي مع نفسه',
+                'decision': 'التحدي في اتخاذ قرار مهم'
+            },
+            b: {
+                'emptiness': 'شعور بالفراغ رغم الإنجازات',
+                'patterns': 'تكرار نفس الأنماط المؤلمة',
+                'passion': 'فقدان الشغف والمعنى',
+                'misplaced': 'إحساس بأنه ليس في مكانه الصحيح'
+            },
+            c: {
+                'why-behavior': 'لماذا يتصرف بالطريقة التي يتصرف بها؟',
+                'true-self': 'من هو حقاً خلف كل الأقنعة؟',
+                'life-role': 'ما هو دوره الحقيقي في الحياة؟',
+                'potential': 'كيف يحقق إمكانياته الكامنة؟'
+            },
+            d: {
+                'clear-vision': 'لديه رؤية واضحة ويحتاج دعماً للتنفيذ',
+                'need-change': 'يعرف أنه يحتاج تغييراً جذرياً لكن لا يعرف كيف',
+                'awakening': 'مر بتجربة أيقظته ويريد البناء عليها',
+                'enough': 'وصل لمرحلة "كفى" ويريد حياة مختلفة'
+            }
+        }
+    };
+    return subAnswerTexts[question]?.[mainAnswer]?.[subAnswer] || subAnswer;
+}
+
+function getPatternText(pattern) {
+    const patterns = {
+        'people': 'نفس نوع الأشخاص يسبب له المشاكل',
+        'mistakes': 'يكرر نفس الأخطاء',
+        'situations': 'يجد نفسه في نفس المواقف',
+        'reactions': 'ردود أفعاله متشابهة'
+    };
+    return patterns[pattern] || pattern;
+}
+    
 // Check authentication on load
 window.onload = function() {
 checkAuth();
@@ -1047,12 +1256,6 @@ input.min = today;
 });
 }
 
-// Load bookings
-    function showLoading(show) {
-
-document.querySelector('.loading-overlay').style.display = show ? 'flex' : 'none';
-
-}
 
 
 async function loadBookings(forceRefresh = false) {
@@ -1396,63 +1599,7 @@ html += `<button class="btn btn-secondary" onclick="viewDetails('${booking.id}')
 return html;
 }
 
-// Helper functions
-function getJourneyDisplayName(journeyType) {
-const names = {
-'eshraq': 'رحلة الإشراقة',
-'baseera': 'رحلة البصيرة',
-'sakeena': 'رحلة السكينة',
-'eshraq-baseera': 'مسار متدرج (إشراقة ← بصيرة)',
-'baseera-sakeena': 'مسار متدرج (بصيرة ← سكينة)'
-};
-return names[journeyType] || journeyType || 'غير محدد';
-}
 
-function getChallengeDisplayName(challengeType) {
-const types = {
-'work': 'تحدي في العمل',
-'relationships': 'تحدي في العلاقات',
-'self': 'تحدي مع الذات',
-'decision': 'اتخاذ قرار مهم',
-'emptiness': 'شعور بالفراغ',
-'patterns': 'أنماط متكررة',
-'passion': 'فقدان الشغف',
-'misplaced': 'عدم الانتماء'
-};
-return types[challengeType] || 'غير محدد';
-}
-
-function getChallengeClass(challengeType) {
-const classes = {
-'work': 'challenge-work',
-'relationships': 'challenge-relationships',
-'self': 'challenge-self',
-'decision': 'challenge-decision'
-};
-return classes[challengeType] || 'challenge-default';
-}
-
-function getStatusName(status) {
-const names = {
-pending: 'في الانتظار',
-confirming: 'قيد التأكيد',
-confirmed: 'مؤكد',
-completed: 'مكتمل',
-converted: 'تم التحويل',
-cancelled: 'ملغي'
-};
-return names[status] || 'في الانتظار';
-}
-
-function formatDate(date) {
-return date.toLocaleDateString('ar-EG', {
-year: 'numeric',
-month: 'short',
-day: 'numeric',
-hour: '2-digit',
-minute: '2-digit'
-});
-}
 
 // Reset filters
 function resetFilters() {
@@ -2017,14 +2164,6 @@ return phases[program] || phases['eshraq'];
 }
 
 // Get session type name
-function getSessionTypeName(type) {
-const names = {
-online: 'أونلاين',
-phone: 'هاتفي',
-inperson: 'حضوري'
-};
-return names[type] || 'أونلاين';
-}
 
 // Cancel booking
 async function cancelBooking(bookingId) {
@@ -2270,118 +2409,7 @@ async function viewDetails(bookingId) {
     openModal('detailsModal');
 }
 
-// أضف هذه الدوال قبل </script>
-function getExperienceText(experience) {
-    const experiences = {
-        'therapy': 'علاج نفسي تقليدي',
-        'coaching': 'كوتشينج حياة',
-        'workshops': 'ورش تطوير ذات',
-        'meditation': 'ممارسات تأملية/يوغا',
-        'reading': 'قراءات في علم النفس/التنمية',
-        'spiritual': 'رحلة روحية/دينية عميقة',
-        'none': 'لا شيء مما سبق'
-    };
-    return experiences[experience] || experience;
-}
 
-function getSupportText(support) {
-    const supports = {
-        'family': 'عائلة داعمة',
-        'friends': 'أصدقاء واعون',
-        'spiritual': 'ممارسة روحية/دينية',
-        'learning': 'قراءة وتعلم ذاتي',
-        'physical': 'رياضة أو ممارسة جسدية',
-        'work': 'عمل يحبه',
-        'hobby': 'هواية أو شغف',
-        'none': 'لا شيء مما سبق'
-    };
-    return supports[support] || support;
-}
-
-function getAnswerText(question, answer) {
-    const answerTexts = {
-        q1: {
-            a: 'يواجه تحدياً محدداً يريد حلاً له',
-            b: 'يشعر بأن شيئاً ما "ليس صحيحاً" في حياته',
-            c: 'يريد أن يفهم نفسه بشكل أعمق',
-            d: 'مستعد لتحول جذري في حياته'
-        },
-        q2: {
-            a: '"كيف أحل هذه المشكلة بسرعة؟"',
-            b: '"لماذا يحدث لي هذا دائماً؟"',
-            c: '"ما الرسالة التي تحملها هذه التجربة؟"',
-            d: '"هذا امتحان/فرصة للنمو"'
-        },
-        q4: {
-            a: 'لا، كل موقف مختلف تماماً',
-            b: 'نعم، يلاحظ بعض التشابه',
-            c: 'نعم، هناك نمط واضح يراه',
-            d: 'الآن بعد السؤال، بدأ يلاحظ...'
-        },
-        q6: {
-            a: 'مستعد تماماً - يريد الحقيقة مهما كانت',
-            b: 'مستعد بحذر - يريد التدرج',
-            c: 'قلق لكن مستعد - يحتاج دعماً كبيراً',
-            d: 'غير متأكد - يريد البدء بهدوء'
-        },
-        q8: {
-            a: 'أنه ليس بالقوة التي يظنها',
-            b: 'أنه السبب في معظم مشاكله',
-            c: 'أنه يحتاج تغييراً جذرياً',
-            d: 'أنه بخير كما هو ولا يحتاج كل هذا',
-            e: 'يفضل عدم التفكير في هذا'
-        },
-        q9: {
-            a: 'محدود جداً - ساعة أسبوعياً أو أقل',
-            b: 'متوسط - 2-3 ساعات أسبوعياً',
-            c: 'جيد - 3-5 ساعات أسبوعياً',
-            d: 'ملتزم تماماً - أكثر من 5 ساعات'
-        }
-    };
-    return answerTexts[question]?.[answer] || answer;
-}
-
-function getSubAnswerText(question, mainAnswer, subAnswer) {
-    const subAnswerTexts = {
-        q1: {
-            a: {
-                'work': 'التحدي في العمل/المهنة',
-                'relationships': 'التحدي في العلاقات',
-                'self': 'التحدي مع نفسه',
-                'decision': 'التحدي في اتخاذ قرار مهم'
-            },
-            b: {
-                'emptiness': 'شعور بالفراغ رغم الإنجازات',
-                'patterns': 'تكرار نفس الأنماط المؤلمة',
-                'passion': 'فقدان الشغف والمعنى',
-                'misplaced': 'إحساس بأنه ليس في مكانه الصحيح'
-            },
-            c: {
-                'why-behavior': 'لماذا يتصرف بالطريقة التي يتصرف بها؟',
-                'true-self': 'من هو حقاً خلف كل الأقنعة؟',
-                'life-role': 'ما هو دوره الحقيقي في الحياة؟',
-                'potential': 'كيف يحقق إمكانياته الكامنة؟'
-            },
-            d: {
-                'clear-vision': 'لديه رؤية واضحة ويحتاج دعماً للتنفيذ',
-                'need-change': 'يعرف أنه يحتاج تغييراً جذرياً لكن لا يعرف كيف',
-                'awakening': 'مر بتجربة أيقظته ويريد البناء عليها',
-                'enough': 'وصل لمرحلة "كفى" ويريد حياة مختلفة'
-            }
-        }
-    };
-    return subAnswerTexts[question]?.[mainAnswer]?.[subAnswer] || subAnswer;
-}
-
-function getPatternText(pattern) {
-    const patterns = {
-        'people': 'نفس نوع الأشخاص يسبب له المشاكل',
-        'mistakes': 'يكرر نفس الأخطاء',
-        'situations': 'يجد نفسه في نفس المواقف',
-        'reactions': 'ردود أفعاله متشابهة'
-    };
-    return patterns[pattern] || pattern;
-}
 // تحديث دالة getChallengeDisplayName لتشمل القيم الجديدة
 function getChallengeDisplayName(challengeType) {
     const types = {
@@ -2450,33 +2478,8 @@ document.body.removeChild(link);
 showNotification('تم تحميل الملف بنجاح', 'success');
 }
 
-// Helper functions
 
-function showNotification(message, type = 'success') {
-const notification = document.createElement('div');
-notification.className = `notification ${type}`;
-notification.textContent = message;
-notification.onclick = () => notification.remove();
-document.body.appendChild(notification);
-setTimeout(() => {
-notification.remove();
-}, 5000);
-}
 
-function openModal(modalId) {
-document.getElementById(modalId).style.display = 'block';
-}
-
-function closeModal(modalId) {
-document.getElementById(modalId).style.display = 'none';
-}
-
-// Close modals on outside click
-window.onclick = function(event) {
-if (event.target.classList.contains('modal')) {
-event.target.style.display = 'none';
-}
-}
 </script>
 </body>
 </html>
