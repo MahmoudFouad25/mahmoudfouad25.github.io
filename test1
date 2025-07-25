@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلتك المزدوجة نحو النور والبصيرة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: linear-gradient(135deg, #F5F2E8 0%, #E8E5D5 100%);
+            color: #1A1A1A;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        
+        /* الحاوية الرئيسية */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* رسالة الترحيب الشخصية */
+        .personal-greeting {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 1s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .greeting-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: morphIcons 4s ease-in-out infinite;
+        }
+        
+        @keyframes morphIcons {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            50% { transform: scale(1) rotate(0deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+        
+        .greeting-text {
+            font-size: 28px;
+            color: #2C5530;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .greeting-subtext {
+            font-size: 18px;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* قسم الفهم العميق */
+        .understanding-section {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* خلفية زخرفية مزدوجة */
+        .understanding-section::before,
+        .understanding-section::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+        }
+        
+        .understanding-section::before {
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+        }
+        
+        .understanding-section::after {
+            bottom: -30px;
+            left: -30px;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(139, 148, 103, 0.08) 0%, transparent 70%);
+        }
+        
+        .section-title {
+            font-size: 24px;
+            color: #2C5530;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .section-icon {
+            font-size: 30px;
+        }
+        
+        .understanding-content {
+            font-size: 18px;
+            line-height: 2;
+            color: #333;
+        }
+        
+        .highlight {
+            background: linear-gradient(to bottom, transparent 60%, rgba(212, 175, 55, 0.3) 60%);
+            padding: 0 4px;
+            font-weight: 500;
+        }
+        
+        .highlight-green {
+            background: linear-gradient(to bottom, transparent 60%, rgba(139, 148, 103, 0.3) 60%);
+            padding: 0 4px;
+            font-weight: 500;
+        }
+        
+        /* الثنائية المكتشفة */
+        .duality-insight {
+            background: linear-gradient(135deg, #FFF8E8 0%, #F0F8F0 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            position: relative;
+        }
+        
+        .duality-insight::before {
+            content: '🌅 ↔ 👁️';
+            position: absolute;
+            top: -15px;
+            right: 50%;
+            transform: translateX(50%);
+            background: white;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .duality-content {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .duality-side {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .duality-side h4 {
+            color: #2C5530;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+        
+        .duality-side p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .duality-connector {
+            font-size: 30px;
+            color: #D4AF37;
+        }
+        
+        /* قسم التوصية */
+        .recommendation-intro {
+            background: #FFF;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid transparent;
+            background-image: linear-gradient(white, white), 
+                              linear-gradient(135deg, #D4AF37, #8B9467);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            animation: fadeInUp 1s ease 0.5s both;
+        }
+        
+        .recommendation-label {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 15px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .recommendation-title {
+            font-size: 36px;
+            color: #2C5530;
+            margin-bottom: 15px;
+            font-weight: 400;
+        }
+        
+        .recommendation-subtitle {
+            font-size: 20px;
+            color: #666;
+            font-weight: 300;
+        }
+        
+        /* المسار المقترح */
+        .path-visualization {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+        
+        .path-timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+        
+        .path-line {
+            position: absolute;
+            top: 60px;
+            right: 50px;
+            left: 50px;
+            height: 4px;
+            background: linear-gradient(to left, #8B9467 0%, #D4AF37 50%, #2C5530 100%);
+            border-radius: 2px;
+        }
+        
+        .path-stages {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stage {
+            flex: 1;
+            text-align: center;
+            padding: 0 20px;
+        }
+        
+        .stage-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 35px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .stage:hover .stage-icon {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .stage:first-child .stage-icon {
+            border: 3px solid #D4AF37;
+        }
+        
+        .stage:nth-child(2) .stage-icon {
+            border: 3px solid #8B9467;
+        }
+        
+        .stage:last-child .stage-icon {
+            border: 3px solid #2C5530;
+        }
+        
+        .stage-title {
+            font-size: 20px;
+            color: #2C5530;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .stage-duration {
+            font-size: 16px;
+            color: #8B9467;
+            margin-bottom: 15px;
+        }
+        
+        .stage-description {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* تفاصيل كل مرحلة */
+        .detailed-phases {
+            margin-top: 40px;
+        }
+        
+        .phase-section {
+            background: #F8F7F4;
+            padding: 40px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .phase-section.phase-1 {
+            border-right: 5px solid #D4AF37;
+        }
+        
+        .phase-section.phase-2 {
+            border-right: 5px solid #8B9467;
+        }
+        
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .phase-icon {
+            font-size: 40px;
+        }
+        
+        .phase-info h3 {
+            font-size: 24px;
+            color: #2C5530;
+            margin-bottom: 5px;
+        }
+        
+        .phase-info p {
+            color: #8B9467;
+            font-size: 16px;
+        }
+        
+        .phase-content {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+        
+        .phase-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .feature-item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .feature-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-text {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* لماذا المسار المزدوج */
+        .why-mixed-path {
+            background: linear-gradient(135deg, #FFF8E8 0%, #F0F8F0 100%);
+            padding: 40px;
+            border-radius: 25px;
+            margin: 40px 0;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .benefit-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .benefit-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .benefit-title {
+            font-size: 18px;
+            color: #2C5530;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .benefit-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* قسم الاختيار */
+        .choice-section {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            animation: fadeInUp 1s ease 0.9s both;
+        }
+        
+        .choice-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .choice-title {
+            font-size: 28px;
+            color: #2C5530;
+            margin-bottom: 15px;
+        }
+        
+        .choice-subtitle {
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .journey-options {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .journey-option {
+            background: #F8F8F8;
+            padding: 30px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            position: relative;
+        }
+        
+        .journey-option:hover {
+            background: #F0F0F0;
+            transform: translateX(-5px);
+        }
+        
+        .journey-option.selected {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(139, 148, 103, 0.05) 100%);
+            border-color: #2C5530;
+        }
+        
+        .journey-option.recommended {
+            border-style: dashed;
+            border-color: #D4AF37;
+        }
+        
+        .journey-option.recommended::before {
+            content: 'موصى به';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: linear-gradient(135deg, #D4AF37, #8B9467);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .option-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .option-icon {
+            font-size: 30px;
+        }
+        
+        .option-title {
+            font-size: 22px;
+            color: #2C5530;
+            font-weight: 500;
+        }
+        
+        .option-description {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .option-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .feature-tag {
+            background: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            color: #2C5530;
+            border: 1px solid #E5E5E5;
+        }
+        
+        /* قسم التبرير */
+        .justification-section {
+            margin-top: 30px;
+            padding: 30px;
+            background: #FAFAFA;
+            border-radius: 20px;
+            display: none;
+        }
+        
+        .justification-section.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .justification-label {
+            font-size: 18px;
+            color: #2C5530;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .justification-input {
+            width: 100%;
+            padding: 20px;
+            border: 2px solid #E5E5E5;
+            border-radius: 15px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        .justification-input:focus {
+            outline: none;
+            border-color: #8B9467;
+            background: #FAFAFA;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 18px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2C5530, #8B9467);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(44, 85, 48, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* الرسائل المساعدة */
+        .helper-message {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #FFF8E1;
+            border-radius: 15px;
+            color: #8B6914;
+            font-size: 16px;
+        }
+        
+        /* التوافق مع الموبايل */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px 15px;
+            }
+            
+            .understanding-section,
+            .path-visualization,
+            .choice-section {
+                padding: 30px 20px;
+            }
+            
+            .recommendation-title {
+                font-size: 28px;
+            }
+            
+            .duality-content {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .duality-connector {
+                transform: rotate(90deg);
+            }
+            
+            .path-stages {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .path-line {
+                display: none;
+            }
+            
+            .benefits-grid,
+            .phase-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- رسالة الترحيب الشخصية -->
+        <div class="personal-greeting">
+            <div class="greeting-icon">🌅👁️</div>
+            <h1 class="greeting-text">رحلة ذات وجهين... قلب واحد</h1>
+            <p class="greeting-subtext">حالتك الفريدة تستدعي مساراً خاصاً يجمع بين الحكمة العملية والبصيرة العميقة</p>
+        </div>
+        
+        <!-- قسم الفهم العميق -->
+        <section class="understanding-section">
+            <h2 class="section-title">
+                <span class="section-icon">🤝</span>
+                <span>الثنائية الجميلة في قصتك</span>
+            </h2>
+            
+            <div class="understanding-content">
+                <p>
+                    أمامي حالة مثيرة للاهتمام حقاً. من جهة، لديك <span class="highlight">تحدٍ ملح في العمل</span> 
+                    يضغط عليك بقوة (8/10 في الإلحاح!) ويحتاج حلاً عاجلاً. تخاف من فقدان وظيفتك، 
+                    ووقتك محدود جداً - ساعة واحدة أسبوعياً فقط.
+                </p>
+                
+                <p>
+                    ومن جهة أخرى، أرى في إجاباتك <span class="highlight-green">وعياً ناضجاً بوجود أنماط أعمق</span>. 
+                    عندما قلت "أكرر نفس الأخطاء" و"ألاحظ أن نفس نوع الأشخاص يسبب لي المشاكل"، 
+                    هذا يخبرني أن جزءاً منك يعرف أن <span class="highlight-green">الحل الحقيقي أعمق من مجرد تغيير الوظيفة</span>.
+                </p>
+                
+                <div class="duality-insight">
+                    <p style="text-align: center; font-size: 19px; color: #2C5530; margin-bottom: 20px;">
+                        أنت تقف عند مفترق طرق مثير:
+                    </p>
+                    
+                    <div class="duality-content">
+                        <div class="duality-side">
+                            <h4>الحاجة العاجلة</h4>
+                            <p>ضغط العمل الحالي<br>الخوف من فقدان الوظيفة<br>الحاجة لحل سريع</p>
+                        </div>
+                        
+                        <div class="duality-connector">⟷</div>
+                        
+                        <div class="duality-side">
+                            <h4>الحكمة الناشئة</h4>
+                            <p>إدراك الأنماط المتكررة<br>الرغبة في الفهم العميق<br>البحث عن تغيير حقيقي</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <p>
+                    وهنا يكمن الجمال: <span class="highlight">لست مضطراً للاختيار بين الاثنين!</span> 
+                    يمكننا أن نصمم لك مساراً يحترم حاجتك العاجلة ويبني في نفس الوقت أساساً للفهم العميق. 
+                    مسار يعطيك <span class="highlight">الأسماك وشبكة الصيد معاً</span>.
+                </p>
+            </div>
+        </section>
+        
+        <!-- قسم التوصية -->
+        <div class="recommendation-intro">
+            <p class="recommendation-label">مسار مصمم خصيصاً لحالتك الفريدة</p>
+            <h2 class="recommendation-title">ترشيحنا: المسار المتدرج</h2>
+            <p class="recommendation-subtitle">من إشراقة الحل السريع إلى بصيرة الفهم العميق</p>
+        </div>
+        
+        <!-- تصور المسار -->
+        <section class="path-visualization">
+            <h3 class="section-title">
+                <span class="section-icon">🛤️</span>
+                <span>رحلتك المتدرجة - خطوة بخطوة</span>
+            </h3>
+            
+            <div class="path-timeline">
+                <div class="path-line"></div>
+                <div class="path-stages">
+                    <div class="stage">
+                        <div class="stage-icon">🌅</div>
+                        <h4 class="stage-title">المحطة الأولى</h4>
+                        <p class="stage-duration">3-4 أسابيع</p>
+                        <p class="stage-description">
+                            نطفئ النار المشتعلة<br>
+                            حلول عملية فورية<br>
+                            استعادة التوازن
+                        </p>
+                    </div>
+                    
+                    <div class="stage">
+                        <div class="stage-icon">🌉</div>
+                        <h4 class="stage-title">محطة الانتقال</h4>
+                        <p class="stage-duration">أسبوع تقييم</p>
+                        <p class="stage-description">
+                            نقف معاً لنرى<br>
+                            هل تحسن الوضع؟<br>
+                            هل أنت مستعد للعمق؟
+                        </p>
+                    </div>
+                    
+                    <div class="stage">
+                        <div class="stage-icon">👁️</div>
+                        <h4 class="stage-title">المحطة الثانية</h4>
+                        <p class="stage-duration">2-3 أشهر</p>
+                        <p class="stage-description">
+                            نغوص في الأعماق<br>
+                            نفهم الأنماط<br>
+                            نبني أساساً قوياً
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detailed-phases">
+                <div class="phase-section phase-1">
+                    <div class="phase-header">
+                        <span class="phase-icon">🌅</span>
+                        <div class="phase-info">
+                            <h3>المرحلة الأولى: إشراقة سريعة مُعمَّقة</h3>
+                            <p>3-4 جلسات خلال 3-4 أسابيع</p>
+                        </div>
+                    </div>
+                    
+                    <div class="phase-content">
+                        <p>
+                            نبدأ بما هو ملح - تحدي العمل الذي يؤرقك. لكن بدلاً من مجرد إعطائك "نصائح" عامة، 
+                            سنعمل على فهم ديناميكيات الموقف بعمق. لماذا وصلت الأمور لهذا الحد؟ 
+                            ما الخيارات الحقيقية المتاحة؟ كيف تتعامل مع الضغط بطريقة لا تستنزفك؟
+                        </p>
+                        <p style="margin-top: 15px;">
+                            <strong>الجميل هنا:</strong> بينما نحل المشكلة العاجلة، سأبدأ في لفت انتباهك - بلطف - 
+                            للأنماط التي تلاحظها. "هل لاحظت أن هذا حدث من قبل؟" ... "ما الذي يثير فيك هذا الخوف تحديداً؟"
+                        </p>
+                    </div>
+                    
+                    <div class="phase-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">🎯</div>
+                            <p class="feature-text">خطة عمل واضحة للوضع الحالي</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🛡️</div>
+                            <p class="feature-text">أدوات لإدارة الضغط والقلق</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🌱</div>
+                            <p class="feature-text">بذور الوعي بالأنماط</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">💪</div>
+                            <p class="feature-text">استعادة الثقة بالنفس</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase-section phase-2">
+                    <div class="phase-header">
+                        <span class="phase-icon">👁️</span>
+                        <div class="phase-info">
+                            <h3>المرحلة الثانية: بصيرة متدرجة</h3>
+                            <p>8-10 جلسات خلال 2-3 أشهر</p>
+                        </div>
+                    </div>
+                    
+                    <div class="phase-content">
+                        <p>
+                            بعد أن يهدأ الضغط الفوري ويستقر وضعك العملي، نبدأ الرحلة الحقيقية. 
+                            الآن وقد اختبرت قوة الوعي في حل مشكلتك العاجلة، نوسع الدائرة لنفهم الصورة الكاملة.
+                        </p>
+                        <p style="margin-top: 15px;">
+                            نستكشف: لماذا تتكرر نفس أنواع التحديات؟ ما النمط الذي يجذب "نفس نوع الأشخاص" لحياتك؟ 
+                            كيف يمكنك ليس فقط حل المشاكل، بل منع حدوثها من الأساس؟
+                        </p>
+                    </div>
+                    
+                    <div class="phase-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">🔍</div>
+                            <p class="feature-text">اكتشاف نمطك الشخصي</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🗝️</div>
+                            <p class="feature-text">فهم المحفزات الخفية</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🔄</div>
+                            <p class="feature-text">كسر الدوائر المتكررة</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🌟</div>
+                            <p class="feature-text">بناء حياة واعية</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- لماذا المسار المزدوج -->
+        <section class="why-mixed-path">
+            <h3 class="section-title">
+                <span class="section-icon">✨</span>
+                <span>لماذا هذا المسار مثالي لك؟</span>
+            </h3>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">⚖️</div>
+                    <h4 class="benefit-title">يحترم الواقعين</h4>
+                    <p class="benefit-description">
+                        يتعامل مع ضغطك الحالي بجدية، وفي نفس الوقت يحترم رغبتك في الفهم العميق
+                    </p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">🎓</div>
+                    <h4 class="benefit-title">تعلُّم تدريجي</h4>
+                    <p class="benefit-description">
+                        تختبر قوة الوعي أولاً في حل مشكلة حقيقية، مما يحفزك للمرحلة الأعمق
+                    </p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">⏰</div>
+                    <h4 class="benefit-title">مرن مع وقتك</h4>
+                    <p class="benefit-description">
+                        نبدأ بالتزام قصير (3-4 جلسات)، ثم تقرر أنت إن كنت مستعداً للمزيد
+                    </p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔗</div>
+                    <h4 class="benefit-title">تكامل طبيعي</h4>
+                    <p class="benefit-description">
+                        ما تتعلمه في المرحلة الأولى يصبح أساساً للمرحلة الثانية - لا شيء يضيع
+                    </p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">💰</div>
+                    <h4 class="benefit-title">استثمار حكيم</h4>
+                    <p class="benefit-description">
+                        تستثمر أولاً في حل عاجل، وإن وجدت قيمة حقيقية، تستثمر في التحول العميق
+                    </p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">🎯</div>
+                    <h4 class="benefit-title">نتائج ملموسة</h4>
+                    <p class="benefit-description">
+                        ترى نتائج سريعة في البداية، مما يعطيك الثقة للاستمرار في الرحلة الأعمق
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- قسم الاختيار -->
+        <section class="choice-section">
+            <div class="choice-header">
+                <h2 class="choice-title">حان وقت الاختيار</h2>
+                <p class="choice-subtitle">أي مسار يكلم قلبك؟</p>
+            </div>
+            
+            <div class="journey-options">
+                <!-- المسار المزدوج (الموصى به) -->
+                <div class="journey-option recommended" onclick="selectJourney('mixed', this)">
+                    <div class="option-header">
+                        <span class="option-icon">🌅👁️</span>
+                        <h3 class="option-title">المسار المتدرج (إشراقة ← بصيرة)</h3>
+                    </div>
+                    <p class="option-description">
+                        المسار الذي صممناه خصيصاً لك. يبدأ بحل تحديك العاجل في 3-4 جلسات، 
+                        ثم ينتقل بسلاسة لاستكشاف الأنماط العميقة. يحترم وقتك المحدود ويبني الثقة تدريجياً.
+                    </p>
+                    <div class="option-features">
+                        <span class="feature-tag">بداية: 3-4 جلسات</span>
+                        <span class="feature-tag">ثم: 8-10 جلسات</span>
+                        <span class="feature-tag">مرونة كاملة</span>
+                        <span class="feature-tag">الأفضل لحالتك</span>
+                    </div>
+                </div>
+                
+                <!-- خيار الإشراقة فقط -->
+                <div class="journey-option" onclick="selectJourney('eshraq', this)">
+                    <div class="option-header">
+                        <span class="option-icon">🌅</span>
+                        <h3 class="option-title">رحلة الإشراقة فقط</h3>
+                    </div>
+                    <p class="option-description">
+                        إذا كنت تريد التركيز فقط على الحل العاجل دون الالتزام بالمرحلة الثانية. 
+                        3 جلسات مركزة لحل التحدي الحالي.
+                    </p>
+                    <div class="option-features">
+                        <span class="feature-tag">3 جلسات فقط</span>
+                        <span class="feature-tag">حل سريع</span>
+                        <span class="feature-tag">بدون التزام إضافي</span>
+                    </div>
+                </div>
+                
+                <!-- خيار البصيرة مباشرة -->
+                <div class="journey-option" onclick="selectJourney('baseera', this)">
+                    <div class="option-header">
+                        <span class="option-icon">👁️</span>
+                        <h3 class="option-title">رحلة البصيرة مباشرة</h3>
+                    </div>
+                    <p class="option-description">
+                        إذا كنت تشعر أنك تستطيع إدارة التحدي الحالي بنفسك وتريد القفز مباشرة للعمق. 
+                        8-12 جلسة لفهم الأنماط والتحرر منها.
+                    </p>
+                    <div class="option-features">
+                        <span class="feature-tag">8-12 جلسة</span>
+                        <span class="feature-tag">عمق مباشر</span>
+                        <span class="feature-tag">بدون المرحلة الأولى</span>
+                    </div>
+                </div>
+                
+                <!-- خيار مختلف -->
+                <div class="journey-option" onclick="selectJourney('other', this)">
+                    <div class="option-header">
+                        <span class="option-icon">💭</span>
+                        <h3 class="option-title">لدي تصور آخر</h3>
+                    </div>
+                    <p class="option-description">
+                        ربما ترى احتياجاتك بشكل مختلف. شاركنا تصورك.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- قسم التبرير -->
+            <div class="justification-section" id="justificationSection">
+                <label class="justification-label" id="justificationLabel">
+                    شاركنا: ما الذي يجعلك تميل لهذا الاختيار؟
+                </label>
+                <textarea 
+                    class="justification-input" 
+                    id="justificationInput"
+                    placeholder="اكتب ما تشعر به..."
+                ></textarea>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="confirmButton" onclick="confirmChoice()" disabled>
+                    تأكيد اختياري
+                </button>
+            </div>
+            
+            <div class="helper-message">
+                🌿 أياً كان اختيارك، المهم أن تبدأ. الطريق يتضح بالمشي، والنور يأتي مع الخطوة الأولى.
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        let selectedJourney = null;
+        
+        function selectJourney(journey, element) {
+            // إزالة التحديد السابق
+            document.querySelectorAll('.journey-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // تحديد الخيار الجديد
+            element.classList.add('selected');
+            selectedJourney = journey;
+            
+            // إظهار قسم التبرير
+            const justificationSection = document.getElementById('justificationSection');
+            const justificationLabel = document.getElementById('justificationLabel');
+            const justificationInput = document.getElementById('justificationInput');
+            
+            justificationSection.classList.add('active');
+            justificationInput.value = ''; // مسح أي نص سابق
+            
+            // تخصيص السؤال حسب الاختيار
+            if (journey === 'mixed') {
+                justificationLabel.textContent = 'ممتاز! المسار المتدرج يبدو مناسباً لك. ما أكثر ما أعجبك فيه؟';
+            } else if (journey === 'eshraq') {
+                justificationLabel.textContent = 'أفهمك، التركيز على الحل العاجل أولوية. هل تفكر في احتمالية المتابعة لاحقاً أم تريد فقط حل التحدي الحالي؟';
+            } else if (journey === 'baseera') {
+                justificationLabel.textContent = 'قرار جريء! القفز مباشرة للعمق. ما الذي يجعلك واثقاً من قدرتك على إدارة التحدي الحالي بينما تعمل على الأنماط العميقة؟';
+            } else {
+                justificationLabel.textContent = 'أحترم رؤيتك الخاصة. صف لي التصور الذي في ذهنك؟';
+            }
+            
+            // تفعيل زر التأكيد بعد كتابة شيء
+            justificationInput.addEventListener('input', function() {
+                const confirmButton = document.getElementById('confirmButton');
+                if (this.value.trim().length > 10) {
+                    confirmButton.disabled = false;
+                } else {
+                    confirmButton.disabled = true;
+                }
+            });
+        }
+        
+        function confirmChoice() {
+            const justification = document.getElementById('justificationInput').value;
+            
+            // حفظ الاختيار والتبرير
+            const finalChoice = {
+                recommendedJourney: 'mixed', // التوصية الأصلية
+                selectedJourney: selectedJourney,
+                justification: justification,
+                timestamp: new Date().toISOString()
+            };
+            
+            // حفظ في localStorage للاستخدام في الصفحة التالية
+            localStorage.setItem('journeyChoice', JSON.stringify(finalChoice));
+            
+            // الانتقال لصفحة الحجز أو إكمال العملية
+            alert('تم تسجيل اختيارك! سيتم تحويلك الآن...');
+            // window.location.href = 'booking-confirmation.html';
+        }
+    </script>
+</body>
+</html>
