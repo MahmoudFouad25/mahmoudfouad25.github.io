@@ -830,63 +830,50 @@ async function logout() {
 }
         
         // Load dashboard data
-        async function loadDashboardData() {
-            showLoading(true);
-            
-            try {
-                // Load new bookings count
-                const newBookingsSnapshot = await db.collection('bookings')
-                    .where('status', 'in', ['pending', 'confirming'])
-                    .get();
-                
-                const newBookingsCount = newBookingsSnapshot.size;
-                document.getElementById('newRequestsCount').textContent = newBookingsCount;
-                document.getElementById('newBookingsCount').textContent = newBookingsCount;
-                document.getElementById('newBookingsCount').style.display = newBookingsCount > 0 ? 'inline' : 'none';
-                
-                // Load active journeys
-                const activeJourneysSnapshot = await db.collection('journeys')
-                    .where('status', '==', 'active')
-                    .get();
-                
-                const activeJourneysCount = activeJourneysSnapshot.size;
-                document.getElementById('activeJourneysNumber').textContent = activeJourneysCount;
-                document.getElementById('activeJourneysCount').textContent = activeJourneysCount;
-                document.getElementById('activeJourneysCount').style.display = activeJourneysCount > 0 ? 'inline' : 'none';
-                
-                // Load today's sessions
-                await loadTodaySessions();
-                
-                // Load total clients
-                const clientsSnapshot = await db.collection('users').get();
-                document.getElementById('totalClientsCount').textContent = clientsSnapshot.size;
-                
-                // Calculate this month's new clients
-                const thisMonth = new Date();
-                thisMonth.setDate(1);
-                thisMonth.setHours(0, 0, 0, 0);
-                
-                let newClientsThisMonth = 0;
-                clientsSnapshot.forEach(doc => {
-                    const userData = doc.data();
-                    if (userData.createdAt && userData.createdAt.toDate() >= thisMonth) {
-                        newClientsThisMonth++;
-                    }
-                });
-                
-                document.getElementById('clientsChange').textContent = `+${newClientsThisMonth} هذا الشهر`;
-                
-                // Load recent activities
-                await loadRecentActivities();
-                
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-                showNotification('خطأ في تحميل البيانات', 'error');
-            } finally {
-                showLoading(false);
-            }
+async function loadDashboardData() {
+    showLoading(true);
+    
+    try {
+        // التأكد من وجود المستخدم
+        const user = auth.currentUser;
+        if (!user) {
+            console.error('No user logged in');
+            showLoading(false);
+            return;
         }
         
+        console.log('Logged in as:', user.email);
+        
+        // جرب قراءة الحجوزات
+        try {
+            const bookingsSnapshot = await db.collection('bookings').get();
+            const bookingsCount = bookingsSnapshot.size;
+            updateStatCard('إجمالي الحجوزات', bookingsCount, 'primary');
+        } catch (error) {
+            console.error('Error reading bookings:', error);
+            updateStatCard('إجمالي الحجوزات', 0, 'primary');
+        }
+        
+        // جرب قراءة المستخدمين
+        try {
+            const usersSnapshot = await db.collection('users').get();
+            const usersCount = usersSnapshot.size;
+            updateStatCard('المستخدمين', usersCount, 'success');
+        } catch (error) {
+            console.error('Error reading users:', error);
+            updateStatCard('المستخدمين', 0, 'success');
+        }
+        
+        // باقي البيانات
+        updateStatCard('الجلسات القادمة', 0, 'info');
+        updateStatCard('الإيرادات', '0 ج.م', 'warning');
+        
+    } catch (error) {
+        console.error('Dashboard error:', error);
+    } finally {
+        showLoading(false);
+    }
+}
         // Load today's sessions
         async function loadTodaySessions() {
             const today = new Date();
