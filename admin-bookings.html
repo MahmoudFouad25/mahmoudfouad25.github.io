@@ -2273,7 +2273,21 @@ async function viewDetails(bookingId) {
     openModal('detailsModal');
 }
 
-    function getSupportText(support) {
+// أضف هذه الدوال قبل </script>
+function getExperienceText(experience) {
+    const experiences = {
+        'therapy': 'علاج نفسي تقليدي',
+        'coaching': 'كوتشينج حياة',
+        'workshops': 'ورش تطوير ذات',
+        'meditation': 'ممارسات تأملية/يوغا',
+        'reading': 'قراءات في علم النفس/التنمية',
+        'spiritual': 'رحلة روحية/دينية عميقة',
+        'none': 'لا شيء مما سبق'
+    };
+    return experiences[experience] || experience;
+}
+
+function getSupportText(support) {
     const supports = {
         'family': 'عائلة داعمة',
         'friends': 'أصدقاء واعون',
@@ -2287,6 +2301,90 @@ async function viewDetails(bookingId) {
     return supports[support] || support;
 }
 
+function getAnswerText(question, answer) {
+    const answerTexts = {
+        q1: {
+            a: 'يواجه تحدياً محدداً يريد حلاً له',
+            b: 'يشعر بأن شيئاً ما "ليس صحيحاً" في حياته',
+            c: 'يريد أن يفهم نفسه بشكل أعمق',
+            d: 'مستعد لتحول جذري في حياته'
+        },
+        q2: {
+            a: '"كيف أحل هذه المشكلة بسرعة؟"',
+            b: '"لماذا يحدث لي هذا دائماً؟"',
+            c: '"ما الرسالة التي تحملها هذه التجربة؟"',
+            d: '"هذا امتحان/فرصة للنمو"'
+        },
+        q4: {
+            a: 'لا، كل موقف مختلف تماماً',
+            b: 'نعم، يلاحظ بعض التشابه',
+            c: 'نعم، هناك نمط واضح يراه',
+            d: 'الآن بعد السؤال، بدأ يلاحظ...'
+        },
+        q6: {
+            a: 'مستعد تماماً - يريد الحقيقة مهما كانت',
+            b: 'مستعد بحذر - يريد التدرج',
+            c: 'قلق لكن مستعد - يحتاج دعماً كبيراً',
+            d: 'غير متأكد - يريد البدء بهدوء'
+        },
+        q8: {
+            a: 'أنه ليس بالقوة التي يظنها',
+            b: 'أنه السبب في معظم مشاكله',
+            c: 'أنه يحتاج تغييراً جذرياً',
+            d: 'أنه بخير كما هو ولا يحتاج كل هذا',
+            e: 'يفضل عدم التفكير في هذا'
+        },
+        q9: {
+            a: 'محدود جداً - ساعة أسبوعياً أو أقل',
+            b: 'متوسط - 2-3 ساعات أسبوعياً',
+            c: 'جيد - 3-5 ساعات أسبوعياً',
+            d: 'ملتزم تماماً - أكثر من 5 ساعات'
+        }
+    };
+    return answerTexts[question]?.[answer] || answer;
+}
+
+function getSubAnswerText(question, mainAnswer, subAnswer) {
+    const subAnswerTexts = {
+        q1: {
+            a: {
+                'work': 'التحدي في العمل/المهنة',
+                'relationships': 'التحدي في العلاقات',
+                'self': 'التحدي مع نفسه',
+                'decision': 'التحدي في اتخاذ قرار مهم'
+            },
+            b: {
+                'emptiness': 'شعور بالفراغ رغم الإنجازات',
+                'patterns': 'تكرار نفس الأنماط المؤلمة',
+                'passion': 'فقدان الشغف والمعنى',
+                'misplaced': 'إحساس بأنه ليس في مكانه الصحيح'
+            },
+            c: {
+                'why-behavior': 'لماذا يتصرف بالطريقة التي يتصرف بها؟',
+                'true-self': 'من هو حقاً خلف كل الأقنعة؟',
+                'life-role': 'ما هو دوره الحقيقي في الحياة؟',
+                'potential': 'كيف يحقق إمكانياته الكامنة؟'
+            },
+            d: {
+                'clear-vision': 'لديه رؤية واضحة ويحتاج دعماً للتنفيذ',
+                'need-change': 'يعرف أنه يحتاج تغييراً جذرياً لكن لا يعرف كيف',
+                'awakening': 'مر بتجربة أيقظته ويريد البناء عليها',
+                'enough': 'وصل لمرحلة "كفى" ويريد حياة مختلفة'
+            }
+        }
+    };
+    return subAnswerTexts[question]?.[mainAnswer]?.[subAnswer] || subAnswer;
+}
+
+function getPatternText(pattern) {
+    const patterns = {
+        'people': 'نفس نوع الأشخاص يسبب له المشاكل',
+        'mistakes': 'يكرر نفس الأخطاء',
+        'situations': 'يجد نفسه في نفس المواقف',
+        'reactions': 'ردود أفعاله متشابهة'
+    };
+    return patterns[pattern] || pattern;
+}
 // تحديث دالة getChallengeDisplayName لتشمل القيم الجديدة
 function getChallengeDisplayName(challengeType) {
     const types = {
