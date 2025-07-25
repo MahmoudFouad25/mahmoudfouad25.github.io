@@ -740,18 +740,24 @@
         };
         
         // Check admin session
-        function checkSession() {
-            const authToken = sessionStorage.getItem('adminAuth');
-            const authTime = sessionStorage.getItem('authTime');
-            const oneHour = 60 * 60 * 1000;
-            
-            if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
-                showDashboard();
-            } else {
-                sessionStorage.clear();
-                showLogin();
+function checkSession() {
+    const authToken = sessionStorage.getItem('adminAuth');
+    const authTime = sessionStorage.getItem('authTime');
+    const oneHour = 60 * 60 * 1000;
+    
+    // التحقق من Firebase أيضاً
+    auth.onAuthStateChanged((user) => {
+        if (user && authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
+            showDashboard();
+        } else {
+            sessionStorage.clear();
+            if (user) {
+                auth.signOut(); // تسجيل خروج من Firebase
             }
+            showLogin();
         }
+    });
+}
         
         // Show login
         function showLogin() {
@@ -769,30 +775,69 @@
         }
         
         // Login function
-        function login() {
-            const password = document.getElementById('password').value;
-            const hashedInput = btoa(password);
+async function login() {
+    const password = document.getElementById('password').value;
+    const hashedInput = btoa(password);
+    
+    if (hashedInput === ADMIN_HASH) {
+        try {
+            // تسجيل دخول في Firebase باستخدام حساب الأدمن
+            const adminEmail = 'admin@fouad-coaching.com'; // بريد وهمي ثابت
+            const adminPassword = 'Admin@Fouad2024!'; // كلمة مرور قوية ثابتة
             
-            if (hashedInput === ADMIN_HASH) {
-                sessionStorage.setItem('adminAuth', 'true');
-                sessionStorage.setItem('authTime', Date.now().toString());
-                showDashboard();
-                showNotification('تم تسجيل الدخول بنجاح', 'success');
+            // تسجيل الدخول
+            await auth.signInWithEmailAndPassword(adminEmail, adminPassword);
+            
+            // حفظ في الجلسة
+            sessionStorage.setItem('adminAuth', 'true');
+            sessionStorage.setItem('authTime', Date.now().toString());
+            
+            showDashboard();
+            showNotification('تم تسجيل الدخول بنجاح', 'success');
+        } catch (error) {
+            if (error.code === 'auth/user-not-found') {
+                // أول مرة - إنشاء حساب الأدمن
+                try {
+                    await auth.createUserWithEmailAndPassword(adminEmail, adminPassword);
+                    
+                    // تسجيل الدخول بعد الإنشاء
+                    await auth.signInWithEmailAndPassword(adminEmail, adminPassword);
+                    
+                    sessionStorage.setItem('adminAuth', 'true');
+                    sessionStorage.setItem('authTime', Date.now().toString());
+                    
+                    showDashboard();
+                    showNotification('تم إنشاء حساب الأدمن وتسجيل الدخول', 'success');
+                } catch (createError) {
+                    console.error('Error creating admin:', createError);
+                    alert('خطأ في إنشاء حساب الأدمن');
+                }
             } else {
-                document.getElementById('loginError').textContent = 'كلمة المرور غير صحيحة';
-                document.getElementById('loginError').style.display = 'block';
-                document.getElementById('password').value = '';
+                console.error('Login error:', error);
+                alert('خطأ في تسجيل الدخول');
             }
         }
+    } else {
+        document.getElementById('loginError').textContent = 'كلمة المرور غير صحيحة';
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('password').value = '';
+    }
+}
         
         // Logout
-        function logout() {
-            if (confirm('هل تريد تسجيل الخروج؟')) {
-                sessionStorage.clear();
-                location.reload();
-            }
+async function logout() {
+    if (confirm('هل تريد تسجيل الخروج؟')) {
+        try {
+            await auth.signOut(); // تسجيل خروج من Firebase
+            sessionStorage.clear();
+            location.reload();
+        } catch (error) {
+            console.error('Logout error:', error);
+            sessionStorage.clear();
+            location.reload();
         }
-        
+    }
+}
         // Load dashboard data
         async function loadDashboardData() {
             showLoading(true);
