@@ -576,19 +576,22 @@
         <div class="loading-spinner"></div>
     </div>
     
-    <!-- Login Section -->
-    <div id="loginSection" class="login-container">
-        <div class="login-form">
-            <h2>🔐 لوحة التحكم</h2>
-            <div id="loginError" class="login-error"></div>
-            <input type="password" id="password" placeholder="كلمة المرور" 
-                   onkeypress="if(event.key==='Enter') login()">
-            <button onclick="login()">دخول</button>
-            <p style="margin-top: 1rem; color: #666; font-size: 0.9rem; text-align: center;">
-                محمود فؤاد - نظام إدارة الكوتشينج
-            </p>
-        </div>
+<!-- Login Section -->
+<div id="loginSection" class="login-container">
+    <div class="login-form">
+        <h2>🔐 لوحة التحكم</h2>
+        <div id="loginError" class="login-error"></div>
+        <input type="email" id="email" placeholder="البريد الإلكتروني" 
+               value="admin@mahmoudfouad.com"
+               onkeypress="if(event.key==='Enter') login()">
+        <input type="password" id="password" placeholder="كلمة المرور" 
+               onkeypress="if(event.key==='Enter') login()">
+        <button onclick="login()">دخول</button>
+        <p style="margin-top: 1rem; color: #666; font-size: 0.9rem; text-align: center;">
+            محمود فؤاد - نظام إدارة الكوتشينج
+        </p>
     </div>
+</div>
     
     <!-- Admin Dashboard -->
     <div id="adminDashboard" style="display: none;">
@@ -796,34 +799,21 @@ function checkSession() {
         
         // Login function
 async function login() {
+    const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const hashedInput = btoa(password);
     
-    if (hashedInput === 'bWFobW91ZDIwMjQ=') {
-        try {
-            // تسجيل دخول في Firebase بحساب الأدمن
-            await auth.signInWithEmailAndPassword(
-                'admin@mahmoudfouad.com',
-                'MahmoudAdmin2024!'
-            );
-            
-            sessionStorage.setItem('adminAuth', 'true');
-            sessionStorage.setItem('authTime', Date.now().toString());
-            
-            showDashboard();
-            showNotification('تم تسجيل الدخول بنجاح', 'success');
-            
-        } catch (error) {
-            console.error('Firebase login error:', error);
-            // لو فشل Firebase، نكمل عادي
-            sessionStorage.setItem('adminAuth', 'true');
-            sessionStorage.setItem('authTime', Date.now().toString());
-            showDashboard();
-        }
-    } else {
-        document.getElementById('loginError').textContent = 'كلمة المرور غير صحيحة';
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+        
+        sessionStorage.setItem('adminAuth', 'true');
+        sessionStorage.setItem('authTime', Date.now().toString());
+        
+        showDashboard();
+        showNotification('تم تسجيل الدخول بنجاح', 'success');
+        
+    } catch (error) {
+        document.getElementById('loginError').textContent = 'البريد أو كلمة المرور غير صحيحة';
         document.getElementById('loginError').style.display = 'block';
-        document.getElementById('password').value = '';
     }
 }
         // Logout
