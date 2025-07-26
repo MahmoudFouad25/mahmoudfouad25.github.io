@@ -2034,7 +2034,7 @@ async function createNewJourney(booking) {
             const assessmentDoc = await db.collection('assessments').doc(booking.assessmentId).get();
             if (assessmentDoc.exists) {
                 const assessmentData = assessmentDoc.data();
-                awarenessLevel = assessmentData.analysis?.awarenessLevel || 0;
+                awarenessLevel = (assessmentData.analysis && assessmentData.analysis.awarenessLevel) || 0;
             }
         } catch (error) {
             console.log('Could not fetch assessment data:', error);
