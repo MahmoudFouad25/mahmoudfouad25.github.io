@@ -2027,6 +2027,21 @@ showLoading(false);
 
 // Create new journey
 async function createNewJourney(booking) {
+        // جلب بيانات التقييم
+    let awarenessLevel = 0;
+    if (booking.assessmentId) {
+        try {
+            const assessmentDoc = await db.collection('assessments').doc(booking.assessmentId).get();
+            if (assessmentDoc.exists) {
+                const assessmentData = assessmentDoc.data();
+                awarenessLevel = assessmentData.analysis?.awarenessLevel || 0;
+            }
+        } catch (error) {
+            console.log('Could not fetch assessment data:', error);
+        }
+    }
+    
+
 // التعامل مع أنواع الرحلات
 let journeyType = booking.journeyType;
 let isMultiPath = false;
@@ -2052,7 +2067,7 @@ isMultiPath: isMultiPath,
 nextJourneyType: nextJourneyType,
 // معلومات التحليل من الاستمارة
 challengeType: booking.challengeType,
-awarenessLevel: booking.awarenessLevel,
+awarenessLevel: awarenessLevel,
 urgencyLevel: booking.urgencyLevel,
 matchedRecommendation: booking.matchedRecommendation,
 recommendedJourney: booking.recommendedJourney,
