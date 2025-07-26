@@ -1698,8 +1698,6 @@ showLoading(false);
 // Send login credentials
 // Send login credentials
 function sendLoginCredentials(bookingId) {
-// Send login credentials
-function sendLoginCredentials(bookingId) {
     const booking = allBookings.find(b => b.id === bookingId);
     if (!booking) return;
     
@@ -1717,7 +1715,7 @@ function sendLoginCredentials(bookingId) {
     
     openWhatsApp(booking.phone, booking.name, message);
     showNotification('تم فتح واتساب لإرسال بيانات الدخول', 'success');
-}
+} // <-- تأكد من وجود القوس ده
 
 // Slots Management Functions
 function showSlotsManager() {
