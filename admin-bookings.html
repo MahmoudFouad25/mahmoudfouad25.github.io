@@ -1972,6 +1972,24 @@ showLoading(false);
 async function convertToJourney(bookingId) {
 const booking = allBookings.find(b => b.id === bookingId);
 if (!booking) return;
+    // جلب بيانات assessment وإضافتها للحجز
+if (booking.assessmentId) {
+    try {
+        const assessmentDoc = await db.collection('assessments').doc(booking.assessmentId).get();
+        if (assessmentDoc.exists) {
+            const assessmentData = assessmentDoc.data();
+            // دمج بيانات assessment مع booking
+            booking.awarenessLevel = assessmentData.analysis?.awarenessLevel || 0;
+            booking.resourceLevel = assessmentData.analysis?.resourceLevel || 0;
+            booking.deepAwareness = assessmentData.indicators?.deepAwareness || false;
+            booking.readyForChange = assessmentData.indicators?.readyForChange || false;
+            booking.urgentNeed = assessmentData.indicators?.urgentNeed || false;
+            // أي بيانات أخرى من assessment
+        }
+    } catch (error) {
+        console.log('Error fetching assessment:', error);
+    }
+}
 // التعامل مع المسارات المزدوجة
 let journeyType = booking.journeyType;
 let isMultiPath = false;
@@ -2027,8 +2045,6 @@ showLoading(false);
 
 // Create new journey
 async function createNewJourney(booking) {
-    
-
 // التعامل مع أنواع الرحلات
 let journeyType = booking.journeyType;
 let isMultiPath = false;
@@ -2054,7 +2070,7 @@ isMultiPath: isMultiPath,
 nextJourneyType: nextJourneyType,
 // معلومات التحليل من الاستمارة
 challengeType: booking.challengeType,
-awarenessLevel: 5,
+awarenessLevel: booking.awarenessLevel,
 urgencyLevel: booking.urgencyLevel,
 matchedRecommendation: booking.matchedRecommendation,
 recommendedJourney: booking.recommendedJourney,
