@@ -2027,19 +2027,7 @@ showLoading(false);
 
 // Create new journey
 async function createNewJourney(booking) {
-        // جلب بيانات التقييم
-    let awarenessLevel = 0;
-    if (booking.assessmentId) {
-        try {
-            const assessmentDoc = await db.collection('assessments').doc(booking.assessmentId).get();
-            if (assessmentDoc.exists) {
-                const assessmentData = assessmentDoc.data();
-                awarenessLevel = assessmentData.analysis?.awarenessLevel || 0;
-            }
-        } catch (error) {
-            console.log('Could not fetch assessment data:', error);
-        }
-    }
+awarenessLevel: 5,
     
 
 // التعامل مع أنواع الرحلات
