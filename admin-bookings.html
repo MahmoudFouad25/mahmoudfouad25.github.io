@@ -1698,59 +1698,25 @@ showLoading(false);
 // Send login credentials
 // Send login credentials
 function sendLoginCredentials(bookingId) {
-   const booking = allBookings.find(b => b.id === bookingId);
-   if (!booking) return;
-   
-   if (!booking.accountCreated) {
-       showNotification('لم يتم إنشاء حساب لهذا العميل بعد', 'error');
-       return;
-   }
-   
-   let message = `🌟 أهلاً ${booking.name}!\n\n`;
-   
-   message += `يسعدنا أن نبلغك بأن مساحتك الخاصة أصبحت جاهزة! 🎉\n\n`;
-   
-   message += `نحن متحمسون لبدء رحلة التحول معك 🌱\n`;
-   message += `كل شيء أصبح معدًا لاستقبالك\n\n`;
-   
-   message += `━━━━━━━━━━━━━━━━━\n`;
-   message += `📲 بيانات دخولك الخاصة:\n`;
-   message += `━━━━━━━━━━━━━━━━━\n\n`;
-   
-   message += `📧 البريد الإلكتروني:\n`;
-   message += `${booking.email}\n\n`;
-   
-   message += `🔑 كلمة المرور:\n`;
-   message += `${booking.password}\n\n`;
-   
-   message += `🔗 رابط الدخول المباشر:\n`;
-   message += `https://mahmoudfouad25.github.io/portal.html\n\n`;
-   
-   message += `━━━━━━━━━━━━━━━━━\n`;
-   message += `✨ ماذا ستجد في مساحتك؟\n`;
-   message += `━━━━━━━━━━━━━━━━━\n`;
-   message += `• جدول جلساتك القادمة\n`;
-   message += `• مواد وتمارين خاصة برحلتك\n`;
-   message += `• متابعة تقدمك خطوة بخطوة\n`;
-   message += `• رسائل دعم وإلهام\n\n`;
-   
-   message += `💚 رسالة خاصة لك:\n`;
-   message += `اختيارك لرحلة ${booking.selectedJourney} كان قرارًا شجاعًا.\n`;
-   message += `نحن هنا لندعمك في كل خطوة.\n\n`;
-   
-   message += `📌 نصائح مهمة:\n`;
-   message += `• احفظ هذه الرسالة للرجوع إليها\n`;
-   message += `• سجل دخولك الآن لاستكشاف مساحتك\n`;
-   message += `• لا تتردد في التواصل معنا عند الحاجة\n\n`;
-   
-   message += `نتطلع للقائك قريبًا! 🤝\n\n`;
-   
-   message += `مع أطيب التمنيات،\n`;
-   message += `فريق رحلات التحول 🌟`;
-   
-   // إرسال عبر WhatsApp
-   openWhatsApp(booking.phone, booking.name, message);
-   showNotification('تم فتح واتساب لإرسال بيانات الدخول', 'success');
+// Send login credentials
+function sendLoginCredentials(bookingId) {
+    const booking = allBookings.find(b => b.id === bookingId);
+    if (!booking) return;
+    
+    if (!booking.accountCreated) {
+        showNotification('لم يتم إنشاء حساب لهذا العميل بعد', 'error');
+        return;
+    }
+    
+    let message = `أهلاً ${booking.name}!\n\n`;
+    message += `[مكان للصق الرسالة الطويلة]\n\n`;
+    message += `📧 البريد: ${booking.email}\n`;
+    message += `🔑 كلمة المرور: ${booking.password}\n`;
+    message += `🔗 الرابط: https://mahmoudfouad25.github.io/portal.html\n\n`;
+    message += `مع أطيب التمنيات،\nفريق رحلات التحول 🌟`;
+    
+    openWhatsApp(booking.phone, booking.name, message);
+    showNotification('تم فتح واتساب لإرسال بيانات الدخول', 'success');
 }
 
 // Slots Management Functions
