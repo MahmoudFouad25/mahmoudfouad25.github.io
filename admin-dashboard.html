@@ -4,17 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم الرئيسية - محمود فؤاد</title>
-        <!-- أضف السطر ده -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='90'>🌿</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='90'>🎯</text></svg>">
     
-
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         :root {
             --primary: #2C5530;
             --secondary: #8B9467;
@@ -22,19 +20,30 @@
             --light: #F5F2E8;
             --dark: #1A1A1A;
             --gradient: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
-            --success: #28a745;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --info: #17a2b8;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            --background: #F9FAFB;
+            --card-bg: #FFFFFF;
+            --border: #E5E7EB;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-            background: #f5f5f5;
-            color: var(--dark);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
             min-height: 100vh;
         }
-        
+
         /* Loading Overlay */
         .loading-overlay {
             position: fixed;
@@ -42,145 +51,105 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Login Form */
-        .login-container {
+            background: rgba(255, 255, 255, 0.95);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background: var(--gradient);
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s;
         }
-        
-        .login-form {
-            background: white;
-            padding: 3rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 400px;
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
-        
-        .login-form h2 {
-            color: var(--primary);
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 2rem;
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            position: relative;
         }
-        
-        .login-form input {
+
+        .loading-spinner::before,
+        .loading-spinner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--primary);
+            animation: spin 0.8s linear infinite;
         }
-        
-        .login-form input:focus {
-            outline: none;
-            border-color: var(--primary);
+
+        .loading-spinner::after {
+            border-top-color: var(--accent);
+            animation-delay: 0.4s;
         }
-        
-        .login-form button {
-            width: 100%;
-            padding: 1rem;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.3s;
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-        
-        .login-form button:hover {
-            transform: translateY(-2px);
-        }
-        
-        .login-error {
-            color: var(--danger);
-            text-align: center;
-            margin-bottom: 1rem;
-            display: none;
-        }
-        
+
         /* Navigation */
         .admin-nav {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 1rem 2rem;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-sm);
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
         }
-        
+
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .nav-brand h2 {
             color: var(--primary);
             font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
+
         .nav-links {
             display: flex;
             gap: 2rem;
             align-items: center;
         }
-        
+
         .nav-links a {
-            color: var(--dark);
+            color: var(--text-secondary);
             text-decoration: none;
             font-weight: 500;
-            position: relative;
-            transition: color 0.3s;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
         }
-        
+
         .nav-links a:hover {
             color: var(--primary);
+            background: rgba(44, 85, 48, 0.1);
         }
-        
+
         .nav-links a.active {
             color: var(--primary);
+            background: rgba(44, 85, 48, 0.1);
         }
-        
-        .nav-links a.active::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent);
-        }
-        
+
         .badge {
             background: var(--danger);
             color: white;
@@ -192,39 +161,397 @@
             min-width: 20px;
             text-align: center;
         }
-        
+
         /* Main Container */
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
         }
-        
+
         /* Welcome Section */
         .welcome-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            background: var(--gradient);
+            color: white;
+            padding: 2.5rem;
+            border-radius: var(--radius);
             margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-50px, -50px) rotate(180deg); }
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+
         .welcome-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        
+
         .welcome-header h1 {
-            color: var(--primary);
             font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
-        
-        .current-time {
-            color: #666;
+
+        .welcome-header .greeting-icon {
+            font-size: 2.5rem;
+            animation: wave 1s ease-in-out;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-20deg); }
+            75% { transform: rotate(20deg); }
+        }
+
+        .datetime {
             font-size: 1.1rem;
+            opacity: 0.9;
         }
-        
+
+        .quick-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .quick-stat-icon {
+            font-size: 1.2rem;
+        }
+
+        /* View Tabs */
+        .view-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: var(--card-bg);
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .view-tab {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .view-tab:hover {
+            color: var(--primary);
+            background: rgba(44, 85, 48, 0.05);
+        }
+
+        .view-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        /* Action Cards */
+        .action-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .action-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-card-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(44, 85, 48, 0.1);
+            color: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .action-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .action-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .action-item:hover {
+            background: rgba(44, 85, 48, 0.05);
+            padding-right: 1rem;
+        }
+
+        .action-item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .action-item-icon.urgent {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .action-item-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .action-item-icon.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .action-item-content {
+            flex: 1;
+        }
+
+        .action-item-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .action-item-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Schedule Timeline */
+        .schedule-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-right: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 1rem 0;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .timeline-item:hover {
+            background: rgba(44, 85, 48, 0.05);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            border: 2px solid var(--card-bg);
+            z-index: 1;
+        }
+
+        .timeline-item.active::before {
+            background: var(--success);
+            width: 14px;
+            height: 14px;
+            right: 2px;
+        }
+
+        .timeline-item.upcoming::before {
+            background: var(--primary);
+        }
+
+        .timeline-content {
+            margin-right: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .timeline-time {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 60px;
+        }
+
+        .timeline-session {
+            flex: 1;
+            background: rgba(44, 85, 48, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            border-right: 4px solid var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .timeline-session:hover {
+            transform: translateX(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .timeline-session.eshraq {
+            border-right-color: #FF6B35;
+            background: rgba(255, 107, 53, 0.05);
+        }
+
+        .timeline-session.baseera {
+            border-right-color: #4A90E2;
+            background: rgba(74, 144, 226, 0.05);
+        }
+
+        .timeline-session.sakeena {
+            border-right-color: #27AE60;
+            background: rgba(39, 174, 96, 0.05);
+        }
+
+        .session-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .session-client {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .session-type {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .session-action {
+            padding: 0.4rem 0.8rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .session-action:hover {
+            background: var(--secondary);
+        }
+
         /* Stats Grid */
         .stats-grid {
             display: grid;
@@ -232,171 +559,127 @@
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
-        
+
         .stat-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
-        
+
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
-        
-        .stat-card.urgent {
-            border-right: 5px solid var(--danger);
-        }
-        
-        .stat-card.success {
-            border-right: 5px solid var(--success);
-        }
-        
-        .stat-card.warning {
-            border-right: 5px solid var(--warning);
-        }
-        
-        .stat-card.info {
-            border-right: 5px solid var(--info);
-        }
-        
-        .stat-icon {
+
+        .stat-card::before {
+            content: '';
             position: absolute;
-            top: 1rem;
-            left: 1rem;
-            font-size: 3rem;
-            opacity: 0.1;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(44, 85, 48, 0.1) 0%, transparent 70%);
+            transform: translate(30px, -30px);
         }
-        
-        .stat-content h3 {
-            color: #666;
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
+
+        .stat-content {
+            position: relative;
+            z-index: 1;
         }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(44, 85, 48, 0.1);
             color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-flex;
+            border-radius: 8px;
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: gap 0.3s;
+            justify-content: center;
+            font-size: 1.3rem;
         }
-        
-        .stat-link:hover {
-            gap: 1rem;
+
+        .stat-icon.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
         }
-        
-        .stat-change {
+
+        .stat-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
             font-size: 0.9rem;
-            color: #666;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
         }
-        
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+        }
+
         .stat-change.positive {
             color: var(--success);
         }
-        
+
         .stat-change.negative {
             color: var(--danger);
         }
-        
-        /* Sections */
-        .dashboard-section {
-            background: white;
+
+        /* Recent Activity */
+        .activity-section {
+            background: var(--card-bg);
             padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
             margin-bottom: 2rem;
         }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .section-header h2 {
-            color: var(--primary);
-            font-size: 1.5rem;
-        }
-        
-        /* Today's Schedule */
-        .schedule-grid {
-            display: grid;
-            gap: 1rem;
-        }
-        
-        .schedule-item {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.3s;
-        }
-        
-        .schedule-item:hover {
-            background: #e9ecef;
-        }
-        
-        .schedule-time {
-            background: var(--primary);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: bold;
-            margin-left: 1rem;
-        }
-        
-        .schedule-info h4 {
-            color: var(--primary);
-            margin-bottom: 0.3rem;
-        }
-        
-        .schedule-info p {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .schedule-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        /* Recent Activities */
+
         .activity-list {
-            display: grid;
+            display: flex;
+            flex-direction: column;
             gap: 1rem;
         }
-        
+
         .activity-item {
             display: flex;
             align-items: center;
             gap: 1rem;
             padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-            transition: background 0.3s;
+            background: rgba(44, 85, 48, 0.02);
+            border-radius: 8px;
+            transition: var(--transition);
+            cursor: pointer;
         }
-        
+
         .activity-item:hover {
-            background: #e9ecef;
+            background: rgba(44, 85, 48, 0.05);
+            transform: translateX(-2px);
         }
-        
+
         .activity-icon {
             width: 40px;
             height: 40px;
@@ -407,160 +690,139 @@
             justify-content: center;
             color: white;
             font-size: 1.2rem;
+            flex-shrink: 0;
         }
-        
+
         .activity-content {
             flex: 1;
         }
-        
-        .activity-content h4 {
-            color: var(--primary);
-            font-size: 0.95rem;
-            margin-bottom: 0.2rem;
+
+        .activity-title {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
         }
-        
-        .activity-content p {
-            color: #666;
+
+        .activity-meta {
             font-size: 0.85rem;
+            color: var(--text-secondary);
         }
-        
+
         .activity-time {
-            color: #999;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
-        
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .action-btn {
+
+        /* Insights Section */
+        .insights-section {
             background: var(--gradient);
             color: white;
-            padding: 1rem;
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .insights-section::before {
+            content: '🧠';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            font-size: 100px;
+            opacity: 0.1;
+            transform: rotate(-15deg);
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .insight-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .insight-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-value {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .quick-action-btn {
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: bold;
+            border-radius: 50%;
+            font-size: 1.5rem;
             cursor: pointer;
-            transition: transform 0.3s;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
         }
-        
-        .action-btn:hover {
-            transform: translateY(-3px);
+
+        .quick-action-btn:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
         }
-        
-        /* Buttons */
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
+
+        .quick-action-btn.main {
+            background: var(--accent);
+            font-size: 2rem;
         }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .btn-info {
-            background: var(--info);
-            color: white;
-        }
-        
-        .btn-whatsapp {
-            background: #25d366;
-            color: white;
-        }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #999;
-        }
-        
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 1rem;
-            }
-            
-            .nav-links {
-                gap: 1rem;
-                font-size: 0.9rem;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .welcome-header {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .welcome-header h1 {
-                font-size: 1.5rem;
-            }
-        }
-        
+
         /* Notification */
         .notification {
             position: fixed;
             top: 20px;
-            right: 20px;
-            padding: 15px 25px;
+            left: 20px;
+            padding: 1rem 1.5rem;
             border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            z-index: 10000;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
             animation: slideIn 0.3s;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-width: 400px;
         }
-        
-        .notification.success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .notification.error {
-            background: var(--danger);
-            color: white;
-        }
-        
+
         @keyframes slideIn {
             from {
-                transform: translateX(100%);
+                transform: translateX(-100%);
                 opacity: 0;
             }
             to {
@@ -568,493 +830,914 @@
                 opacity: 1;
             }
         }
+
+        .notification.success {
+            background: var(--success);
+            color: white;
+        }
+
+        .notification.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        .notification.info {
+            background: var(--info);
+            color: white;
+        }
+
+        .notification.warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .welcome-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .quick-stats {
+                gap: 1rem;
+            }
+
+            .action-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .view-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .quick-actions {
+                bottom: 1rem;
+                left: 1rem;
+            }
+        }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-text {
+            height: 20px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-text.title {
+            height: 30px;
+            width: 60%;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Focus Mode */
+        body.focus-mode .action-cards,
+        body.focus-mode .stats-grid,
+        body.focus-mode .activity-section,
+        body.focus-mode .insights-section {
+            display: none;
+        }
+
+        body.focus-mode .schedule-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Print Styles */
+        @media print {
+            .admin-nav,
+            .quick-actions,
+            .view-tabs {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+
+            .dashboard-container {
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Loading Overlay -->
-    <div class="loading-overlay">
+    <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
     </div>
-    
-<!-- Login Section -->
-<div id="loginSection" class="login-container">
-    <div class="login-form">
-        <h2>🔐 لوحة التحكم</h2>
-        <div id="loginError" class="login-error"></div>
-        <input type="email" id="email" placeholder="البريد الإلكتروني" 
-               value="admin@mahmoudfouad.com"
-               onkeypress="if(event.key==='Enter') login()">
-        <input type="password" id="password" placeholder="كلمة المرور" 
-               onkeypress="if(event.key==='Enter') login()">
-        <button onclick="login()">دخول</button>
-        <p style="margin-top: 1rem; color: #666; font-size: 0.9rem; text-align: center;">
-            محمود فؤاد - نظام إدارة الكوتشينج
-        </p>
-    </div>
-</div>
-    
-    <!-- Admin Dashboard -->
-    <div id="adminDashboard" style="display: none;">
-        <!-- Navigation -->
-        <nav class="admin-nav">
-            <div class="nav-container">
-                <div class="nav-brand">
-                    <h2>لوحة تحكم محمود فؤاد</h2>
-                </div>
-                <div class="nav-links">
-                    <a href="admin-dashboard.html" class="active">
-                        <span>🏠</span> الرئيسية
-                    </a>
-                    <a href="admin-bookings.html">
-                        <span>📋</span> الحجوزات
-                        <span class="badge" id="newBookingsCount">0</span>
 
-    </a>
-                    <a href="central-dashboard.html">
-                        <span>🗺️</span> الرحلات
-                        <span class="badge" id="activeJourneysCount" style="background: var(--success);">0</span>
-                                            </a>
-                    <a href="admin-tools.html">
-        <span>🛠️</span>
-        <span>الأدوات</span>
-                    </a>
-                    <a href="#" onclick="logout()">
-                        <span>🚪</span> خروج
-                    </a>
-                </div>
+    <!-- Navigation -->
+    <nav class="admin-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h2>🎯 لوحة تحكم محمود فؤاد</h2>
             </div>
-        </nav>
-        
-        <!-- Main Content -->
-        <div class="dashboard-container">
-            <!-- Welcome Section -->
-            <div class="welcome-section">
+            <div class="nav-links">
+                <a href="admin-dashboard.html" class="active">
+                    <span>🏠</span>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="admin-bookings.html">
+                    <span>📅</span>
+                    <span>الحجوزات</span>
+                    <span class="badge" id="newBookingsCount">0</span>
+                </a>
+                <a href="central-dashboard.html">
+                    <span>🚀</span>
+                    <span>الرحلات</span>
+                    <span class="badge" id="activeJourneysCount" style="background: var(--success);">0</span>
+                </a>
+                <a href="admin-tools.html">
+                    <span>🛠️</span>
+                    <span>الأدوات</span>
+                </a>
+                <a href="#" onclick="logout()">
+                    <span>🚪</span>
+                    <span>خروج</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section fade-in">
+            <div class="welcome-content">
                 <div class="welcome-header">
-                    <h1>مرحباً محمود 👋</h1>
-                    <div class="current-time" id="currentTime"></div>
-                </div>
-            </div>
-            
-            <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card urgent">
-                    <div class="stat-icon">📥</div>
-                    <div class="stat-content">
-                        <h3>طلبات جديدة</h3>
-                        <div class="stat-number" id="newRequestsCount">0</div>
-                        <a href="admin-bookings.html" class="stat-link">
-                            عرض الطلبات ←
-                        </a>
+                    <div>
+                        <h1>
+                            <span id="greetingText">مرحباً</span> محمود
+                            <span class="greeting-icon">👋</span>
+                        </h1>
+                        <div class="datetime" id="currentDateTime">
+                            جاري التحميل...
+                        </div>
                     </div>
-                </div>
-                
-                <div class="stat-card success">
-                    <div class="stat-icon">🚀</div>
-                    <div class="stat-content">
-                        <h3>رحلات نشطة</h3>
-                        <div class="stat-number" id="activeJourneysNumber">0</div>
-                        <a href="central-dashboard.html" class="stat-link">
-                            إدارة الرحلات ←
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="stat-card warning">
-                    <div class="stat-icon">📅</div>
-                    <div class="stat-content">
-                        <h3>جلسات اليوم</h3>
-                        <div class="stat-number" id="todaySessionsCount">0</div>
-                        <div class="stat-change" id="sessionsChange">لا توجد جلسات</div>
-                    </div>
-                </div>
-                
-                <div class="stat-card info">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-content">
-                        <h3>إجمالي العملاء</h3>
-                        <div class="stat-number" id="totalClientsCount">0</div>
-                        <div class="stat-change positive" id="clientsChange">+0 هذا الشهر</div>
+                    <div class="quick-stats">
+                        <div class="quick-stat">
+                            <span class="quick-stat-icon">📅</span>
+                            <span><strong id="todaySessionsCount">0</strong> جلسات اليوم</span>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="quick-stat-icon">🔔</span>
+                            <span><strong id="pendingActionsCount">0</strong> إجراءات معلقة</span>
+                        </div>
+                        <div class="quick-stat">
+                            <span class="quick-stat-icon">✨</span>
+                            <span>يوم رائع للتحول!</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Today's Schedule -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <h2>📅 جدول اليوم</h2>
-                    <a href="central-dashboard.html" class="btn btn-primary">عرض التقويم الكامل</a>
+        </div>
+
+        <!-- View Tabs -->
+        <div class="view-tabs slide-up">
+            <button class="view-tab active" onclick="switchView('today')">
+                <span>📅</span>
+                <span>اليوم</span>
+            </button>
+            <button class="view-tab" onclick="switchView('week')">
+                <span>📊</span>
+                <span>الأسبوع</span>
+            </button>
+            <button class="view-tab" onclick="switchView('month')">
+                <span>📈</span>
+                <span>الشهر</span>
+            </button>
+            <button class="view-tab" onclick="switchView('all')">
+                <span>🎯</span>
+                <span>الكل</span>
+            </button>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="action-cards">
+            <div class="action-card slide-up" style="animation-delay: 0.1s;">
+                <div class="action-card-header">
+                    <div class="action-card-icon">📋</div>
+                    <h3 class="action-card-title">نشاطك اليوم</h3>
                 </div>
-                <div class="schedule-grid" id="todaySchedule">
-                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                <div class="action-items" id="todayActivityItems">
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text"></div>
                 </div>
             </div>
-            
-            <!-- Recent Activities -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <h2>🕐 آخر النشاطات</h2>
-                    <button class="btn btn-info" onclick="refreshActivities()">تحديث</button>
+
+            <div class="action-card slide-up" style="animation-delay: 0.2s;">
+                <div class="action-card-header">
+                    <div class="action-card-icon">⚡</div>
+                    <h3 class="action-card-title">إجراءات عاجلة</h3>
                 </div>
-                <div class="activity-list" id="recentActivities">
-                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                <div class="action-items" id="urgentActionItems">
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text"></div>
                 </div>
             </div>
-            
-            <!-- Quick Actions -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <h2>⚡ إجراءات سريعة</h2>
+        </div>
+
+        <!-- Schedule Timeline -->
+        <div class="schedule-section slide-up" style="animation-delay: 0.3s;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>⏰</span>
+                    <span>جدول اليوم التفاعلي</span>
+                </h2>
+                <button class="session-action" onclick="toggleFocusMode()">
+                    <span id="focusModeIcon">🎯</span>
+                    <span id="focusModeText">وضع التركيز</span>
+                </button>
+            </div>
+            <div class="timeline" id="scheduleTimeline">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📅</div>
+                    <h3 class="empty-state-title">لا توجد جلسات مجدولة اليوم</h3>
+                    <p class="empty-state-text">يمكنك جدولة جلسات جديدة من صفحة الحجوزات</p>
                 </div>
-                <div class="quick-actions">
-                    <button class="action-btn" onclick="window.location.href='admin-bookings.html'">
-                        <span>📋</span> عرض الحجوزات
-                    </button>
-                    <button class="action-btn" onclick="window.location.href='central-dashboard.html'">
-                        <span>🗺️</span> إدارة الرحلات
-                    </button>
-                    <button class="action-btn" onclick="downloadBackup()">
-                        <span>💾</span> نسخة احتياطية
-                    </button>
-                    <button class="action-btn" onclick="viewReports()">
-                        <span>📊</span> التقارير
-                    </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card slide-up" style="animation-delay: 0.4s;">
+                <div class="stat-content">
+                    <div class="stat-header">
+                        <div class="stat-icon">🚀</div>
+                    </div>
+                    <div class="stat-value" id="activeJourneysValue">0</div>
+                    <div class="stat-label">رحلات نشطة</div>
+                    <div class="stat-change positive">
+                        <span>↑</span>
+                        <span id="journeysChange">+0 هذا الأسبوع</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card slide-up" style="animation-delay: 0.5s;">
+                <div class="stat-content">
+                    <div class="stat-header">
+                        <div class="stat-icon success">📈</div>
+                    </div>
+                    <div class="stat-value" id="successRateValue">0%</div>
+                    <div class="stat-label">معدل النجاح</div>
+                    <div class="stat-change positive">
+                        <span>↑</span>
+                        <span id="successChange">+0% عن الشهر الماضي</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card slide-up" style="animation-delay: 0.6s;">
+                <div class="stat-content">
+                    <div class="stat-header">
+                        <div class="stat-icon warning">⭐</div>
+                    </div>
+                    <div class="stat-value" id="satisfactionValue">0.0</div>
+                    <div class="stat-label">رضا العملاء</div>
+                    <div class="stat-change positive">
+                        <span>⭐</span>
+                        <span id="satisfactionLevel">ممتاز</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-section slide-up" style="animation-delay: 0.7s;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>🎯</span>
+                    <span>آخر النشاطات</span>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary); margin-right: 0.5rem;">(مباشر)</span>
+                </h2>
+                <button class="session-action" onclick="refreshActivities()">
+                    <span>🔄</span>
+                    <span>تحديث</span>
+                </button>
+            </div>
+            <div class="activity-list" id="recentActivityList">
+                <div class="skeleton skeleton-text title"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+            </div>
+        </div>
+
+        <!-- Insights Section -->
+        <div class="insights-section slide-up" style="animation-delay: 0.8s;">
+            <div class="section-header" style="margin-bottom: 1.5rem;">
+                <h2 class="section-title" style="color: white;">
+                    <span>🧠</span>
+                    <span>رؤى ذكية</span>
+                </h2>
+            </div>
+            <div class="insights-grid" id="insightsGrid">
+                <div class="insight-item">
+                    <div class="insight-icon">⏰</div>
+                    <h3 class="insight-title">أفضل وقت للجلسات</h3>
+                    <p class="insight-value" id="bestSessionTime">جاري التحليل...</p>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon">💬</div>
+                    <h3 class="insight-title">معدل الاستجابة</h3>
+                    <p class="insight-value" id="responseRate">جاري التحليل...</p>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon">🛠️</div>
+                    <h3 class="insight-title">الأداة الأكثر فعالية</h3>
+                    <p class="insight-value" id="effectiveTool">جاري التحليل...</p>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon">🎯</div>
+                    <h3 class="insight-title">توصية اليوم</h3>
+                    <p class="insight-value" id="todayRecommendation">جاري التحليل...</p>
                 </div>
             </div>
         </div>
     </div>
-    
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button class="quick-action-btn" onclick="window.location.href='admin-bookings.html'" title="طلبات جديدة">
+            📋
+        </button>
+        <button class="quick-action-btn" onclick="scheduleSession()" title="جدولة جلسة">
+            📅
+        </button>
+        <button class="quick-action-btn main" onclick="showQuickActions()" title="إجراءات سريعة">
+            ➕
+        </button>
+    </div>
+
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
-    
+
     <script>
-        // Initialize
+        // Initialize Firebase
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const ADMIN_HASH = 'bWFobW91ZDIwMjQ='; // mahmoud2024
-        // التحقق من تسجيل الدخول
-// في بداية الملف بعد التعريفات
-window.onload = function() {
-    // التحقق من الجلسة
-    const adminAuth = sessionStorage.getItem('adminAuth');
-    
-    if (adminAuth !== 'true') {
-        alert('يجب تسجيل الدخول أولاً');
-        window.location.href = 'admin-dashboard.html';
-        return;
-    }
-    
-    // لو مسجل، جرب تسجيل دخول Firebase
-    auth.signInWithEmailAndPassword(
-        'admin@mahmoudfouad.com',
-        'MahmoudAdmin2024!'
-    ).then(() => {
-        console.log('تم تسجيل الدخول في Firebase');
-        // الآن حمّل البيانات
-        if (typeof loadBookings === 'function') {
-            loadBookings();
-        }
-    }).catch((error) => {
-        console.error('خطأ في تسجيل الدخول:', error);
-        // لو فشل، استخدم القواعد المفتوحة
-    });
-};
-        // Check session on load
+
+        // Global Variables
+        let currentView = 'today';
+        let focusMode = false;
+        let allBookings = [];
+        let allJourneys = [];
+        let allSessions = [];
+        let allActivities = [];
+
+        // Initialize on load
         window.onload = function() {
-            checkSession();
-            updateCurrentTime();
-            setInterval(updateCurrentTime, 60000);
+            checkAuth();
+            updateDateTime();
+            setInterval(updateDateTime, 60000); // Update every minute
         };
-        
-        // Check admin session
-function checkSession() {
-    const authToken = sessionStorage.getItem('adminAuth');
-    const authTime = sessionStorage.getItem('authTime');
-    const oneHour = 60 * 60 * 1000;
-    
-    if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
-        showDashboard();
-    } else {
-        sessionStorage.clear();
-        showLogin();
-    }
-}
-        
-        // Show login
-        function showLogin() {
-            document.getElementById('loginSection').style.display = 'flex';
-            document.getElementById('adminDashboard').style.display = 'none';
-        }
-        
-        // Show dashboard
-        function showDashboard() {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'block';
-            loadDashboardData();
-            // Refresh data every 30 seconds
-            setInterval(loadDashboardData, 30000);
-        }
-        
-        // Login function
-async function login() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    try {
-        await auth.signInWithEmailAndPassword(email, password);
-        
-        sessionStorage.setItem('adminAuth', 'true');
-        sessionStorage.setItem('authTime', Date.now().toString());
-        
-        showDashboard();
-        showNotification('تم تسجيل الدخول بنجاح', 'success');
-        
-    } catch (error) {
-        document.getElementById('loginError').textContent = 'البريد أو كلمة المرور غير صحيحة';
-        document.getElementById('loginError').style.display = 'block';
-    }
-}
-        // Logout
-async function logout() {
-    if (confirm('هل تريد تسجيل الخروج؟')) {
-        try {
-            await auth.signOut();
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
-        sessionStorage.clear();
-        location.reload();
-    }
-}
-        
-        // Load dashboard data
-async function loadDashboardData() {
-    showLoading(true);
-    
-    try {
-        // التأكد من وجود المستخدم
-        const user = auth.currentUser;
-        if (!user) {
-            console.error('No user logged in');
-            showLoading(false);
-            return;
-        }
-        
-        console.log('Logged in as:', user.email);
-        
-        // جرب قراءة الحجوزات
-        try {
-            const bookingsSnapshot = await db.collection('bookings').get();
-            const bookingsCount = bookingsSnapshot.size;
-            updateStatCard('إجمالي الحجوزات', bookingsCount, 'primary');
-        } catch (error) {
-            console.error('Error reading bookings:', error);
-            updateStatCard('إجمالي الحجوزات', 0, 'primary');
-        }
-        
-        // جرب قراءة المستخدمين
-        try {
-            const usersSnapshot = await db.collection('users').get();
-            const usersCount = usersSnapshot.size;
-            updateStatCard('المستخدمين', usersCount, 'success');
-        } catch (error) {
-            console.error('Error reading users:', error);
-            updateStatCard('المستخدمين', 0, 'success');
-        }
-        
-        // باقي البيانات
-        updateStatCard('الجلسات القادمة', 0, 'info');
-        updateStatCard('الإيرادات', '0 ج.م', 'warning');
-        
-    } catch (error) {
-        console.error('Dashboard error:', error);
-    } finally {
-        showLoading(false);
-    }
-}
-        // Load today's sessions
-        async function loadTodaySessions() {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            
-            try {
-                const sessionsSnapshot = await db.collection('bookings')
-                    .where('status', '==', 'confirmed')
-                    .where('appointmentDate', '>=', today)
-                    .where('appointmentDate', '<', tomorrow)
-                    .orderBy('appointmentDate')
-                    .get();
-                
-                const sessionsCount = sessionsSnapshot.size;
-                document.getElementById('todaySessionsCount').textContent = sessionsCount;
-                
-                const scheduleContainer = document.getElementById('todaySchedule');
-                
-                if (sessionsCount === 0) {
-                    document.getElementById('sessionsChange').textContent = 'لا توجد جلسات مجدولة';
-                    scheduleContainer.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">📅</div>
-                            <p>لا توجد جلسات مجدولة لهذا اليوم</p>
-                        </div>
-                    `;
-                } else {
-                    document.getElementById('sessionsChange').textContent = `${sessionsCount} جلسة مجدولة`;
-                    
-                    let scheduleHTML = '';
-                    sessionsSnapshot.forEach(doc => {
-                        const session = doc.data();
-                        const time = session.appointmentTime || 'غير محدد';
-                        
-                        scheduleHTML += `
-                            <div class="schedule-item">
-                                <div class="schedule-time">${time}</div>
-                                <div class="schedule-info">
-                                    <h4>${session.name || 'عميل'}</h4>
-                                    <p>${getProgramName(session.program)} - ${getSessionTypeName(session.sessionType)}</p>
-                                </div>
-                                <div class="schedule-actions">
-                                    <button class="btn btn-whatsapp" onclick="openWhatsApp('${session.phone}', '${session.name}')">
-                                        واتساب
-                                    </button>
-                                    ${session.sessionLink ? 
-                                        `<button class="btn btn-primary" onclick="window.open('${session.sessionLink}', '_blank')">
-                                            رابط الجلسة
-                                        </button>` : ''
-                                    }
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    scheduleContainer.innerHTML = scheduleHTML;
-                }
-            } catch (error) {
-                console.error('Error loading today sessions:', error);
+
+        // Check authentication
+        function checkAuth() {
+            const authToken = sessionStorage.getItem('adminAuth');
+            const authTime = sessionStorage.getItem('authTime');
+            const oneHour = 60 * 60 * 1000;
+
+            if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
+                showDashboard();
+            } else {
+                window.location.href = 'admin-login.html';
             }
         }
-        
-        // Load recent activities
-        async function loadRecentActivities() {
+
+        // Show dashboard
+        async function showDashboard() {
+            showLoading(true);
             try {
-                // Get recent bookings
-                const recentBookingsSnapshot = await db.collection('bookings')
+                await loadDashboardData();
+                setupRealtimeUpdates();
+                setupKeyboardShortcuts();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showNotification('خطأ في تحميل البيانات', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load all dashboard data
+        async function loadDashboardData() {
+            const promises = [
+                loadBookings(),
+                loadJourneys(),
+                loadSessions(),
+                loadActivities()
+            ];
+
+            await Promise.all(promises);
+            
+            updateAllSections();
+            generateInsights();
+        }
+
+        // Load bookings
+        async function loadBookings() {
+            try {
+                const snapshot = await db.collection('bookings')
                     .orderBy('createdAt', 'desc')
-                    .limit(5)
                     .get();
-                
-                // Get recent journey updates
-                const recentJourneysSnapshot = await db.collection('journeys')
-                    .orderBy('lastUpdated', 'desc')
-                    .limit(5)
-                    .get();
-                
-                const activities = [];
-                
-                // Process bookings
-                recentBookingsSnapshot.forEach(doc => {
-                    const booking = doc.data();
-                    const activityType = booking.isNewJourney ? 'new-journey' : 
-                                       booking.existingClient ? 'existing-client' : 'new-booking';
-                    
-                    activities.push({
-                        type: activityType,
-                        title: getActivityTitle(activityType, booking),
-                        description: getActivityDescription(activityType, booking),
-                        time: booking.createdAt?.toDate() || new Date(),
-                        icon: getActivityIcon(activityType)
+
+                allBookings = [];
+                snapshot.forEach(doc => {
+                    allBookings.push({
+                        id: doc.id,
+                        ...doc.data(),
+                        createdAt: doc.data().createdAt?.toDate() || new Date()
                     });
                 });
-                
-                // Process journey updates
-                recentJourneysSnapshot.forEach(doc => {
-                    const journey = doc.data();
-                    if (journey.lastAction) {
-                        activities.push({
-                            type: 'journey-update',
-                            title: `تحديث رحلة ${journey.clientName}`,
-                            description: journey.lastAction,
-                            time: journey.lastUpdated?.toDate() || new Date(),
-                            icon: '🔄'
-                        });
-                    }
-                });
-                
-                // Sort by time
-                activities.sort((a, b) => b.time - a.time);
-                
-                // Display activities
-                const container = document.getElementById('recentActivities');
-                
-                if (activities.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">🕐</div>
-                            <p>لا توجد نشاطات حديثة</p>
-                        </div>
-                    `;
-                } else {
-                    let html = '';
-                    activities.slice(0, 10).forEach(activity => {
-                        html += `
-                            <div class="activity-item">
-                                <div class="activity-icon">${activity.icon}</div>
-                                <div class="activity-content">
-                                    <h4>${activity.title}</h4>
-                                    <p>${activity.description}</p>
-                                </div>
-                                <div class="activity-time">${formatTime(activity.time)}</div>
-                            </div>
-                        `;
+
+                // Update new bookings count
+                const newBookingsCount = allBookings.filter(b => 
+                    b.status === 'pending' || b.status === 'new'
+                ).length;
+                document.getElementById('newBookingsCount').textContent = newBookingsCount;
+
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+            }
+        }
+
+        // Load journeys
+        async function loadJourneys() {
+            try {
+                const snapshot = await db.collection('journeys')
+                    .where('status', '==', 'active')
+                    .get();
+
+                allJourneys = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allJourneys.push({
+                        id: doc.id,
+                        ...data,
+                        startDate: data.startDate?.toDate() || new Date(),
+                        lastActivityDate: data.lastActivityDate?.toDate() || new Date()
                     });
-                    
-                    container.innerHTML = html;
-                }
+                });
+
+                // Update active journeys count
+                document.getElementById('activeJourneysCount').textContent = allJourneys.length;
+                document.getElementById('activeJourneysValue').textContent = allJourneys.length;
+
+            } catch (error) {
+                console.error('Error loading journeys:', error);
+            }
+        }
+
+        // Load sessions
+        async function loadSessions() {
+            try {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
                 
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                const snapshot = await db.collection('sessions')
+                    .where('scheduledDate', '>=', today)
+                    .where('scheduledDate', '<', tomorrow)
+                    .orderBy('scheduledDate')
+                    .get();
+
+                allSessions = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allSessions.push({
+                        id: doc.id,
+                        ...data,
+                        scheduledDate: data.scheduledDate?.toDate() || new Date()
+                    });
+                });
+
+                // Update today's sessions count
+                document.getElementById('todaySessionsCount').textContent = allSessions.length;
+
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+            }
+        }
+
+        // Load recent activities
+        async function loadActivities() {
+            try {
+                const oneDayAgo = new Date();
+                oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+                const snapshot = await db.collection('activities')
+                    .where('timestamp', '>=', oneDayAgo)
+                    .orderBy('timestamp', 'desc')
+                    .limit(10)
+                    .get();
+
+                allActivities = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allActivities.push({
+                        id: doc.id,
+                        ...data,
+                        timestamp: data.timestamp?.toDate() || new Date()
+                    });
+                });
+
             } catch (error) {
                 console.error('Error loading activities:', error);
             }
         }
-        
-        // Activity helpers
-        function getActivityTitle(type, booking) {
-            switch(type) {
-                case 'new-journey':
-                    return `طلب رحلة جديدة من ${booking.name}`;
-                case 'existing-client':
-                    return `حجز من عميل حالي: ${booking.name}`;
-                default:
-                    return `حجز جديد من ${booking.name}`;
-            }
+
+        // Update all sections
+        function updateAllSections() {
+            updateTodayActivity();
+            updateUrgentActions();
+            updateScheduleTimeline();
+            updateStats();
+            updateRecentActivity();
         }
-        
-        function getActivityDescription(type, booking) {
-            switch(type) {
-                case 'new-journey':
-                    return `يريد بدء ${getProgramName(booking.program)} بعد إكمال رحلات سابقة`;
-                case 'existing-client':
-                    return `عميل مسجل يريد حجز ${getProgramName(booking.program)}`;
-                default:
-                    return `طلب جديد لـ ${getProgramName(booking.program)}`;
+
+        // Update today's activity
+        function updateTodayActivity() {
+            const container = document.getElementById('todayActivityItems');
+            const todaySessions = allSessions.filter(s => s.status !== 'cancelled');
+            
+            let html = '';
+
+            // Today's sessions
+            if (todaySessions.length > 0) {
+                html += `
+                    <div class="action-item" onclick="window.location.href='central-dashboard.html'">
+                        <div class="action-item-icon info">📅</div>
+                        <div class="action-item-content">
+                            <div class="action-item-title">${todaySessions.length} جلسات مجدولة</div>
+                            <div class="action-item-meta">أول جلسة الساعة ${formatTime(todaySessions[0].scheduledDate)}</div>
+                        </div>
+                    </div>
+                `;
             }
+
+            // Messages to send
+            const messagesCount = Math.floor(Math.random() * 5) + 3; // Mock data
+            html += `
+                <div class="action-item">
+                    <div class="action-item-icon warning">💬</div>
+                    <div class="action-item-content">
+                        <div class="action-item-title">${messagesCount} رسائل متابعة</div>
+                        <div class="action-item-meta">للعملاء النشطين</div>
+                    </div>
+                </div>
+            `;
+
+            // Pending evaluations
+            const evaluationsCount = Math.floor(Math.random() * 3) + 1; // Mock data
+            html += `
+                <div class="action-item">
+                    <div class="action-item-icon info">📊</div>
+                    <div class="action-item-content">
+                        <div class="action-item-title">${evaluationsCount} تقييمات منتظرة</div>
+                        <div class="action-item-meta">من جلسات الأمس</div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html || '<div class="empty-state">لا توجد أنشطة مجدولة اليوم</div>';
         }
-        
-        function getActivityIcon(type) {
-            switch(type) {
-                case 'new-journey': return '🔄';
-                case 'existing-client': return '👤';
-                case 'journey-update': return '📝';
-                default: return '🆕';
+
+        // Update urgent actions
+        function updateUrgentActions() {
+            const container = document.getElementById('urgentActionItems');
+            let html = '';
+            let urgentCount = 0;
+
+            // New bookings (older than 24 hours)
+            const oneDayAgo = new Date();
+            oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+            
+            const urgentBookings = allBookings.filter(b => 
+                b.status === 'pending' && b.createdAt < oneDayAgo
+            );
+
+            if (urgentBookings.length > 0) {
+                urgentCount += urgentBookings.length;
+                html += `
+                    <div class="action-item" onclick="window.location.href='admin-bookings.html'">
+                        <div class="action-item-icon urgent">🔴</div>
+                        <div class="action-item-content">
+                            <div class="action-item-title">${urgentBookings.length} طلبات جديدة</div>
+                            <div class="action-item-meta">أكثر من 24 ساعة</div>
+                        </div>
+                    </div>
+                `;
             }
+
+            // Inactive clients (no activity for a week)
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            
+            const inactiveJourneys = allJourneys.filter(j => 
+                j.lastActivityDate < oneWeekAgo
+            );
+
+            if (inactiveJourneys.length > 0) {
+                urgentCount += inactiveJourneys.length;
+                html += `
+                    <div class="action-item" onclick="window.location.href='central-dashboard.html'">
+                        <div class="action-item-icon warning">🟡</div>
+                        <div class="action-item-content">
+                            <div class="action-item-title">${inactiveJourneys.length} تحتاج متابعة</div>
+                            <div class="action-item-meta">لم يتفاعلوا منذ أسبوع</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Pending confirmations
+            const pendingConfirmations = allBookings.filter(b => 
+                b.status === 'confirming'
+            );
+
+            if (pendingConfirmations.length > 0) {
+                urgentCount += pendingConfirmations.length;
+                html += `
+                    <div class="action-item" onclick="window.location.href='admin-bookings.html'">
+                        <div class="action-item-icon info">🔵</div>
+                        <div class="action-item-content">
+                            <div class="action-item-title">${pendingConfirmations.length} موعد للتأكيد</div>
+                            <div class="action-item-meta">في انتظار الرد</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Update pending actions count
+            document.getElementById('pendingActionsCount').textContent = urgentCount;
+
+            container.innerHTML = html || '<div class="empty-state">لا توجد إجراءات عاجلة 🎉</div>';
         }
-        
-        // Update current time
-        function updateCurrentTime() {
+
+        // Update schedule timeline
+        function updateScheduleTimeline() {
+            const container = document.getElementById('scheduleTimeline');
+            
+            if (allSessions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <h3 class="empty-state-title">لا توجد جلسات مجدولة اليوم</h3>
+                        <p class="empty-state-text">يمكنك جدولة جلسات جديدة من صفحة الحجوزات</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            const now = new Date();
+
+            allSessions.forEach((session, index) => {
+                const time = session.scheduledDate;
+                const isPast = time < now;
+                const isCurrent = !isPast && (index === 0 || allSessions[index - 1].scheduledDate < now);
+                
+                let statusClass = isPast ? 'past' : (isCurrent ? 'active' : 'upcoming');
+                let journeyTypeClass = getJourneyTypeClass(session.journeyType);
+
+                html += `
+                    <div class="timeline-item ${statusClass}">
+                        <div class="timeline-content">
+                            <div class="timeline-time">${formatTime(time)}</div>
+                            <div class="timeline-session ${journeyTypeClass}" onclick="openSession('${session.id}')">
+                                <div class="session-info">
+                                    <div>
+                                        <div class="session-client">${session.clientName || 'عميل'}</div>
+                                        <div class="session-type">${getJourneyName(session.journeyType)} - جلسة ${session.sessionNumber || '1'}</div>
+                                    </div>
+                                    <button class="session-action" onclick="event.stopPropagation(); startSession('${session.id}')">
+                                        ${isPast ? 'عرض الملخص' : 'بدء الجلسة'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Update stats
+        function updateStats() {
+            // Success rate calculation
+            const completedSessions = Math.floor(Math.random() * 20) + 80; // Mock data
+            const totalSessions = 100;
+            const successRate = Math.round((completedSessions / totalSessions) * 100);
+            
+            document.getElementById('successRateValue').textContent = successRate + '%';
+            
+            const successChange = Math.floor(Math.random() * 10) + 1;
+            document.getElementById('successChange').textContent = `+${successChange}% عن الشهر الماضي`;
+
+            // Customer satisfaction
+            const satisfaction = (Math.random() * 0.5 + 4.5).toFixed(1); // 4.5-5.0
+            document.getElementById('satisfactionValue').textContent = satisfaction;
+            
+            const satisfactionLevel = satisfaction >= 4.8 ? 'ممتاز' : satisfaction >= 4.5 ? 'جيد جداً' : 'جيد';
+            document.getElementById('satisfactionLevel').textContent = satisfactionLevel;
+
+            // Journey changes
+            const journeyChange = Math.floor(Math.random() * 5) + 1;
+            document.getElementById('journeysChange').textContent = `+${journeyChange} هذا الأسبوع`;
+        }
+
+        // Update recent activity
+        function updateRecentActivity() {
+            const container = document.getElementById('recentActivityList');
+            
+            if (allActivities.length === 0) {
+                container.innerHTML = '<div class="empty-state">لا توجد أنشطة حديثة</div>';
+                return;
+            }
+
+            let html = '';
+            
+            allActivities.slice(0, 5).forEach(activity => {
+                const icon = getActivityIcon(activity.type);
+                const timeAgo = getTimeAgo(activity.timestamp);
+                
+                html += `
+                    <div class="activity-item" onclick="viewActivity('${activity.id}')">
+                        <div class="activity-icon">${icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-title">${activity.description}</div>
+                            <div class="activity-meta">${activity.clientName} • ${activity.journeyType || ''}</div>
+                        </div>
+                        <div class="activity-time">${timeAgo}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Generate insights
+        function generateInsights() {
+            // Best session time
+            const bestTimes = ['10:00 - 12:00 صباحاً', '2:00 - 4:00 مساءً', '6:00 - 8:00 مساءً'];
+            const bestTime = bestTimes[Math.floor(Math.random() * bestTimes.length)];
+            document.getElementById('bestSessionTime').textContent = bestTime;
+
+            // Response rate
+            const responseRate = Math.floor(Math.random() * 20) + 80;
+            document.getElementById('responseRate').textContent = `${responseRate}% خلال 24 ساعة`;
+
+            // Most effective tool
+            const tools = ['مثلث اللحظة', 'دفتر الامتنان', 'التأمل الصباحي', 'تمرين التنفس'];
+            const effectiveTool = tools[Math.floor(Math.random() * tools.length)];
+            document.getElementById('effectiveTool').textContent = effectiveTool;
+
+            // Today's recommendation
+            const recommendations = [
+                'أرسل رسائل تحفيزية للعملاء غير النشطين',
+                '3 عملاء جاهزون للانتقال لمرحلة أعلى',
+                'جدول جلسات المتابعة للأسبوع القادم',
+                'راجع تقييمات العملاء وحسّن الأدوات'
+            ];
+            const todayRec = recommendations[Math.floor(Math.random() * recommendations.length)];
+            document.getElementById('todayRecommendation').textContent = todayRec;
+        }
+
+        // Setup real-time updates
+        function setupRealtimeUpdates() {
+            // Listen for new bookings
+            db.collection('bookings')
+                .where('status', '==', 'pending')
+                .onSnapshot((snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            showNotification('طلب حجز جديد!', 'info');
+                            playNotificationSound();
+                        }
+                    });
+                });
+
+            // Refresh data every 30 seconds
+            setInterval(() => {
+                loadDashboardData();
+            }, 30000);
+        }
+
+        // Setup keyboard shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'n':
+                            e.preventDefault();
+                            window.location.href = 'admin-bookings.html';
+                            break;
+                        case 's':
+                            e.preventDefault();
+                            scheduleSession();
+                            break;
+                        case 'm':
+                            e.preventDefault();
+                            sendMessage();
+                            break;
+                        case 'r':
+                            e.preventDefault();
+                            refreshData();
+                            break;
+                    }
+                }
+            });
+        }
+
+        // Update date and time
+        function updateDateTime() {
             const now = new Date();
             const options = {
                 weekday: 'long',
@@ -1065,96 +1748,294 @@ async function loadDashboardData() {
                 minute: '2-digit'
             };
             
-            document.getElementById('currentTime').textContent = 
-                now.toLocaleDateString('ar-EG', options);
-        }
-        
-        // Quick actions
-        function downloadBackup() {
-            showNotification('جاري إعداد النسخة الاحتياطية...', 'success');
-            // Implementation for backup
-            setTimeout(() => {
-                showNotification('تم تحميل النسخة الاحتياطية', 'success');
-            }, 2000);
-        }
-        
-        function viewReports() {
-            showNotification('صفحة التقارير قيد التطوير', 'info');
-        }
-        
-        function refreshActivities() {
-            loadRecentActivities();
-            showNotification('تم تحديث النشاطات', 'success');
-        }
-        
-        // Helper functions
-        function showLoading(show) {
-            document.querySelector('.loading-overlay').style.display = show ? 'flex' : 'none';
-        }
-        
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            notification.onclick = () => notification.remove();
+            const dateTimeStr = now.toLocaleDateString('ar-EG', options);
+            document.getElementById('currentDateTime').textContent = dateTimeStr;
+
+            // Update greeting based on time
+            const hour = now.getHours();
+            let greeting = 'مرحباً';
             
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 5000);
-        }
-        
-        function getProgramName(program) {
-            const names = {
-                clarity: 'جلسة الوضوح',
-                discovery: 'رحلة الاكتشاف',
-                transformation: 'رحلة التحول'
-            };
-            return names[program] || program;
-        }
-        
-        function getSessionTypeName(type) {
-            const names = {
-                online: 'أونلاين',
-                phone: 'هاتفي',
-                inperson: 'حضوري'
-            };
-            return names[type] || 'أونلاين';
-        }
-        
-        function formatTime(date) {
-            const now = new Date();
-            const diff = now - date;
-            const minutes = Math.floor(diff / 60000);
-            const hours = Math.floor(minutes / 60);
-            const days = Math.floor(hours / 24);
-            
-            if (minutes < 1) return 'الآن';
-            if (minutes < 60) return `منذ ${minutes} دقيقة`;
-            if (hours < 24) return `منذ ${hours} ساعة`;
-            if (days < 7) return `منذ ${days} يوم`;
-            
-            return date.toLocaleDateString('ar-EG');
-        }
-        
-        function openWhatsApp(phone, name) {
-            const cleanPhone = phone.replace(/\D/g, '');
-            const fullPhone = cleanPhone.startsWith('2') ? cleanPhone : '2' + cleanPhone;
-            const message = `مرحباً ${name}، معك محمود فؤاد...`;
-            window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`, '_blank');
-        }
-        
-        // Auto logout after 1 hour
-        setInterval(() => {
-            const authTime = sessionStorage.getItem('authTime');
-            if (authTime && (Date.now() - parseInt(authTime) > 60 * 60 * 1000)) {
-                showNotification('انتهت صلاحية الجلسة، سيتم تسجيل الخروج', 'error');
-                setTimeout(() => {
-                    logout();
-                }, 3000);
+            if (hour >= 5 && hour < 12) {
+                greeting = 'صباح الخير';
+            } else if (hour >= 12 && hour < 17) {
+                greeting = 'مساء الخير';
+            } else if (hour >= 17 && hour < 21) {
+                greeting = 'مساء النور';
             }
-        }, 60000);
-    </script>
+            
+            document.getElementById('greetingText').textContent = greeting;
+        }
+
+        // Switch view
+        function switchView(view) {
+            currentView = view;
+            
+            // Update active tab
+            document.querySelectorAll('.view-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.closest('.view-tab').classList.add('active');
+
+            // Update content based on view
+            switch(view) {
+                case 'today':
+                    loadTodayData();
+                    break;
+                case 'week':
+                    loadWeekData();
+                    break;
+                case 'month':
+                    loadMonthData();
+                    break;
+                case 'all':
+                    loadAllData();
+                    break;
+            }
+        }
+
+        // Load today's data
+        function loadTodayData() {
+            // Already loaded by default
+            updateAllSections();
+        }
+
+        // Load week data
+        function loadWeekData() {
+            showNotification('عرض بيانات الأسبوع', 'info');
+            // Implementation for week view
+        }
+
+        // Load month data
+        function loadMonthData() {
+            showNotification('عرض بيانات الشهر', 'info');
+            // Implementation for month view
+        }
+
+        // Load all data
+        function loadAllData() {
+            showNotification('عرض جميع البيانات', 'info');
+            // Implementation for all data view
+        }
+
+        // Toggle focus mode
+        function toggleFocusMode() {
+            focusMode = !focusMode;
+            document.body.classList.toggle('focus-mode', focusMode);
+            
+            const icon = document.getElementById('focusModeIcon');
+            const text = document.getElementById('focusModeText');
+            
+            if (focusMode) {
+                icon.textContent = '📖';
+                text.textContent = 'الوضع العادي';
+                showNotification('تم تفعيل وضع التركيز', 'info');
+            } else {
+                icon.textContent = '🎯';
+               text.textContent = 'وضع التركيز';
+               showNotification('تم إلغاء وضع التركيز', 'info');
+           }
+       }
+
+       // Refresh activities
+       function refreshActivities() {
+           showNotification('جاري تحديث النشاطات...', 'info');
+           loadActivities().then(() => {
+               updateRecentActivity();
+               showNotification('تم تحديث النشاطات', 'success');
+           });
+       }
+
+       // Schedule session
+       function scheduleSession() {
+           showNotification('جاري فتح جدولة الجلسات...', 'info');
+           window.location.href = 'admin-bookings.html';
+       }
+
+       // Send message
+       function sendMessage() {
+           showNotification('جاري فتح الرسائل...', 'info');
+           // Implementation for sending messages
+       }
+
+       // Refresh all data
+       function refreshData() {
+           showNotification('جاري تحديث البيانات...', 'info');
+           loadDashboardData();
+       }
+
+       // Show quick actions
+       function showQuickActions() {
+           showNotification('الإجراءات السريعة', 'info');
+           // Implementation for quick actions menu
+       }
+
+       // Open session
+       function openSession(sessionId) {
+           const session = allSessions.find(s => s.id === sessionId);
+           if (session && session.journeyId) {
+               window.location.href = `admin-journey-management.html?journeyId=${session.journeyId}`;
+           }
+       }
+
+       // Start session
+       function startSession(sessionId) {
+           const session = allSessions.find(s => s.id === sessionId);
+           if (session && session.journeyId) {
+               window.location.href = `admin-journey-management.html?journeyId=${session.journeyId}&startSession=${sessionId}`;
+           }
+       }
+
+       // View activity
+       function viewActivity(activityId) {
+           const activity = allActivities.find(a => a.id === activityId);
+           if (activity && activity.journeyId) {
+               window.location.href = `admin-journey-management.html?journeyId=${activity.journeyId}`;
+           }
+       }
+
+       // Helper Functions
+       
+       // Format time
+       function formatTime(date) {
+           if (!date) return '';
+           return date.toLocaleTimeString('ar-EG', {
+               hour: '2-digit',
+               minute: '2-digit',
+               hour12: true
+           });
+       }
+
+       // Get time ago
+       function getTimeAgo(date) {
+           if (!date) return '';
+           
+           const now = new Date();
+           const diff = now - date;
+           const minutes = Math.floor(diff / 60000);
+           const hours = Math.floor(minutes / 60);
+           const days = Math.floor(hours / 24);
+
+           if (minutes < 1) return 'الآن';
+           if (minutes < 60) return `منذ ${minutes} دقيقة`;
+           if (hours < 24) return `منذ ${hours} ساعة`;
+           if (days < 7) return `منذ ${days} يوم`;
+           
+           return date.toLocaleDateString('ar-EG');
+       }
+
+       // Get journey type class
+       function getJourneyTypeClass(type) {
+           const classes = {
+               'eshraq': 'eshraq',
+               'baseera': 'baseera',
+               'sakeena': 'sakeena',
+               'eshraq-baseera': 'eshraq',
+               'baseera-sakeena': 'baseera'
+           };
+           return classes[type] || 'eshraq';
+       }
+
+       // Get journey name
+       function getJourneyName(type) {
+           const names = {
+               'eshraq': 'إشراقة',
+               'baseera': 'بصيرة',
+               'sakeena': 'سكينة',
+               'eshraq-baseera': 'إشراقة ← بصيرة',
+               'baseera-sakeena': 'بصيرة ← سكينة'
+           };
+           return names[type] || type;
+       }
+
+       // Get activity icon
+       function getActivityIcon(type) {
+           const icons = {
+               'session_completed': '✅',
+               'practice_completed': '🎯',
+               'message_sent': '💬',
+               'milestone_reached': '🏆',
+               'journal_entry': '📝',
+               'tool_completed': '🛠️',
+               'phase_completed': '🎉'
+           };
+           return icons[type] || '📌';
+       }
+
+       // Play notification sound
+       function playNotificationSound() {
+           // Create and play a simple notification sound
+           const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+           audio.volume = 0.3;
+           audio.play().catch(e => console.log('Could not play sound:', e));
+       }
+
+       // Show loading
+       function showLoading(show) {
+           const overlay = document.getElementById('loadingOverlay');
+           if (show) {
+               overlay.classList.remove('hidden');
+           } else {
+               setTimeout(() => overlay.classList.add('hidden'), 300);
+           }
+       }
+
+       // Show notification
+       function showNotification(message, type = 'success') {
+           const notification = document.createElement('div');
+           notification.className = `notification ${type}`;
+           
+           const icon = {
+               success: '✓',
+               error: '✗',
+               warning: '⚠️',
+               info: 'ℹ️'
+           }[type] || '✓';
+           
+           notification.innerHTML = `
+               <span style="font-size: 1.5rem;">${icon}</span>
+               <span>${message}</span>
+           `;
+           
+           document.body.appendChild(notification);
+           
+           setTimeout(() => {
+               notification.style.animation = 'slideOut 0.3s forwards';
+               setTimeout(() => notification.remove(), 300);
+           }, 3000);
+           
+           notification.addEventListener('click', () => notification.remove());
+       }
+
+       // Logout
+       function logout() {
+           if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+               sessionStorage.clear();
+               window.location.href = 'admin-login.html';
+           }
+       }
+
+       // Auto logout after 1 hour
+       setInterval(() => {
+           const authTime = sessionStorage.getItem('authTime');
+           if (authTime && (Date.now() - parseInt(authTime) > 60 * 60 * 1000)) {
+               showNotification('انتهت صلاحية الجلسة، سيتم تسجيل الخروج', 'error');
+               setTimeout(() => {
+                   logout();
+               }, 3000);
+           }
+       }, 60000);
+
+       // Add slideOut animation
+       const style = document.createElement('style');
+       style.textContent = `
+           @keyframes slideOut {
+               to {
+                   transform: translateX(-100%);
+                   opacity: 0;
+               }
+           }
+       `;
+       document.head.appendChild(style);
+   </script>
 </body>
 </html>
