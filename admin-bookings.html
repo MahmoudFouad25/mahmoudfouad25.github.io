@@ -796,7 +796,7 @@ onkeyup="applyFilters()">
 <label>الحالة</label>
 <select id="statusFilter" onchange="applyFilters()">
 <option value="">جميع الحالات</option>
-<option value="pending">في الانتظار</option>
+<option value="pending">طلب جديد</option>
 <option value="confirming">قيد التأكيد</option>
 <option value="confirmed">مؤكد</option>
 <option value="completed">مكتمل</option>
@@ -1067,14 +1067,14 @@ function formatDate(date) {
 
 function getStatusName(status) {
     const names = {
-        pending: 'في الانتظار',
+        pending: 'طلب جديد',
         confirming: 'قيد التأكيد',
         confirmed: 'مؤكد',
         completed: 'مكتمل',
         converted: 'تم التحويل',
         cancelled: 'ملغي'
     };
-    return names[status] || 'في الانتظار';
+    return names[status] || 'طلب جديد';
 }
 
 function getJourneyDisplayName(journeyType) {
