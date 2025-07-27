@@ -996,15 +996,95 @@
                 max-width: 100%;
             }
         }
+        /* Login Styles */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--gradient);
+}
+
+.login-form {
+    background: white;
+    padding: 3rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 400px;
+}
+
+.login-form h2 {
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.login-form button {
+    width: 100%;
+    padding: 1rem;
+    background: var(--gradient);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.login-form button:hover {
+    transform: translateY(-2px);
+}
+
+.login-error {
+    color: var(--danger);
+    text-align: center;
+    margin-bottom: 1rem;
+    display: none;
+}
     </style>
 </head>
 <body>
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <div class="login-form">
+            <h2>لوحة التحكم</h2>
+            <div id="loginError" class="login-error"></div>
+            <input type="email" id="email" placeholder="البريد الإلكتروني" 
+                   value="admin@mahmoudfouad.com"
+                   onkeypress="if(event.key==='Enter') login()">
+            <input type="password" id="password" placeholder="كلمة المرور" 
+                   onkeypress="if(event.key==='Enter') login()">
+            <button onclick="login()">دخول</button>
+            <p style="margin-top: 1rem; color: #666; font-size: 0.9rem; text-align: center;">
+                نظام إدارة الكوتشينج - محمود فؤاد
+            </p>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
     </div>
 
     <!-- Navigation -->
+<div id="adminDashboard" style="display: none;">
     <nav class="admin-nav">
         <div class="nav-container">
             <div class="nav-brand">
@@ -1275,18 +1355,47 @@
             setInterval(updateDateTime, 60000); // Update every minute
         };
 
-        // Check authentication
-        function checkAuth() {
-            const authToken = sessionStorage.getItem('adminAuth');
-            const authTime = sessionStorage.getItem('authTime');
-            const oneHour = 60 * 60 * 1000;
+// Check authentication
+function checkAuth() {
+    const authToken = sessionStorage.getItem('adminAuth');
+    const authTime = sessionStorage.getItem('authTime');
+    const oneHour = 60 * 60 * 1000;
+    
+    if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
+        // المستخدم مسجل دخول - أظهر لوحة التحكم
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'block';
+        showDashboard();
+    } else {
+        // المستخدم غير مسجل دخول - أظهر نموذج الدخول
+        sessionStorage.clear();
+        document.getElementById('loginSection').style.display = 'flex';
+        document.getElementById('adminDashboard').style.display = 'none';
+    }
+}
 
-            if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
-                showDashboard();
-            } else {
-                window.location.href = 'admin-login.html';
-            }
-        }
+        // Login function
+async function login() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+        
+        sessionStorage.setItem('adminAuth', 'true');
+        sessionStorage.setItem('authTime', Date.now().toString());
+        
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'block';
+        
+        showNotification('تم تسجيل الدخول بنجاح', 'success');
+        showDashboard();
+        
+    } catch (error) {
+        document.getElementById('loginError').textContent = 'البريد أو كلمة المرور غير صحيحة';
+        document.getElementById('loginError').style.display = 'block';
+    }
+}
 
         // Show dashboard
         async function showDashboard() {
@@ -2006,25 +2115,27 @@
            notification.addEventListener('click', () => notification.remove());
        }
 
-       // Logout
-       function logout() {
-           if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
-               sessionStorage.clear();
-               window.location.href = 'admin-login.html';
-           }
-       }
+// Logout
+function logout() {
+    if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+        sessionStorage.clear();
+        // إعادة تحميل الصفحة لإظهار نموذج الدخول
+        location.reload();
+    }
+}
 
-       // Auto logout after 1 hour
-       setInterval(() => {
-           const authTime = sessionStorage.getItem('authTime');
-           if (authTime && (Date.now() - parseInt(authTime) > 60 * 60 * 1000)) {
-               showNotification('انتهت صلاحية الجلسة، سيتم تسجيل الخروج', 'error');
-               setTimeout(() => {
-                   logout();
-               }, 3000);
-           }
-       }, 60000);
-
+// Auto logout after 1 hour
+setInterval(() => {
+    const authTime = sessionStorage.getItem('authTime');
+    if (authTime && (Date.now() - parseInt(authTime) > 60 * 60 * 1000)) {
+        showNotification('انتهت صلاحية الجلسة، سيتم تسجيل الخروج', 'error');
+        setTimeout(() => {
+            sessionStorage.clear();
+            location.reload();
+        }, 3000);
+    }
+}, 60000);
+        
        // Add slideOut animation
        const style = document.createElement('style');
        style.textContent = `
@@ -2036,6 +2147,7 @@
            }
        `;
        document.head.appendChild(style);
-   </script>
+</script>
+    </div> <!-- إغلاق adminDashboard -->
 </body>
 </html>
