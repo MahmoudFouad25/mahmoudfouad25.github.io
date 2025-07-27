@@ -968,18 +968,45 @@
         }
 
         /* Focus Mode */
-        body.focus-mode .action-cards,
-        body.focus-mode .stats-grid,
-        body.focus-mode .activity-section,
-        body.focus-mode .insights-section {
-            display: none;
-        }
+/* Focus Mode */
+body.focus-mode .action-cards,
+body.focus-mode .stats-grid,
+body.focus-mode .activity-section,
+body.focus-mode .insights-section {
+    display: none;
+}
 
-        body.focus-mode .schedule-section {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+body.focus-mode .welcome-section {
+    display: none;
+}
 
+body.focus-mode .view-tabs {
+    display: none;
+}
+
+body.focus-mode .quick-actions {
+    display: none;
+}
+
+body.focus-mode .schedule-section {
+    max-width: 800px;
+    margin: 2rem auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+}
+
+body.focus-mode .schedule-section .section-title {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+body.focus-mode .admin-nav {
+    position: relative;
+}
+
+body.focus-mode .dashboard-container {
+    padding-top: 4rem;
+}
         /* Print Styles */
         @media print {
             .admin-nav,
@@ -1911,16 +1938,19 @@ async function login() {
         }
 
         // Load week data
-        function loadWeekData() {
-            showNotification('عرض بيانات الأسبوع', 'info');
-            // Implementation for week view
-        }
-
-        // Load month data
-        function loadMonthData() {
-            showNotification('عرض بيانات الشهر', 'info');
-            // Implementation for month view
-        }
+async function loadWeekData() {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    // حمّل بيانات الأسبوع
+    const weekSessions = await db.collection('sessions')
+        .where('scheduledDate', '>=', oneWeekAgo)
+        .get();
+        
+    // حدّث العرض
+    updateScheduleTimeline(weekSessions);
+    updateStats('week');
+}
 
         // Load all data
         function loadAllData() {
