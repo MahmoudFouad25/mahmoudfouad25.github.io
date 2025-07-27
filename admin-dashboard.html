@@ -1357,6 +1357,8 @@
 
 // Check authentication
 function checkAuth() {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+
     const authToken = sessionStorage.getItem('adminAuth');
     const authTime = sessionStorage.getItem('authTime');
     const oneHour = 60 * 60 * 1000;
