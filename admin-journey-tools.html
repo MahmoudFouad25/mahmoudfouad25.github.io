@@ -3,1019 +3,919 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مصمم أدوات الرحلات - محمود فؤاد</title>
+    <title>مصمم رحلات التحول الذكي - محمود فؤاد</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         :root {
+            /* الألوان الأساسية */
             --primary: #2C5530;
             --secondary: #8B9467;
             --accent: #D4AF37;
             --light: #F5F2E8;
             --dark: #1A1A1A;
-            --gradient: linear-gradient(135deg, #2C5530 0%, #8B9467 100%);
-            --success: #28a745;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --info: #17a2b8;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray: #6C757D;
+            --gray-dark: #343A40;
             
-            /* Journey Colors */
-            --eshraq-color: #3498db;
-            --baseera-color: #9b59b6;
-            --sakeena-color: #e74c3c;
+            /* ألوان الرحلات */
+            --eshraq: #FF6B35;
+            --baseera: #4A90E2;
+            --sakeena: #27AE60;
+            --eshraq-gradient: linear-gradient(135deg, #FF6B35, #FFB347);
+            --baseera-gradient: linear-gradient(135deg, #4A90E2, #7BB3F0);
+            --sakeena-gradient: linear-gradient(135deg, #27AE60, #5FCF80);
+            --mixed-eshraq-baseera: linear-gradient(135deg, #FF6B35, #4A90E2);
+            --mixed-baseera-sakeena: linear-gradient(135deg, #4A90E2, #27AE60);
             
-            /* Tool Type Colors */
-            --practice-color: #3498db;
-            --meditation-color: #9b59b6;
-            --game-color: #e74c3c;
-            --challenge-color: #f39c12;
-            --reflection-color: #1abc9c;
-            --voice-color: #34495e;
+            /* الحالات */
+            --success: #28A745;
+            --danger: #DC3545;
+            --warning: #FFC107;
+            --info: #17A2B8;
+            
+            /* الظلال */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            
+            /* الانتقالات */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Arial', sans-serif;
+            background: #f0f2f5;
             color: var(--dark);
-            min-height: 100vh;
-        }
-        
-        /* Navigation */
-        .admin-nav {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .nav-brand h2 {
-            color: var(--primary);
-            font-size: 1.5rem;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-        
-        .nav-links a {
-            color: var(--dark);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-        
-        .nav-links a.active {
-            color: var(--primary);
-            position: relative;
-        }
-        
-        .nav-links a.active::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent);
-        }
-        
-        /* Main Container */
-        .main-container {
-            display: flex;
-            height: calc(100vh - 70px);
-            overflow: hidden;
-        }
-        
-        /* Journey Selector Sidebar */
-        .journey-selector {
-            width: 350px;
-            background: white;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            overflow-y: auto;
-            transition: width 0.3s;
-        }
-        
-        .journey-header {
-            background: var(--gradient);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .journey-header h3 {
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .journey-header p {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        /* Journey Cards */
-        .journey-cards {
-            padding: 1.5rem;
-        }
-        
-        .journey-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 3px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .journey-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 5px;
-            height: 100%;
-            background: var(--primary);
-            transform: translateX(5px);
-            transition: transform 0.3s;
-        }
-        
-        .journey-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .journey-card:hover::before {
-            transform: translateX(0);
-        }
-        
-        .journey-card.active {
-            border-color: var(--primary);
-            background: white;
-        }
-        
-        .journey-card.active::before {
-            transform: translateX(0);
-            background: var(--accent);
-        }
-        
-        .journey-card.eshraq::before { background: var(--eshraq-color); }
-        .journey-card.baseera::before { background: var(--baseera-color); }
-        .journey-card.sakeena::before { background: var(--sakeena-color); }
-        
-        .journey-card-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .journey-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-        }
-        
-        .journey-icon.eshraq { background: var(--eshraq-color); }
-        .journey-icon.baseera { background: var(--baseera-color); }
-        .journey-icon.sakeena { background: var(--sakeena-color); }
-        
-        .journey-info h4 {
-            color: var(--primary);
-            margin-bottom: 0.3rem;
-        }
-        
-        .journey-info p {
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
-        .journey-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        
-        .stat-item {
-            text-align: center;
-            padding: 0.5rem;
-            background: rgba(44, 85, 48, 0.05);
-            border-radius: 8px;
-        }
-        
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-        
-        .stat-label {
-            font-size: 0.7rem;
-            color: #666;
-        }
-        
-        /* Main Content Area */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            background: #f5f5f5;
-        }
-        
-        /* Content Header */
-        .content-header {
-            background: white;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .content-title h2 {
-            color: var(--primary);
-            font-size: 1.5rem;
-            margin-bottom: 0.3rem;
-        }
-        
-        .content-title p {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.95rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-        }
-        
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        
-        /* Journey Designer */
-        .journey-designer {
-            flex: 1;
-            overflow-y: auto;
-            padding: 2rem;
-        }
-        
-        /* Welcome State */
-        .welcome-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            text-align: center;
-            color: #999;
-        }
-        
-        .welcome-state .icon {
-            font-size: 5rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        
-        .welcome-state h3 {
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-        
-        /* Phase Timeline */
-        .phases-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .phases-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-        
-        .phases-header h3 {
-            color: var(--primary);
-            font-size: 1.3rem;
-        }
-        
-        .phase-tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 1rem;
-        }
-        
-        .phase-tab {
-            padding: 0.75rem 1.5rem;
-            background: #f8f9fa;
-            border: none;
-            border-radius: 10px 10px 0 0;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-            color: #666;
-            position: relative;
-        }
-        
-        .phase-tab:hover {
-            background: white;
-            color: var(--primary);
-        }
-        
-        .phase-tab.active {
-            background: white;
-            color: var(--primary);
-            box-shadow: 0 -3px 10px rgba(0,0,0,0.1);
-        }
-        
-        .phase-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary);
-        }
-        
-        .phase-badge {
-            background: rgba(44, 85, 48, 0.1);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-right: 0.5rem;
-        }
-        
-        /* Phase Content */
-        .phase-content {
-            display: none;
-        }
-        
-        .phase-content.active {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .phase-info {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            border-right: 4px solid var(--primary);
-        }
-        
-        .phase-info h4 {
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-        
-        .phase-info p {
-            color: #666;
             line-height: 1.6;
+            overflow-x: hidden;
         }
-        
-        .phase-objectives {
-            margin-top: 1rem;
-        }
-        
-        .phase-objectives h5 {
-            color: var(--secondary);
-            margin-bottom: 0.5rem;
-        }
-        
-        .phase-objectives ul {
-            list-style: none;
-            padding-right: 1rem;
-        }
-        
-        .phase-objectives li {
-            padding: 0.3rem 0;
-            color: #666;
-        }
-        
-        .phase-objectives li::before {
-            content: '✓';
-            color: var(--success);
-            font-weight: bold;
-            margin-left: 0.5rem;
-        }
-        
-        /* Sessions Grid */
-        .sessions-grid {
-            display: grid;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        
-        .session-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: all 0.3s;
-        }
-        
-        .session-card:hover {
-            border-color: var(--secondary);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .session-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .session-number {
-            background: var(--primary);
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        
-        .session-title {
-            flex: 1;
-            margin: 0 1rem;
-        }
-        
-        .session-title h5 {
-            color: var(--primary);
-            margin-bottom: 0.3rem;
-        }
-        
-        .session-title p {
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
-        .session-duration {
-            background: #f8f9fa;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
-        /* Tools Section */
-        .session-tools {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .tools-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .tools-header h6 {
-            color: var(--secondary);
-        }
-        
-        .add-tool-btn {
-            padding: 0.5rem 1rem;
-            background: var(--light);
-            border: 2px dashed var(--secondary);
-            border-radius: 8px;
-            color: var(--secondary);
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-        
-        .add-tool-btn:hover {
-            background: var(--secondary);
-            color: white;
-            border-style: solid;
-        }
-        
-        /* Tool Items */
-        .tools-list {
-            display: grid;
-            gap: 0.75rem;
-        }
-        
-        .tool-item {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            position: relative;
-            transition: all 0.3s;
-        }
-        
-        .tool-item:hover {
-            background: white;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-        
-        .tool-type-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-        }
-        
-        .tool-type-icon.practice { background: var(--practice-color); }
-        .tool-type-icon.meditation { background: var(--meditation-color); }
-        .tool-type-icon.game { background: var(--game-color); }
-        .tool-type-icon.challenge { background: var(--challenge-color); }
-        .tool-type-icon.reflection { background: var(--reflection-color); }
-        .tool-type-icon.voice { background: var(--voice-color); }
-        
-        .tool-info {
-            flex: 1;
-        }
-        
-        .tool-name {
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 0.3rem;
-        }
-        
-        .tool-meta {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.8rem;
-            color: #666;
-        }
-        
-        .tool-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        
-        .tool-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .tool-action-btn {
-            padding: 0.4rem 0.8rem;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s;
-        }
-        
-        .tool-action-btn:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        .remove-tool-btn {
-            color: var(--danger);
-            border-color: var(--danger);
-        }
-        
-        .remove-tool-btn:hover {
-            background: var(--danger);
-            color: white;
-        }
-        
-        /* Tools Library Sidebar */
-        .tools-library {
-            width: 350px;
-            background: white;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-            position: fixed;
-            right: -350px;
-            top: 70px;
-            bottom: 0;
-            overflow-y: auto;
-            transition: right 0.3s;
-            z-index: 100;
-        }
-        
-        .tools-library.open {
-            right: 0;
-        }
-        
-        .library-header {
-            background: var(--gradient);
-            color: white;
-            padding: 1.5rem;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .library-header h3 {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .close-library {
-            cursor: pointer;
-            font-size: 1.5rem;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-        }
-        
-        .close-library:hover {
-            opacity: 1;
-        }
-        
-        /* Tool Categories */
-        .tool-categories {
-            padding: 1rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .category-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        
-        .category-tab {
-            padding: 0.5rem 1rem;
-            background: #f8f9fa;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-        
-        .category-tab:hover {
-            background: #e9ecef;
-        }
-        
-        .category-tab.active {
-            background: var(--primary);
-            color: white;
-        }
-        
-        /* Tool Search */
-        .tool-search {
-            padding: 1rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: border-color 0.3s;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        
-        /* Library Tools List */
-        .library-tools {
-            padding: 1rem;
-        }
-        
-        .library-tool-item {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-            cursor: move;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-        
-        .library-tool-item:hover {
-            background: white;
-            border-color: var(--secondary);
-            transform: translateX(-5px);
-        }
-        
-        .library-tool-item.dragging {
-            opacity: 0.5;
-            cursor: grabbing;
-        }
-        
-        /* Tool Customization Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            overflow-y: auto;
-        }
-        
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 0;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        
-        .modal-header {
-            background: var(--gradient);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 15px 15px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-header h3 {
-            font-size: 1.2rem;
-        }
-        
-        .close {
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-        }
-        
-        .close:hover {
-            opacity: 1;
-        }
-        
-        .modal-body {
-            padding: 2rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--primary);
-            font-weight: 600;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        .help-text {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 0.3rem;
-        }
-        
-        /* Success Message */
-        .success-message {
-            display: none;
-            text-align: center;
-            padding: 4rem 2rem;
-        }
-        
-        .success-icon {
-            font-size: 4rem;
-            color: var(--success);
-            margin-bottom: 1rem;
-        }
-        
-        .success-message h3 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-        
-        .success-message p {
-            color: #666;
-        }
-        
-        /* Loading */
+
+        /* Loading Overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
-            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s;
         }
-        
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary);
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+
+        .loading-spinner::before,
+        .loading-spinner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            border: 3px solid transparent;
+            border-top-color: var(--primary);
+            animation: spin 0.8s linear infinite;
         }
-        
+
+        .loading-spinner::after {
+            border-top-color: var(--accent);
+            animation-delay: 0.4s;
+        }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
-        
+
+        /* Navigation */
+        .admin-nav {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+            position: relative;
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-title .icon {
+            font-size: 2.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--dark);
+            border: 2px solid var(--gray-light);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Journey Selector */
+        .journey-selector {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .journey-selector h3 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .journey-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .journey-card {
+            background: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .journey-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .journey-card.eshraq::before { background: var(--eshraq); }
+        .journey-card.baseera::before { background: var(--baseera); }
+        .journey-card.sakeena::before { background: var(--sakeena); }
+        .journey-card.eshraq-baseera::before { background: var(--mixed-eshraq-baseera); }
+        .journey-card.baseera-sakeena::before { background: var(--mixed-baseera-sakeena); }
+
+        .journey-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .journey-card.active {
+            border-color: var(--primary);
+            background: var(--white);
+        }
+
+        .journey-card.active::before {
+            opacity: 1;
+        }
+
+        .journey-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .journey-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .journey-desc {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Designer Container */
+        .designer-container {
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            display: none;
+        }
+
+        .designer-container.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Timeline View */
+        .timeline-view {
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        .timeline-container {
+            display: flex;
+            gap: 2rem;
+            position: relative;
+            min-width: fit-content;
+            padding: 2rem 0;
+        }
+
+        .timeline-phase {
+            background: var(--gray-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            min-width: 250px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .timeline-phase:hover {
+            background: var(--white);
+            box-shadow: var(--shadow);
+        }
+
+        .timeline-phase.active {
+            background: var(--white);
+            box-shadow: var(--shadow-lg);
+            border: 2px solid var(--primary);
+        }
+
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .phase-title {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .phase-title .icon {
+            font-size: 1.5rem;
+        }
+
+        .phase-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .phase-action {
+            width: 32px;
+            height: 32px;
+            background: var(--white);
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .phase-action:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .phase-stats {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Phase Details */
+        .phase-details {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .phase-details.active {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-section {
+            background: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.125rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Sessions List */
+        .sessions-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .session-item {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 2px solid var(--gray-light);
+            cursor: move;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .session-item:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .session-item.dragging {
+            opacity: 0.5;
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .session-title {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .session-number {
+            background: var(--primary);
+            color: var(--white);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .session-info {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .session-components {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .component-tag {
+            background: var(--light);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Component Types */
+        .component-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .component-item {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: move;
+            transition: var(--transition);
+        }
+
+        .component-item:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .component-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gray-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .component-icon.tool { background: rgba(52, 152, 219, 0.1); color: #3498db; }
+        .component-icon.message { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+        .component-icon.exercise { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+        .component-icon.homework { background: rgba(241, 196, 15, 0.1); color: #f1c40f; }
+        .component-icon.document { background: rgba(155, 89, 182, 0.1); color: #9b59b6; }
+
+        .component-content {
+            flex: 1;
+        }
+
+        .component-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .component-desc {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .component-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Add Component Menu */
+        .add-component-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--white);
+            border: 1px solid var(--gray-light);
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            padding: 0.5rem;
+            min-width: 200px;
+            z-index: 10;
+            display: none;
+        }
+
+        .add-component-menu.show {
+            display: block;
+            animation: slideDown 0.2s;
+        }
+
+        .menu-item {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .menu-item:hover {
+            background: var(--gray-light);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            background: var(--gray-light);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .modal-close:hover {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        /* Tools Library */
+        .tools-library {
+            display: grid;
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .tool-item {
+            background: var(--gray-light);
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .tool-item:hover {
+            background: var(--light);
+            transform: translateX(-4px);
+        }
+
+        .tool-item.selected {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .tool-item.selected .tool-type,
+        .tool-item.selected .tool-desc {
+            color: var(--white);
+            opacity: 0.9;
+        }
+
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--white);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .tool-info {
+            flex: 1;
+        }
+
+        .tool-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-type {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-desc {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
         /* Notification */
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            z-index: 10000;
-            animation: slideIn 0.3s;
+            background: var(--success);
+            color: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            animation: slideInRight 0.3s;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            z-index: 2000;
         }
-        
-        @keyframes slideIn {
+
+        @keyframes slideInRight {
             from {
-                transform: translateX(100%);
                 opacity: 0;
+                transform: translateX(100px);
             }
             to {
-                transform: translateX(0);
                 opacity: 1;
+                transform: translateX(0);
             }
         }
-        
-        .notification.success {
-            background: var(--success);
-            color: white;
-        }
-        
+
         .notification.error {
             background: var(--danger);
-            color: white;
         }
-        
+
+        .notification.warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
         /* Empty State */
         .empty-state {
             text-align: center;
             padding: 3rem;
-            color: #999;
+            color: var(--gray);
         }
-        
+
         .empty-state-icon {
-            font-size: 3rem;
+            font-size: 4rem;
             margin-bottom: 1rem;
             opacity: 0.5;
         }
-        
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .journey-selector {
-                width: 280px;
-            }
-            
-            .tools-library {
-                width: 280px;
-                right: -280px;
-            }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
-        
+
+        .empty-state-text {
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .main-container {
+                padding: 1rem;
+            }
+
+            .journey-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-container {
                 flex-direction: column;
             }
-            
-            .journey-selector {
-                width: 100%;
-                height: auto;
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
             }
-            
-            .tools-library {
+
+            .header-actions {
                 width: 100%;
-                right: -100%;
-            }
-            
-            .tools-library.open {
-                right: 0;
+                justify-content: space-between;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
     <!-- Navigation -->
     <nav class="admin-nav">
         <div class="nav-container">
@@ -1024,976 +924,481 @@
             </div>
             <div class="nav-links">
                 <a href="admin-dashboard.html">
-                    <span>🏠</span> الرئيسية
+                    <span>🏠</span>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="admin-bookings.html">
+                    <span>📅</span>
+                    <span>الحجوزات</span>
                 </a>
                 <a href="central-dashboard.html">
-                    <span>🚀</span> الرحلات
+                    <span>🎯</span>
+                    <span>الرحلات</span>
                 </a>
                 <a href="admin-tools.html">
-                    <span>🛠️</span> مكتبة الأدوات
+                    <span>🧰</span>
+                    <span>مكتبة الأدوات</span>
                 </a>
                 <a href="admin-journey-tools.html" class="active">
-                    <span>✨</span> مصمم الرحلات
+                    <span>🎨</span>
+                    <span>مصمم الرحلات</span>
                 </a>
                 <a href="#" onclick="logout()">
-                    <span>🚪</span> خروج
+                    <span>🚪</span>
+                    <span>خروج</span>
                 </a>
             </div>
         </div>
     </nav>
-    
-    <!-- Loading Overlay -->
-    <div class="loading-overlay">
-        <div class="loading-spinner"></div>
-    </div>
-    
+
     <!-- Main Container -->
     <div class="main-container">
-        <!-- Journey Selector Sidebar -->
-        <aside class="journey-selector">
-            <div class="journey-header">
-                <h3>اختر الرحلة</h3>
-                <p>حدد الرحلة التي تريد تصميم أدواتها</p>
-            </div>
-            
-            <div class="journey-cards">
-                <!-- رحلة الإشراقة -->
-                <div class="journey-card eshraq" onclick="selectJourney('eshraq')">
-                    <div class="journey-card-header">
-                        <div class="journey-icon eshraq">🌅</div>
-                        <div class="journey-info">
-                            <h4>رحلة الإشراقة</h4>
-                            <p>من ظلمة المحنة إلى نور الوعي الأول</p>
-                        </div>
-                    </div>
-                    <div class="journey-stats">
-                        <div class="stat-item">
-                            <div class="stat-value">3</div>
-                            <div class="stat-label">جلسات</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">1-2</div>
-                            <div class="stat-label">أسابيع</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">5+</div>
-                            <div class="stat-label">أدوات</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- رحلة البصيرة -->
-                <div class="journey-card baseera" onclick="selectJourney('baseera')">
-                    <div class="journey-card-header">
-                        <div class="journey-icon baseera">👁️</div>
-                        <div class="journey-info">
-                            <h4>رحلة البصيرة</h4>
-                            <p>من سطح الوعي إلى أعماق المعرفة</p>
-                        </div>
-                    </div>
-                    <div class="journey-stats">
-                        <div class="stat-item">
-                            <div class="stat-value">12</div>
-                            <div class="stat-label">جلسة</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">2-3</div>
-                            <div class="stat-label">شهور</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">15+</div>
-                            <div class="stat-label">أداة</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- رحلة السكينة -->
-                <div class="journey-card sakeena" onclick="selectJourney('sakeena')">
-                    <div class="journey-card-header">
-                        <div class="journey-icon sakeena">🕊️</div>
-                        <div class="journey-info">
-                            <h4>رحلة السكينة</h4>
-                            <p>من المعرفة إلى التحقق والحياة الطيبة</p>
-                        </div>
-                    </div>
-                    <div class="journey-stats">
-                        <div class="stat-item">
-                            <div class="stat-value">48</div>
-                            <div class="stat-label">جلسة</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">6-12</div>
-                            <div class="stat-label">شهر</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">30+</div>
-                            <div class="stat-label">أداة</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </aside>
-        
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Content Header -->
-            <div class="content-header">
-                <div class="content-title">
-                    <h2 id="selectedJourneyTitle">مصمم أدوات الرحلات</h2>
-                    <p id="selectedJourneyDesc">اختر رحلة من القائمة لبدء تصميم أدواتها</p>
-                </div>
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1 class="page-title">
+                    <span class="icon">🎨</span>
+                    <span>مصمم رحلات التحول الذكي</span>
+                </h1>
                 <div class="header-actions">
-                    <button class="btn btn-secondary" onclick="previewDesign()" style="display: none;" id="previewBtn">
-                        <span>👁️</span> معاينة
+                    <button class="btn btn-secondary" onclick="loadTemplates()">
+                        <span>📑</span>
+                        <span>القوالب الجاهزة</span>
                     </button>
-                    <button class="btn btn-primary" onclick="saveDesign()" style="display: none;" id="saveBtn">
-                        <span>💾</span> حفظ التصميم
+                    <button class="btn btn-primary" onclick="saveAllDesigns()">
+                        <span>💾</span>
+                        <span>حفظ جميع التصميمات</span>
                     </button>
                 </div>
             </div>
-            
-            <!-- Journey Designer -->
-            <div class="journey-designer" id="journeyDesigner">
-                <!-- Welcome State -->
-                <div class="welcome-state" id="welcomeState">
-                    <div class="icon">🎨</div>
-                    <h3>مرحباً بك في مصمم الرحلات</h3>
-                    <p>اختر رحلة من القائمة الجانبية لبدء تصميم أدواتها</p>
-                    <p style="margin-top: 1rem; font-size: 0.9rem;">
-                        كل رحلة لها مراحل مختلفة، وكل مرحلة تحتاج أدوات مخصصة
-                    </p>
+            <p style="color: var(--gray); margin-top: 0.5rem;">
+                صمم رحلات مخصصة بمرونة كاملة - أضف مراحل، عدّل الجلسات، اختر الأدوات المناسبة
+            </p>
+        </div>
+
+        <!-- Journey Selector -->
+        <div class="journey-selector">
+            <h3>اختر نوع الرحلة للتصميم</h3>
+            <div class="journey-cards">
+                <div class="journey-card eshraq" onclick="selectJourney('eshraq')" data-journey="eshraq">
+                    <div class="journey-icon">🌅</div>
+                    <div class="journey-name">رحلة الإشراقة</div>
+                    <div class="journey-desc">3 جلسات مركزة</div>
                 </div>
-                
-                <!-- Journey Content (Hidden initially) -->
-                <div id="journeyContent" style="display: none;">
-                    <!-- Content will be dynamically loaded here -->
+                <div class="journey-card baseera" onclick="selectJourney('baseera')" data-journey="baseera">
+                    <div class="journey-icon">👁️</div>
+                    <div class="journey-name">رحلة البصيرة</div>
+                    <div class="journey-desc">8-12 جلسة متعمقة</div>
                 </div>
-            </div>
-        </main>
-        
-        <!-- Tools Library Sidebar -->
-        <aside class="tools-library" id="toolsLibrary">
-            <div class="library-header">
-                <h3>
-                    مكتبة الأدوات
-                    <span class="close-library" onclick="closeToolsLibrary()">×</span>
-                </h3>
-            </div>
-            
-            <div class="tool-search">
-                <input type="text" class="search-input" placeholder="ابحث عن أداة..." id="toolSearchInput" onkeyup="filterTools()">
-            </div>
-            
-            <div class="tool-categories">
-                <div class="category-tabs">
-                    <button class="category-tab active" onclick="filterByCategory('all')">الكل</button>
-                    <button class="category-tab" onclick="filterByCategory('practice')">ممارسات</button>
-                    <button class="category-tab" onclick="filterByCategory('meditation')">تأملات</button>
-                    <button class="category-tab" onclick="filterByCategory('game')">ألعاب</button>
-                    <button class="category-tab" onclick="filterByCategory('challenge')">تحديات</button>
-                    <button class="category-tab" onclick="filterByCategory('reflection')">تأملات كتابية</button>
-                    <button class="category-tab" onclick="filterByCategory('voice')">تمارين صوتية</button>
+                <div class="journey-card sakeena" onclick="selectJourney('sakeena')" data-journey="sakeena">
+                    <div class="journey-icon">🕊️</div>
+                    <div class="journey-name">رحلة السكينة</div>
+                    <div class="journey-desc">6 أشهر تحول</div>
+                </div>
+                <div class="journey-card eshraq-baseera" onclick="selectJourney('eshraq-baseera')" data-journey="eshraq-baseera">
+                    <div class="journey-icon">🌅→👁️</div>
+                    <div class="journey-name">مسار متدرج</div>
+                    <div class="journey-desc">إشراقة ثم بصيرة</div>
+                </div>
+                <div class="journey-card baseera-sakeena" onclick="selectJourney('baseera-sakeena')" data-journey="baseera-sakeena">
+                    <div class="journey-icon">👁️→🕊️</div>
+                    <div class="journey-name">مسار متدرج</div>
+                    <div class="journey-desc">بصيرة ثم سكينة</div>
                 </div>
             </div>
-            
-            <div class="library-tools" id="libraryTools">
-                <!-- Tools will be loaded here -->
+        </div>
+
+        <!-- Designer Container -->
+        <div class="designer-container" id="designerContainer">
+            <!-- Timeline View -->
+            <div class="timeline-view">
+                <div class="timeline-container" id="timelineContainer">
+                    <!-- Phases will be added dynamically -->
+                </div>
             </div>
-        </aside>
-    </div>
-    
-    <!-- Tool Customization Modal -->
-    <div id="customizationModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>تخصيص الأداة</h3>
-                <span class="close" onclick="closeModal()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <form id="customizationForm">
-                    <div class="form-group">
-                        <label>اسم الأداة</label>
-                        <input type="text" id="toolName" disabled>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>التوقيت</label>
-                        <select id="toolTiming">
-                            <option value="morning">صباحاً (6-12)</option>
-                            <option value="afternoon">ظهراً (12-6)</option>
-                            <option value="evening">مساءً (6-12)</option>
-                            <option value="flexible">مرن</option>
-                        </select>
-                        <div class="help-text">متى يُفضل ممارسة هذه الأداة؟</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>التكرار</label>
-                        <select id="toolFrequency">
-                            <option value="daily">يومياً</option>
-                            <option value="every2days">كل يومين</option>
-                            <option value="weekly">أسبوعياً</option>
-                            <option value="asneeded">حسب الحاجة</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>المدة (بالدقائق)</label>
-                        <input type="number" id="toolDuration" min="5" max="60" value="15">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>تعليمات إضافية للعميل</label>
-                        <textarea id="toolInstructions" placeholder="أي توجيهات خاصة لهذه الأداة في هذه المرحلة..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>رسالة التذكير</label>
-                        <textarea id="reminderMessage" placeholder="رسالة تحفيزية تُرسل مع التذكير..."></textarea>
-                    </div>
-                    
-                    <div style="text-align: center; margin-top: 2rem;">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
-                        <button type="button" class="btn btn-primary" onclick="saveCustomization()">حفظ التخصيص</button>
-                    </div>
-                </form>
+
+            <!-- Phase Details -->
+            <div class="phase-details" id="phaseDetails">
+                <!-- Phase details will be loaded here -->
             </div>
         </div>
     </div>
-    
-    <!-- Success Modal -->
-    <div id="successModal" class="modal">
+
+    <!-- Tools Library Modal -->
+    <div class="modal" id="toolsModal">
         <div class="modal-content">
-            <div class="success-message">
-                <div class="success-icon">✓</div>
-                <h3>تم حفظ التصميم بنجاح!</h3>
-                <p>يمكنك الآن استخدام هذا التصميم عند إنشاء رحلة جديدة لأي عميل</p>
-                <button class="btn btn-primary" onclick="closeSuccessModal()" style="margin-top: 2rem;">
-                    حسناً
+            <div class="modal-header">
+                <h3 class="modal-title">اختر أداة من المكتبة</h3>
+                <button class="modal-close" onclick="closeModal('toolsModal')">×</button>
+            </div>
+            <div class="tools-library" id="toolsLibrary">
+                <!-- Tools will be loaded here -->
+            </div>
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button class="btn btn-primary" onclick="addSelectedTool()">
+                    <span>➕</span>
+                    <span>إضافة الأداة المحددة</span>
                 </button>
             </div>
         </div>
     </div>
-    
+
+    <!-- Custom Component Modal -->
+    <div class="modal" id="componentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="componentModalTitle">إضافة مكون جديد</h3>
+                <button class="modal-close" onclick="closeModal('componentModal')">×</button>
+            </div>
+            <form id="componentForm">
+                <div class="form-group">
+                    <label class="form-label">نوع المكون</label>
+                    <select class="form-control" id="componentType" onchange="updateComponentForm()">
+                        <option value="message">💬 رسالة</option>
+                        <option value="exercise">📝 تمرين</option>
+                        <option value="homework">📚 واجب</option>
+                        <option value="document">📄 مستند</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">العنوان</label>
+                    <input type="text" class="form-control" id="componentTitle" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">المحتوى</label>
+                    <textarea class="form-control" id="componentContent" rows="4" required></textarea>
+                </div>
+                <div class="form-group" id="timingGroup" style="display: none;">
+                    <label class="form-label">التوقيت</label>
+                    <select class="form-control" id="componentTiming">
+                        <option value="before">قبل الجلسة</option>
+                        <option value="during">أثناء الجلسة</option>
+                        <option value="after">بعد الجلسة</option>
+                    </select>
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('componentModal')">
+                        إلغاء
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>✓</span>
+                        <span>إضافة</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
-    
+
     <script>
         // Initialize Firebase
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
-        // State Management
+
+        // Global Variables
         let selectedJourney = null;
-        let selectedPhase = null;
-        let journeyDesign = {
-            eshraq: {
-                phases: []
-            },
-            baseera: {
-                phases: []
-            },
-            sakeena: {
-                phases: []
-            }
-        };
-        let allTools = [];
+        let currentPhase = null;
         let currentSession = null;
-        let currentTool = null;
-        
+        let journeyDesigns = {};
+        let availableTools = [];
+        let selectedToolId = null;
+
         // Journey Templates
-        const journeyTemplates = {
-            eshraq: {
-                title: 'رحلة الإشراقة',
-                description: 'من ظلمة المحنة إلى نور الوعي الأول',
+        const defaultTemplates = {
+            'eshraq': {
+                name: 'رحلة الإشراقة',
                 icon: '🌅',
-                color: 'var(--eshraq-color)',
                 phases: [
                     {
-                        id: 'phase1',
+                        id: 'pre-journey',
+                        name: 'ما قبل الرحلة',
+                        type: 'preparation',
+                        icon: '🚀',
+                        components: [
+                            {
+                                type: 'message',
+                                title: 'رسالة ترحيب',
+                                content: 'مرحباً بك في رحلة الإشراقة، رحلة من الظلمة إلى النور...'
+                            }
+                        ]
+                    },
+                    {
+                        id: 'phase-1',
                         name: 'الاستقبال والاحتواء',
+                        type: 'journey',
+                        icon: '🌅',
                         sessions: [
                             {
-                                id: 'session1',
-                                title: 'الاستقبال',
-                                subtitle: 'خلق مساحة آمنة للألم ليتكلم',
-                                duration: '90-120 دقيقة',
-                                objectives: [
-                                    'بناء الأمان والثقة',
-                                    'فهم التحدي الحالي بعمق',
-                                    'تقديم أول أداة عملية'
-                                ],
-                                suggestedTools: ['practice', 'voice']
+                                id: 'session-1',
+                                title: 'جلسة الاستقبال',
+                                duration: 90,
+                                components: []
                             }
                         ]
                     },
                     {
-                        id: 'phase2',
-                        name: 'الاستجابة والأدوات',
-                        sessions: [
-                            {
-                                id: 'session2',
-                                title: 'الاستجابة',
-                                subtitle: 'تعميق الوعي وتوسيع الأدوات',
-                                duration: '75-90 دقيقة',
-                                objectives: [
-                                    'تعميق الفهم للتحدي',
-                                    'تقديم المثلث القلبي المبسط',
-                                    'بناء خطة عمل واضحة'
-                                ],
-                                suggestedTools: ['practice', 'reflection', 'meditation']
-                            }
-                        ]
-                    },
-                    {
-                        id: 'phase3',
-                        name: 'التمكين والاستقلال',
-                        sessions: [
-                            {
-                                id: 'session3',
-                                title: 'الإنارة',
-                                subtitle: 'التكامل والاستقلالية',
-                                duration: '60-75 دقيقة',
-                                objectives: [
-                                    'تقييم التقدم',
-                                    'تثبيت المكتسبات',
-                                    'فتح آفاق للنمو المستقبلي'
-                                ],
-                                suggestedTools: ['challenge', 'reflection']
-                            }
-                        ]
+                        id: 'post-journey',
+                        name: 'ما بعد الرحلة',
+                        type: 'follow-up',
+                        icon: '🎯',
+                        components: []
                     }
                 ]
             },
-            baseera: {
-                title: 'رحلة البصيرة',
-                description: 'من سطح الوعي إلى أعماق المعرفة',
+            'baseera': {
+                name: 'رحلة البصيرة',
                 icon: '👁️',
-                color: 'var(--baseera-color)',
                 phases: [
                     {
-                        id: 'phase1',
-                        name: 'الكشف',
+                        id: 'pre-journey',
+                        name: 'ما قبل الرحلة',
+                        type: 'preparation',
+                        icon: '🚀',
+                        components: []
+                    },
+                    {
+                        id: 'phase-1',
+                        name: 'مرحلة الكشف',
+                        type: 'journey',
+                        icon: '🔍',
                         sessions: [
                             {
-                                id: 'session1',
+                                id: 'session-1',
                                 title: 'العودة للقصة',
-                                subtitle: 'إعادة قراءة قصة الحياة من منظور أعمق',
-                                duration: '90 دقيقة',
-                                objectives: [
-                                    'رسم خط الحياة',
-                                    'استكشاف الجذور',
-                                    'رؤية الأنماط الكبرى'
-                                ],
-                                suggestedTools: ['reflection', 'voice']
+                                duration: 90,
+                                components: []
                             },
                             {
-                                id: 'session2',
+                                id: 'session-2',
                                 title: 'البنية النفسية',
-                                subtitle: 'فهم الخريطة الداخلية',
-                                duration: '90 دقيقة',
-                                objectives: [
-                                    'تقديم البنية الرباعية بعمق',
-                                    'استكشاف الدوافع الثلاثة',
-                                    'اكتشاف المحور المهيمن'
-                                ],
-                                suggestedTools: ['practice', 'meditation']
-                            },
-                            {
-                                id: 'session3',
-                                title: 'الشوق الخفي',
-                                subtitle: 'الوصول للشوق الأصيل',
-                                duration: '90 دقيقة',
-                                objectives: [
-                                    'رحلة للداخل',
-                                    'تمرين السحر العكسي',
-                                    'ربط الشوق بالخُلُق'
-                                ],
-                                suggestedTools: ['meditation', 'reflection']
-                            },
-                            {
-                                id: 'session4',
-                                title: 'تحديد المسلك',
-                                subtitle: 'الكشف الحكيم عن النمط',
-                                duration: '90 دقيقة',
-                                objectives: [
-                                    'الاستعداد للمعرفة',
-                                    'الكشف التدريجي',
-                                    'استكشاف المسلك بعمق'
-                                ],
-                                suggestedTools: ['practice', 'game']
+                                duration: 90,
+                                components: []
                             }
                         ]
                     },
                     {
-                        id: 'phase2',
-                        name: 'التعمق',
-                        sessions: [
-                            {
-                                id: 'session5',
-                                title: 'خريطة المحفزات',
-                                subtitle: 'فهم ما يحركك',
-                                duration: '90 دقيقة',
-                                objectives: [
-                                    'المحفزات الخاصة بالنمط',
-                                    'فهم دورة التحفيز',
-                                    'تطوير بروتوكول شخصي'
-                                ],
-                                suggestedTools: ['practice', 'challenge']
-                            },
-                            {
-                                id: 'session6',
-                                title: 'العقليتان بعمق',
-                                subtitle: 'من التقييد إلى التطور',
-                                duration: '90 دقيقة',
-                                objectives: [
-                                    'رؤية العقلية الحالية',
-                                    'مفاتيح التحول',
-                                    'تطبيقات حية'
-                                ],
-                                suggestedTools: ['practice', 'reflection']
-                            },
-                            {
-                                id: 'session7',
-                                title: 'المثلث القلبي المتقدم',
-                                subtitle: 'الممارسة العميقة',
-                                duration: '90 دقيقة',
-                                objectives: [
-                                    'الانفتاح العميق',
-                                    'الحضور الكامل',
-                                    'التحرك الحكيم'
-                                ],
-                                suggestedTools: ['meditation', 'practice']
-                            }
-                        ]
+                        id: 'phase-2',
+                        name: 'مرحلة التعمق',
+                        type: 'journey',
+                        icon: '💡',
+                        sessions: []
                     },
                     {
-                        id: 'phase3',
-                        name: 'التكامل',
-                        sessions: [
-                            {
-                                id: 'session8',
-                                title: 'التطبيق في العلاقات',
-                                subtitle: 'فهم الآخرين',
-                                duration: '90 دقيقة',
-                                objectives: [
-                                    'فهم أنماط الآخرين',
-                                    'ديناميكيات التفاعل',
-                                    'الممارسة العملية'
-                                ],
-                                suggestedTools: ['game', 'practice']
-                            },
-                            {
-                                id: 'session9',
-                                title: 'خطة التحول',
-                                subtitle: 'البناء المخصص',
-                                duration: '90 دقيقة',
-                                objectives: [
-                                    'تقييم الرحلة',
-                                    'بناء خطة مخصصة',
-                                    'نظام الدعم'
-                                ],
-                                suggestedTools: ['challenge', 'reflection']
-                            },
-                            {
-                                id: 'session10',
-                                title: 'البوابة للسكينة',
-                                subtitle: 'الاستعداد للعمق',
-                                duration: '90 دقيقة',
-                                objectives: [
-                                    'الاحتفال بالنمو',
-                                    'النظر للأمام',
-                                    'الإغلاق المفتوح'
-                                ],
-                                suggestedTools: ['reflection', 'voice']
-                            }
-                        ]
+                        id: 'phase-3',
+                        name: 'مرحلة التكامل',
+                        type: 'journey',
+                        icon: '🌟',
+                        sessions: []
+                    },
+                    {
+                        id: 'post-journey',
+                        name: 'ما بعد الرحلة',
+                        type: 'follow-up',
+                        icon: '🎯',
+                        components: []
                     }
                 ]
             },
-            sakeena: {
-                title: 'رحلة السكينة',
-                description: 'من المعرفة إلى التحقق والحياة الطيبة',
+            'sakeena': {
+                name: 'رحلة السكينة',
                 icon: '🕊️',
-                color: 'var(--sakeena-color)',
                 phases: [
                     {
-                        id: 'phase1',
+                        id: 'pre-journey',
+                        name: 'ما قبل الرحلة',
+                        type: 'preparation',
+                        icon: '🚀',
+                        components: []
+                    },
+                    {
+                        id: 'phase-1',
                         name: 'التطهير العميق',
-                        sessions: [
-                            // الشهر الأول - تطهير النفس
-                            {
-                                id: 'session1',
-                                title: 'مواجهة الظلال (أسبوع 1)',
-                                subtitle: 'استكشاف الجوانب المنكرة',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'ما الذي أخفيه حتى عن نفسي؟',
-                                    'احتضان الظل برحمة',
-                                    'تمارين الدمج والقبول'
-                                ],
-                                suggestedTools: ['reflection', 'meditation', 'voice']
-                            },
-                            {
-                                id: 'session2',
-                                title: 'مواجهة الظلال (أسبوع 2)',
-                                subtitle: 'التعمق في الظل',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'استكمال استكشاف الظلال',
-                                    'فهم جذور الإنكار',
-                                    'بداية عملية القبول'
-                                ],
-                                suggestedTools: ['practice', 'reflection']
-                            },
-                            {
-                                id: 'session3',
-                                title: 'تحرير الطاقة (أسبوع 3)',
-                                subtitle: 'فك القيود القديمة',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'تحرير الغضب المكبوت بأمان',
-                                    'تحرير الحزن المحتبس',
-                                    'إعادة توجيه الطاقة'
-                                ],
-                                suggestedTools: ['practice', 'voice', 'game']
-                            },
-                            {
-                                id: 'session4',
-                                title: 'تحرير الطاقة (أسبوع 4)',
-                                subtitle: 'استكمال التحرير',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'التحرر من المخاوف العميقة',
-                                    'بناء قنوات صحية للطاقة',
-                                    'الاستعداد لتطهير الفؤاد'
-                                ],
-                                suggestedTools: ['meditation', 'challenge']
-                            },
-                            // الشهر الثاني - تطهير الفؤاد
-                            {
-                                id: 'session5',
-                                title: 'الوصول للجوهر (أسبوع 5)',
-                                subtitle: 'رحلة إلى المركز',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'رحلات تأملية عميقة',
-                                    'من أنا قبل كل الأقنعة؟',
-                                    'لقاء الطفل الأصيل'
-                                ],
-                                suggestedTools: ['meditation', 'reflection', 'voice']
-                            },
-                            {
-                                id: 'session6',
-                                title: 'الوصول للجوهر (أسبوع 6)',
-                                subtitle: 'استعادة البراءة',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'استعادة البراءة الواعية',
-                                    'التواصل مع الفطرة',
-                                    'تقوية الصلة بالجوهر'
-                                ],
-                                suggestedTools: ['practice', 'meditation']
-                            },
-                            {
-                                id: 'session7',
-                                title: 'شفاء الجروح الأولية (أسبوع 7)',
-                                subtitle: 'العمل مع الطفولة',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'العمل مع ذكريات الطفولة',
-                                    'إعادة كتابة القصة',
-                                    'المسامحة العميقة'
-                                ],
-                                suggestedTools: ['reflection', 'voice', 'practice']
-                            },
-                            {
-                                id: 'session8',
-                                title: 'شفاء الجروح الأولية (أسبوع 8)',
-                                subtitle: 'التحرر من الأحكام',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'التحرر من أحكام الماضي',
-                                    'بناء سردية جديدة',
-                                    'الاستعداد لتطهير الصدر والقلب'
-                                ],
-                                suggestedTools: ['meditation', 'challenge']
-                            },
-                            // الشهر الثالث - تطهير الصدر والقلب
-                            {
-                                id: 'session9',
-                                title: 'تنقية الصدر (أسبوع 9)',
-                                subtitle: 'تنظيف الفضاء الداخلي',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'تنظيف الفضاء الداخلي',
-                                    'طرد الوساوس المقيمة',
-                                    'فتح النوافذ للنور'
-                                ],
-                                suggestedTools: ['practice', 'meditation', 'reflection']
-                            },
-                            {
-                                id: 'session10',
-                                title: 'تنقية الصدر (أسبوع 10)',
-                                subtitle: 'ممارسات الانشراح',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'ممارسات الانشراح',
-                                    'توسيع فضاء الصدر',
-                                    'الاستعداد لبناء القلب السليم'
-                                ],
-                                suggestedTools: ['meditation', 'voice']
-                            },
-                            {
-                                id: 'session11',
-                                title: 'بناء القلب السليم (أسبوع 11)',
-                                subtitle: 'علاج أمراض القلب',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'علاج أمراض القلب',
-                                    'تقوية الاتصال بالله',
-                                    'ترسيخ التوجه الصحيح'
-                                ],
-                                suggestedTools: ['practice', 'meditation', 'reflection']
-                            },
-                            {
-                                id: 'session12',
-                                title: 'بناء القلب السليم (أسبوع 12)',
-                                subtitle: 'تثبيت القبلة الداخلية',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'تثبيت القبلة الداخلية',
-                                    'تقوية اليقين',
-                                    'الاستعداد لمرحلة البناء'
-                                ],
-                                suggestedTools: ['meditation', 'challenge']
-                            }
-                        ]
+                        type: 'journey',
+                        icon: '💧',
+                        sessions: []
                     },
                     {
-                        id: 'phase2',
+                        id: 'phase-2',
                         name: 'البناء الجديد',
-                        sessions: [
-                            // الشهر الرابع - أسس النبالة
-                            {
-                                id: 'session13',
-                                title: 'الهوية الجديدة (أسبوع 13)',
-                                subtitle: 'من أنا الآن؟',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'من أنا الآن؟',
-                                    'بناء على الجوهر لا القشور',
-                                    'تصميم الحياة من الداخل'
-                                ],
-                                suggestedTools: ['reflection', 'voice', 'practice']
-                            },
-                            {
-                                id: 'session14',
-                                title: 'الهوية الجديدة (أسبوع 14)',
-                                subtitle: 'الرؤية الواضحة',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'الرؤية الواضحة للمستقبل',
-                                    'رسم خريطة الحياة الجديدة',
-                                    'تحديد المعالم الرئيسية'
-                                ],
-                                suggestedTools: ['reflection', 'challenge']
-                            },
-                            {
-                                id: 'session15',
-                                title: 'العادات النبيلة (أسبوع 15)',
-                                subtitle: 'ممارسات يومية ثابتة',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'ممارسات يومية ثابتة',
-                                    'طقوس التواصل مع المصدر',
-                                    'بناء الإيقاع الصحي'
-                                ],
-                                suggestedTools: ['practice', 'meditation', 'challenge']
-                            },
-                            {
-                                id: 'session16',
-                                title: 'العادات النبيلة (أسبوع 16)',
-                                subtitle: 'الثبات مع المرونة',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'الثبات مع المرونة',
-                                    'تعميق الممارسات',
-                                    'الاستعداد لبناء العلاقات'
-                                ],
-                                suggestedTools: ['practice', 'reflection']
-                            },
-                            // الشهر الخامس - عالقات النور
-                            {
-                                id: 'session17',
-                                title: 'الشفاء العلائقي (أسبوع 17)',
-                                subtitle: 'مراجعة كل العلاقات',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'مراجعة كل العلاقات',
-                                    'الشفاء والمسامحة',
-                                    'وضع حدود صحية'
-                                ],
-                                suggestedTools: ['reflection', 'voice', 'practice']
-                            },
-                            {
-                                id: 'session18',
-                                title: 'الشفاء العلائقي (أسبوع 18)',
-                                subtitle: 'العطاء من الفيض',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'العطاء من الفيض',
-                                    'تحويل العلاقات السامة',
-                                    'بناء دوائر الدعم'
-                                ],
-                                suggestedTools: ['practice', 'game', 'meditation']
-                            },
-                            {
-                                id: 'session19',
-                                title: 'بناء الأخوة (أسبوع 19)',
-                                subtitle: 'إيجاد القبيلة الروحية',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'إيجاد القبيلة الروحية',
-                                    'بناء علاقات أصيلة',
-                                    'الخدمة المتبادلة'
-                                ],
-                                suggestedTools: ['challenge', 'practice', 'reflection']
-                            },
-                            {
-                                id: 'session20',
-                                title: 'بناء الأخوة (أسبوع 20)',
-                                subtitle: 'الرفقة في الطريق',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'الرفقة في الطريق',
-                                    'تعميق روابط الأخوة',
-                                    'الاستعداد للمشروع الحياتي'
-                                ],
-                                suggestedTools: ['practice', 'voice']
-                            },
-                            // الشهر السادس - المشروع الحياتي
-                            {
-                                id: 'session21',
-                                title: 'اكتشاف المراد الخاص (أسبوع 21)',
-                                subtitle: 'ما دوري الفريد؟',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'ما دوري الفريد؟',
-                                    'ربط الشوق بالخدمة',
-                                    'تصميم المشروع'
-                                ],
-                                suggestedTools: ['reflection', 'meditation', 'voice']
-                            },
-                            {
-                                id: 'session22',
-                                title: 'اكتشاف المراد الخاص (أسبوع 22)',
-                                subtitle: 'خطة التنفيذ',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'خطة التنفيذ التفصيلية',
-                                    'تحديد الموارد المطلوبة',
-                                    'بناء فريق الدعم'
-                                ],
-                                suggestedTools: ['challenge', 'practice']
-                            },
-                            {
-                                id: 'session23',
-                                title: 'البدء والتجريب (أسبوع 23)',
-                                subtitle: 'الخطوات الأولى',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'الخطوات الأولى',
-                                    'التعديل والتحسين',
-                                    'بناء الزخم'
-                                ],
-                                suggestedTools: ['practice', 'reflection', 'challenge']
-                            },
-                            {
-                                id: 'session24',
-                                title: 'البدء والتجريب (أسبوع 24)',
-                                subtitle: 'الاحتفال بالبدايات',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'الاحتفال بالبدايات',
-                                    'تقييم المسار',
-                                    'الاستعداد للإشعاع'
-                                ],
-                                suggestedTools: ['voice', 'reflection', 'meditation']
-                            }
-                        ]
+                        type: 'journey',
+                        icon: '🏗️',
+                        sessions: []
                     },
                     {
-                        id: 'phase3',
+                        id: 'phase-3',
                         name: 'الإشعاع والخدمة',
-                        sessions: [
-                            {
-                                id: 'session25',
-                                title: 'المراجعة والدعم',
-                                subtitle: 'تقييم الرحلة',
-                                duration: '120 دقيقة',
-                                objectives: [
-                                    'مراجعة شاملة للتحول',
-                                    'تعميق الممارسة',
-                                    'مواجهة التحديات الجديدة'
-                                ],
-                                suggestedTools: ['reflection', 'practice', 'meditation']
-                            }
-                        ]
+                        type: 'journey',
+                        icon: '✨',
+                        sessions: []
+                    },
+                    {
+                        id: 'post-journey',
+                        name: 'ما بعد الرحلة',
+                        type: 'follow-up',
+                        icon: '🎯',
+                        components: []
+                    }
+                ]
+            },
+            'eshraq-baseera': {
+                name: 'مسار متدرج: إشراقة → بصيرة',
+                icon: '🌅→👁️',
+                phases: [
+                    {
+                        id: 'pre-journey',
+                        name: 'ما قبل الرحلة',
+                        type: 'preparation',
+                        icon: '🚀',
+                        components: []
+                    },
+                    {
+                        id: 'phase-eshraq',
+                        name: 'مرحلة الإشراقة',
+                        type: 'journey',
+                        icon: '🌅',
+                        sessions: []
+                    },
+                    {
+                        id: 'phase-transition',
+                        name: 'مرحلة الانتقال',
+                        type: 'transition',
+                        icon: '🌉',
+                        components: []
+                    },
+                    {
+                        id: 'phase-baseera',
+                        name: 'مرحلة البصيرة',
+                        type: 'journey',
+                        icon: '👁️',
+                        sessions: []
+                    },
+                    {
+                        id: 'post-journey',
+                        name: 'ما بعد الرحلة',
+                        type: 'follow-up',
+                        icon: '🎯',
+                        components: []
+                    }
+                ]
+            },
+            'baseera-sakeena': {
+                name: 'مسار متدرج: بصيرة → سكينة',
+                icon: '👁️→🕊️',
+                phases: [
+                    {
+                        id: 'pre-journey',
+                        name: 'ما قبل الرحلة',
+                        type: 'preparation',
+                        icon: '🚀',
+                        components: []
+                    },
+                    {
+                        id: 'phase-baseera',
+                        name: 'مرحلة البصيرة',
+                        type: 'journey',
+                        icon: '👁️',
+                        sessions: []
+                    },
+                    {
+                        id: 'phase-transition',
+                        name: 'مرحلة الانتقال',
+                        type: 'transition',
+                        icon: '🌉',
+                        components: []
+                    },
+                    {
+                        id: 'phase-sakeena',
+                        name: 'مرحلة السكينة',
+                        type: 'journey',
+                        icon: '🕊️',
+                        sessions: []
+                    },
+                    {
+                        id: 'post-journey',
+                        name: 'ما بعد الرحلة',
+                        type: 'follow-up',
+                        icon: '🎯',
+                        components: []
                     }
                 ]
             }
         };
-        
-        // Tool type icons and names
-        const toolTypeInfo = {
-            practice: { icon: '🎯', name: 'ممارسة', color: 'var(--practice-color)' },
-            meditation: { icon: '🧘', name: 'تأمل', color: 'var(--meditation-color)' },
-            game: { icon: '🎮', name: 'لعبة', color: 'var(--game-color)' },
-            challenge: { icon: '🏆', name: 'تحدي', color: 'var(--challenge-color)' },
-            reflection: { icon: '📝', name: 'تأمل كتابي', color: 'var(--reflection-color)' },
-            voice: { icon: '🎤', name: 'تمرين صوتي', color: 'var(--voice-color)' }
-        };
-        
-        // Initialize on load
-        window.onload = function() {
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
             loadTools();
             loadSavedDesigns();
-        };
-        
-        // Check authentication
+            setupEventListeners();
+        });
+
+        // Check Authentication
         function checkAuth() {
             const authToken = sessionStorage.getItem('adminAuth');
             const authTime = sessionStorage.getItem('authTime');
             const oneHour = 60 * 60 * 1000;
-            
-            if (authToken === 'true' && authTime && (Date.now() - parseInt(authTime) < oneHour)) {
-                // User is authenticated
-            } else {
+
+            if (!authToken || authToken !== 'true' || 
+                !authTime || (Date.now() - parseInt(authTime) > oneHour)) {
                 window.location.href = 'admin-dashboard.html';
             }
         }
-        
-        // Logout
-        function logout() {
-            if (confirm('هل تريد تسجيل الخروج؟')) {
-                sessionStorage.clear();
-                window.location.href = 'admin-dashboard.html';
-            }
-        }
-        
-        // Load tools from database
+
+        // Load Tools from Database
         async function loadTools() {
+            showLoading(true);
             try {
                 const snapshot = await db.collection('toolsLibrary')
                     .orderBy('basicInfo.createdDate', 'desc')
                     .get();
                 
-                allTools = [];
-                
+                availableTools = [];
                 snapshot.forEach(doc => {
-                    allTools.push({
+                    availableTools.push({
                         id: doc.id,
                         ...doc.data()
                     });
                 });
-                
-                displayLibraryTools();
-                
+
+                console.log('Loaded tools:', availableTools.length);
             } catch (error) {
                 console.error('Error loading tools:', error);
                 showNotification('خطأ في تحميل الأدوات', 'error');
+            } finally {
+                showLoading(false);
             }
         }
-        
-        // Display tools in library
-        function displayLibraryTools() {
-            const container = document.getElementById('libraryTools');
-            const searchTerm = document.getElementById('toolSearchInput').value.toLowerCase();
-            
-            let filteredTools = allTools.filter(tool => {
-                const matchesSearch = tool.basicInfo.name.toLowerCase().includes(searchTerm) ||
-                                    tool.basicInfo.description.toLowerCase().includes(searchTerm);
+
+        // Load Saved Designs
+        async function loadSavedDesigns() {
+            try {
+                const snapshot = await db.collection('journeyDesigns').get();
                 
-                const activeCategory = document.querySelector('.category-tab.active').textContent;
-                const matchesCategory = activeCategory === 'الكل' || 
-                                      tool.basicInfo.type === getCategoryType(activeCategory);
-                
-                return matchesSearch && matchesCategory;
-            });
-            
-            if (filteredTools.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🔍</div>
-                        <p>لا توجد أدوات مطابقة</p>
-                    </div>
-                `;
-                return;
+                snapshot.forEach(doc => {
+                    journeyDesigns[doc.id] = doc.data().design || defaultTemplates[doc.id];
+                });
+
+                // Fill missing designs with defaults
+                Object.keys(defaultTemplates).forEach(key => {
+                    if (!journeyDesigns[key]) {
+                        journeyDesigns[key] = JSON.parse(JSON.stringify(defaultTemplates[key]));
+                    }
+                });
+
+                console.log('Loaded designs:', Object.keys(journeyDesigns));
+            } catch (error) {
+                console.error('Error loading designs:', error);
+                // Use defaults
+                journeyDesigns = JSON.parse(JSON.stringify(defaultTemplates));
             }
-            
-            let html = '';
-            filteredTools.forEach(tool => {
-                const typeInfo = toolTypeInfo[tool.basicInfo.type] || { icon: '❓', name: 'غير محدد' };
-                
-                html += `
-                    <div class="library-tool-item" draggable="true" data-tool-id="${tool.id}">
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <div class="tool-type-icon ${tool.basicInfo.type}">
-                                ${typeInfo.icon}
-                            </div>
-                            <div style="flex: 1;">
-                                <div class="tool-name">${tool.basicInfo.name}</div>
-                                <div style="font-size: 0.8rem; color: #666; margin-top: 0.3rem;">
-                                    ${typeInfo.name} • ${tool.settings.defaultDuration || 15} دقيقة
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-            
-            // Add drag event listeners
-            document.querySelectorAll('.library-tool-item').forEach(item => {
-                item.addEventListener('dragstart', handleDragStart);
-                item.addEventListener('dragend', handleDragEnd);
-            });
         }
-        
-        // Get category type from Arabic name
-        function getCategoryType(arabicName) {
-            const mapping = {
-                'ممارسات': 'practice',
-                'تأملات': 'meditation',
-                'ألعاب': 'game',
-                'تحديات': 'challenge',
-                'تأملات كتابية': 'reflection',
-                'تمارين صوتية': 'voice'
-            };
-            return mapping[arabicName] || '';
-        }
-        
-        // Filter tools
-        function filterTools() {
-            displayLibraryTools();
-        }
-        
-        // Filter by category
-        function filterByCategory(category) {
-            document.querySelectorAll('.category-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            displayLibraryTools();
-        }
-        
-        // Select journey
+
+        // Select Journey
         function selectJourney(journeyType) {
             selectedJourney = journeyType;
             
@@ -2001,491 +1406,965 @@
             document.querySelectorAll('.journey-card').forEach(card => {
                 card.classList.remove('active');
             });
-            event.currentTarget.classList.add('active');
+            document.querySelector(`[data-journey="${journeyType}"]`).classList.add('active');
             
-            // Update header
-            const template = journeyTemplates[journeyType];
-            document.getElementById('selectedJourneyTitle').textContent = template.title;
-            document.getElementById('selectedJourneyDesc').textContent = template.description;
+            // Show designer
+            document.getElementById('designerContainer').classList.add('active');
             
-            // Show action buttons
-            document.getElementById('previewBtn').style.display = 'inline-flex';
-            document.getElementById('saveBtn').style.display = 'inline-flex';
-            
-            // Hide welcome state and show content
-            document.getElementById('welcomeState').style.display = 'none';
-            document.getElementById('journeyContent').style.display = 'block';
-            
-            // Load journey content
-            loadJourneyContent(journeyType);
+            // Load journey design
+            loadJourneyDesign(journeyType);
         }
-        
-        // Load journey content
-        function loadJourneyContent(journeyType) {
-            const template = journeyTemplates[journeyType];
-            const savedDesign = journeyDesign[journeyType];
-            
-            let html = `
-                <div class="phases-container">
-                    <div class="phases-header">
-                        <h3>${template.title} - تصميم المراحل والأدوات</h3>
-                        <button class="btn btn-secondary" onclick="resetDesign('${journeyType}')">
-                            <span>🔄</span> إعادة تعيين
-                        </button>
-                    </div>
-                    
-                    <div class="phase-tabs">
-            `;
-            
-            // Generate phase tabs
-            template.phases.forEach((phase, index) => {
-                html += `
-                    <button class="phase-tab ${index === 0 ? 'active' : ''}" 
-                            onclick="selectPhase('${journeyType}', ${index})">
-                        ${phase.name}
-                        <span class="phase-badge">${phase.sessions.length} جلسات</span>
-                    </button>
-                `;
+
+        // Load Journey Design
+        function loadJourneyDesign(journeyType) {
+            const design = journeyDesigns[journeyType] || defaultTemplates[journeyType];
+            renderTimeline(design);
+        }
+
+        // Render Timeline
+        function renderTimeline(design) {
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = '';
+
+            design.phases.forEach((phase, index) => {
+                const phaseEl = createPhaseElement(phase, index);
+                container.appendChild(phaseEl);
             });
-            
-            html += `
-                    </div>
-            `;
-            
-            // Generate phase content
-            template.phases.forEach((phase, phaseIndex) => {
-                html += `
-                    <div class="phase-content ${phaseIndex === 0 ? 'active' : ''}" 
-                         id="phase-${journeyType}-${phaseIndex}">
-                        
-                        <div class="phase-info">
-                            <h4>${phase.name}</h4>
-                            <p>هذه المرحلة تحتوي على ${phase.sessions.length} جلسات مصممة بعناية لتحقيق أهداف محددة.</p>
-                        </div>
-                        
-                        <div class="sessions-grid">
-                `;
-                
-                // Generate sessions
-                phase.sessions.forEach((session, sessionIndex) => {
-                    html += generateSessionCard(journeyType, phaseIndex, sessionIndex, session);
-                });
-                
-                html += `
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += `
+
+            // Add "Add Phase" button
+            const addPhaseBtn = document.createElement('div');
+            addPhaseBtn.className = 'timeline-phase add-phase';
+            addPhaseBtn.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">➕</div>
+                    <div style="font-weight: 600;">إضافة مرحلة جديدة</div>
                 </div>
             `;
+            addPhaseBtn.onclick = () => addNewPhase();
+            container.appendChild(addPhaseBtn);
+        }
+
+        // Create Phase Element
+        function createPhaseElement(phase, index) {
+            const phaseEl = document.createElement('div');
+            phaseEl.className = 'timeline-phase';
+            phaseEl.dataset.phaseId = phase.id;
+            phaseEl.dataset.phaseIndex = index;
+
+            let stats = '';
+            if (phase.type === 'journey' && phase.sessions) {
+                stats = `${phase.sessions.length} جلسة`;
+            } else if (phase.components) {
+                stats = `${phase.components.length} مكون`;
+            }
+
+            phaseEl.innerHTML = `
+                <div class="phase-header">
+                    <div class="phase-title">
+                        <span class="icon">${phase.icon || '📋'}</span>
+                        <span>${phase.name}</span>
+                    </div>
+                    <div class="phase-actions">
+                        <button class="phase-action" onclick="editPhase('${phase.id}')" title="تعديل">
+                            ✏️
+                        </button>
+                        <button class="phase-action" onclick="deletePhase('${phase.id}')" title="حذف">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+                <div class="phase-stats">${stats}</div>
+            `;
+
+            phaseEl.onclick = (e) => {
+                if (!e.target.closest('.phase-action')) {
+                    selectPhase(phase.id);
+                }
+            };
+
+            return phaseEl;
+        }
+
+        // Select Phase
+        function selectPhase(phaseId) {
+            currentPhase = phaseId;
             
-            document.getElementById('journeyContent').innerHTML = html;
+            // Update UI
+            document.querySelectorAll('.timeline-phase').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`[data-phase-id="${phaseId}"]`).classList.add('active');
             
-            // Make sessions accept drop
-            document.querySelectorAll('.session-tools').forEach(toolsSection => {
-                toolsSection.addEventListener('dragover', handleDragOver);
-                toolsSection.addEventListener('drop', handleDrop);
+            // Show phase details
+            showPhaseDetails(phaseId);
+        }
+
+        // Show Phase Details
+        function showPhaseDetails(phaseId) {
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === phaseId);
+            
+            if (!phase) return;
+
+            const detailsEl = document.getElementById('phaseDetails');
+            detailsEl.innerHTML = '';
+            detailsEl.classList.add('active');
+
+            // Phase Info Section
+            const infoSection = document.createElement('div');
+            infoSection.className = 'detail-section';
+            infoSection.innerHTML = `
+                <div class="section-header">
+                    <h4 class="section-title">معلومات المرحلة</h4>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">اسم المرحلة</label>
+                    <input type="text" class="form-control" id="phaseName" 
+                           value="${phase.name}" onchange="updatePhaseName('${phaseId}')">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">وصف المرحلة</label>
+                    <textarea class="form-control" id="phaseDesc" 
+                              onchange="updatePhaseDesc('${phaseId}')">${phase.description || ''}</textarea>
+                </div>
+            `;
+            detailsEl.appendChild(infoSection);
+
+            // Content Section
+            if (phase.type === 'journey') {
+                // Sessions Section
+                const sessionsSection = document.createElement('div');
+                sessionsSection.className = 'detail-section';
+                sessionsSection.innerHTML = `
+                    <div class="section-header">
+                        <h4 class="section-title">الجلسات</h4>
+                        <button class="btn btn-sm btn-primary" onclick="addSession('${phaseId}')">
+                            <span>➕</span>
+                            <span>إضافة جلسة</span>
+                        </button>
+                    </div>
+                    <div class="sessions-list" id="sessionsList">
+                        ${phase.sessions && phase.sessions.length > 0 ? '' : 
+                          '<div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-text">لا توجد جلسات بعد</div></div>'}
+                    </div>
+                `;
+                detailsEl.appendChild(sessionsSection);
+
+                // Render sessions
+                if (phase.sessions && phase.sessions.length > 0) {
+                    const sessionsList = sessionsSection.querySelector('#sessionsList');
+                    sessionsList.innerHTML = '';
+                    phase.sessions.forEach((session, index) => {
+                        sessionsList.appendChild(createSessionElement(session, index, phaseId));
+                    });
+                }
+            } else {
+                // Components Section for non-journey phases
+                const componentsSection = document.createElement('div');
+                componentsSection.className = 'detail-section';
+                componentsSection.innerHTML = `
+                    <div class="section-header">
+                        <h4 class="section-title">المكونات</h4>
+                        <div style="position: relative;">
+                            <button class="btn btn-sm btn-primary" onclick="toggleAddComponentMenu('${phaseId}')">
+                                <span>➕</span>
+                                <span>إضافة مكون</span>
+                            </button>
+                            <div class="add-component-menu" id="addComponentMenu-${phaseId}">
+                                <div class="menu-item" onclick="showToolsModal('${phaseId}')">
+                                    <span>🔧</span>
+                                    <span>أداة من المكتبة</span>
+                                </div>
+                                <div class="menu-item" onclick="showComponentModal('message', '${phaseId}')">
+                                    <span>💬</span>
+                                    <span>رسالة مخصصة</span>
+                                </div>
+                                <div class="menu-item" onclick="showComponentModal('exercise', '${phaseId}')">
+                                    <span>📝</span>
+                                    <span>تمرين</span>
+                                </div>
+                                <div class="menu-item" onclick="showComponentModal('document', '${phaseId}')">
+                                    <span>📄</span>
+                                    <span>مستند</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="component-list" id="componentsList">
+                        ${phase.components && phase.components.length > 0 ? '' : 
+                          '<div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-text">لا توجد مكونات بعد</div></div>'}
+                    </div>
+                `;
+                detailsEl.appendChild(componentsSection);
+
+                // Render components
+                if (phase.components && phase.components.length > 0) {
+                    const componentsList = componentsSection.querySelector('#componentsList');
+                    componentsList.innerHTML = '';
+                    phase.components.forEach((component, index) => {
+                        componentsList.appendChild(createComponentElement(component, index, phaseId));
+                    });
+                }
+            }
+        }
+
+        // Create Session Element
+        function createSessionElement(session, index, phaseId) {
+            const sessionEl = document.createElement('div');
+            sessionEl.className = 'session-item';
+            sessionEl.dataset.sessionId = session.id;
+            sessionEl.dataset.sessionIndex = index;
+            sessionEl.draggable = true;
+
+            const componentsCount = session.components ? session.components.length : 0;
+
+            sessionEl.innerHTML = `
+                <div class="session-header">
+                    <div class="session-title">
+                        <span class="session-number">${index + 1}</span>
+                        <span>${session.title}</span>
+                    </div>
+                    <div class="phase-actions">
+                        <button class="phase-action" onclick="editSession('${phaseId}', '${session.id}')" title="تعديل">
+                            ✏️
+                        </button>
+                        <button class="phase-action" onclick="deleteSession('${phaseId}', '${session.id}')" title="حذف">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+                <div class="session-info">
+                    <span>⏱️ ${session.duration || 90} دقيقة</span>
+                    <span>•</span>
+                    <span>📦 ${componentsCount} مكون</span>
+                </div>
+                <div class="session-components">
+                    ${renderSessionComponents(session.components)}
+                </div>
+                <div style="margin-top: 0.75rem;">
+                    <button class="btn btn-sm btn-secondary" onclick="manageSessionComponents('${phaseId}', '${session.id}')">
+                        <span>⚙️</span>
+                        <span>إدارة المكونات</span>
+                    </button>
+                </div>
+            `;
+
+            // Add drag and drop events
+            sessionEl.addEventListener('dragstart', handleDragStart);
+            sessionEl.addEventListener('dragover', handleDragOver);
+            sessionEl.addEventListener('drop', handleDrop);
+            sessionEl.addEventListener('dragend', handleDragEnd);
+
+            return sessionEl;
+        }
+
+        // Render Session Components
+        function renderSessionComponents(components) {
+            if (!components || components.length === 0) {
+                return '<span class="component-tag">لا توجد مكونات</span>';
+            }
+
+            return components.slice(0, 3).map(comp => {
+                const icon = getComponentIcon(comp.type);
+                return `<span class="component-tag">${icon} ${comp.title || comp.name}</span>`;
+            }).join('') + (components.length > 3 ? `<span class="component-tag">+${components.length - 3}</span>` : '');
+        }
+
+        // Create Component Element
+        function createComponentElement(component, index, parentId) {
+            const componentEl = document.createElement('div');
+            componentEl.className = 'component-item';
+            componentEl.dataset.componentIndex = index;
+            componentEl.draggable = true;
+
+            const icon = getComponentIcon(component.type);
+
+            componentEl.innerHTML = `
+                <div class="component-icon ${component.type}">${icon}</div>
+                <div class="component-content">
+                    <div class="component-name">${component.title || component.name}</div>
+                    <div class="component-desc">${component.content || component.description || ''}</div>
+                </div>
+                <div class="component-actions">
+                    <button class="phase-action" onclick="editComponent('${parentId}', ${index})" title="تعديل">
+                        ✏️
+                    </button>
+                    <button class="phase-action" onclick="deleteComponent('${parentId}', ${index})" title="حذف">
+                        🗑️
+                    </button>
+                </div>
+            `;
+
+            // Add drag and drop events
+            componentEl.addEventListener('dragstart', handleDragStart);
+            componentEl.addEventListener('dragover', handleDragOver);
+            componentEl.addEventListener('drop', handleDrop);
+            componentEl.addEventListener('dragend', handleDragEnd);
+
+            return componentEl;
+        }
+
+        // Get Component Icon
+        function getComponentIcon(type) {
+            const icons = {
+                tool: '🔧',
+                message: '💬',
+                exercise: '📝',
+                homework: '📚',
+                document: '📄',
+                video: '🎥',
+                audio: '🎵'
+            };
+            return icons[type] || '📦';
+        }
+
+        // Add New Phase
+        function addNewPhase() {
+            const design = journeyDesigns[selectedJourney];
+            const newPhase = {
+                id: `phase-${Date.now()}`,
+                name: 'مرحلة جديدة',
+                type: 'journey',
+                icon: '📋',
+                sessions: []
+            };
+
+            // Insert before the last phase (post-journey)
+            const insertIndex = design.phases.length - 1;
+            design.phases.splice(insertIndex, 0, newPhase);
+
+            renderTimeline(design);
+            selectPhase(newPhase.id);
+            saveDesign();
+        }
+
+        // Add Session
+        function addSession(phaseId) {
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === phaseId);
+            
+            if (!phase || phase.type !== 'journey') return;
+
+            if (!phase.sessions) phase.sessions = [];
+
+            const newSession = {
+                id: `session-${Date.now()}`,
+                title: `جلسة ${phase.sessions.length + 1}`,
+                duration: 90,
+                components: []
+            };
+
+            phase.sessions.push(newSession);
+            showPhaseDetails(phaseId);
+            saveDesign();
+        }
+
+        // Delete Phase
+        function deletePhase(phaseId) {
+            if (!confirm('هل أنت متأكد من حذف هذه المرحلة؟')) return;
+
+            const design = journeyDesigns[selectedJourney];
+            const index = design.phases.findIndex(p => p.id === phaseId);
+            
+            if (index > -1) {
+                design.phases.splice(index, 1);
+                renderTimeline(design);
+                document.getElementById('phaseDetails').innerHTML = '';
+                document.getElementById('phaseDetails').classList.remove('active');
+                saveDesign();
+            }
+        }
+
+        // Delete Session
+        function deleteSession(phaseId, sessionId) {
+            if (!confirm('هل أنت متأكد من حذف هذه الجلسة؟')) return;
+
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === phaseId);
+            
+            if (!phase || !phase.sessions) return;
+
+            const index = phase.sessions.findIndex(s => s.id === sessionId);
+            if (index > -1) {
+                phase.sessions.splice(index, 1);
+                showPhaseDetails(phaseId);
+                saveDesign();
+            }
+        }
+
+        // Edit Session
+        function editSession(phaseId, sessionId) {
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === phaseId);
+            const session = phase.sessions.find(s => s.id === sessionId);
+            
+            if (!session) return;
+
+            const newTitle = prompt('عنوان الجلسة:', session.title);
+            if (newTitle && newTitle !== session.title) {
+                session.title = newTitle;
+                showPhaseDetails(phaseId);
+                saveDesign();
+            }
+
+            const newDuration = prompt('مدة الجلسة (بالدقائق):', session.duration);
+            if (newDuration && !isNaN(newDuration)) {
+                session.duration = parseInt(newDuration);
+                showPhaseDetails(phaseId);
+                saveDesign();
+            }
+        }
+
+        // Manage Session Components
+        function manageSessionComponents(phaseId, sessionId) {
+            currentSession = { phaseId, sessionId };
+            showPhaseDetails(phaseId);
+            
+            // Focus on the session
+            const sessionEl = document.querySelector(`[data-session-id="${sessionId}"]`);
+            if (sessionEl) {
+                sessionEl.style.border = '2px solid var(--primary)';
+                sessionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+        }
+
+        // Toggle Add Component Menu
+        function toggleAddComponentMenu(parentId) {
+            const menu = document.getElementById(`addComponentMenu-${parentId}`);
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+            
+            // Close other menus
+            document.querySelectorAll('.add-component-menu').forEach(m => {
+                if (m.id !== `addComponentMenu-${parentId}`) {
+                    m.classList.remove('show');
+                }
             });
         }
-        
-        // Generate session card
-        function generateSessionCard(journeyType, phaseIndex, sessionIndex, session) {
-            const savedTools = journeyDesign[journeyType].phases[phaseIndex]?.sessions[sessionIndex]?.tools || [];
+
+        // Show Tools Modal
+        function showToolsModal(parentId) {
+            currentPhase = parentId;
+            selectedToolId = null;
             
-            let html = `
-                <div class="session-card">
-                    <div class="session-header">
-                        <div class="session-number">${sessionIndex + 1}</div>
-                        <div class="session-title">
-                            <h5>${session.title}</h5>
-                            <p>${session.subtitle}</p>
-                        </div>
-                        <div class="session-duration">
-                            <span>⏱️</span> ${session.duration}
-                        </div>
-                    </div>
-                    
-                    <div class="phase-objectives">
-                        <h5>أهداف الجلسة:</h5>
-                        <ul>
-            `;
+            const modal = document.getElementById('toolsModal');
+            const library = document.getElementById('toolsLibrary');
             
-            session.objectives.forEach(objective => {
-                html += `<li>${objective}</li>`;
-            });
+            library.innerHTML = '';
             
-            html += `
-                        </ul>
-                    </div>
-                    
-                    <div class="session-tools" data-journey="${journeyType}" 
-                         data-phase="${phaseIndex}" data-session="${sessionIndex}">
-                        <div class="tools-header">
-                            <h6>الأدوات المخصصة لهذه الجلسة</h6>
-                            <button class="add-tool-btn" onclick="openToolsLibrary('${journeyType}', ${phaseIndex}, ${sessionIndex})">
-                                <span>➕</span> إضافة أداة
-                            </button>
-                        </div>
-                        
-                        <div class="tools-list" id="tools-${journeyType}-${phaseIndex}-${sessionIndex}">
-            `;
-            
-            if (savedTools.length === 0) {
-                html += `
-                    <div class="empty-state" style="padding: 2rem;">
-                        <p style="color: #999;">لم يتم إضافة أدوات بعد</p>
-                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">
-                            الأدوات المقترحة: ${session.suggestedTools.map(type => 
-                                toolTypeInfo[type].name
-                            ).join('، ')}
-                        </p>
+            if (availableTools.length === 0) {
+                library.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🧰</div>
+                        <div class="empty-state-text">لا توجد أدوات في المكتبة</div>
                     </div>
                 `;
             } else {
-                savedTools.forEach(toolData => {
-                    html += generateToolItem(toolData, journeyType, phaseIndex, sessionIndex);
+                availableTools.forEach(tool => {
+                    const toolEl = createToolElement(tool);
+                    library.appendChild(toolEl);
                 });
             }
             
-            html += `
-                        </div>
-                    </div>
-                </div>
-            `;
+            modal.classList.add('show');
             
-            return html;
-        }
-        
-        // Generate tool item
-        function generateToolItem(toolData, journeyType, phaseIndex, sessionIndex) {
-            const tool = allTools.find(t => t.id === toolData.toolId);
-            if (!tool) return '';
-            
-            const typeInfo = toolTypeInfo[tool.basicInfo.type] || { icon: '❓', name: 'غير محدد' };
-            const customization = toolData.customization || {};
-            
-            return `
-                <div class="tool-item">
-                    <div class="tool-type-icon ${tool.basicInfo.type}">
-                        ${typeInfo.icon}
-                    </div>
-                    <div class="tool-info">
-                        <div class="tool-name">${tool.basicInfo.name}</div>
-                        <div class="tool-meta">
-                            <span><span>⏱️</span> ${customization.duration || tool.settings.defaultDuration || 15} دقيقة</span>
-                            <span><span>🔄</span> ${getFrequencyName(customization.frequency || tool.settings.frequency)}</span>
-                            <span><span>🕐</span> ${getTimingName(customization.timing || 'flexible')}</span>
-                        </div>
-                    </div>
-                    <div class="tool-actions">
-                        <button class="tool-action-btn" onclick="customizeTool('${journeyType}', ${phaseIndex}, ${sessionIndex}, '${tool.id}')">
-                            <span>⚙️</span> تخصيص
-                        </button>
-                        <button class="tool-action-btn remove-tool-btn" onclick="removeTool('${journeyType}', ${phaseIndex}, ${sessionIndex}, '${tool.id}')">
-                            <span>🗑️</span> إزالة
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Select phase
-        function selectPhase(journeyType, phaseIndex) {
-            // Update tabs
-            document.querySelectorAll('.phase-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Update content
-            document.querySelectorAll('.phase-content').forEach((content, index) => {
-                content.classList.toggle('active', index === phaseIndex);
+            // Close menu
+            document.querySelectorAll('.add-component-menu').forEach(m => {
+                m.classList.remove('show');
             });
         }
-        
-        // Open tools library
-        function openToolsLibrary(journeyType, phaseIndex, sessionIndex) {
-            currentSession = { journeyType, phaseIndex, sessionIndex };
-            document.getElementById('toolsLibrary').classList.add('open');
-        }
-        
-        // Close tools library
-        function closeToolsLibrary() {
-            document.getElementById('toolsLibrary').classList.remove('open');
-        }
-        
-        // Drag and drop handlers
-        let draggedTool = null;
-        
-        function handleDragStart(e) {
-            draggedTool = {
-                toolId: e.currentTarget.dataset.toolId,
-                element: e.currentTarget
+
+        // Create Tool Element
+        function createToolElement(tool) {
+            const toolEl = document.createElement('div');
+            toolEl.className = 'tool-item';
+            toolEl.dataset.toolId = tool.id;
+            
+            const typeNames = {
+                practice: 'ممارسة',
+                meditation: 'تأمل',
+                game: 'لعبة',
+                challenge: 'تحدي',
+                reflection: 'تأمل كتابي',
+                voice: 'تمرين صوتي'
             };
-            e.currentTarget.classList.add('dragging');
+            
+            const typeIcons = {
+                practice: '💪',
+                meditation: '🧘',
+                game: '🎮',
+                challenge: '🎯',
+                reflection: '📝',
+                voice: '🎤'
+            };
+            
+            const typeName = typeNames[tool.basicInfo.type] || 'أداة';
+            const icon = typeIcons[tool.basicInfo.type] || '🔧';
+            
+            toolEl.innerHTML = `
+                <div class="tool-icon">${icon}</div>
+                <div class="tool-info">
+                    <div class="tool-name">${tool.basicInfo.name}</div>
+                    <div class="tool-type">${typeName} • ${tool.settings.defaultDuration || 15} دقيقة</div>
+                    <div class="tool-desc">${tool.basicInfo.description || ''}</div>
+                </div>
+            `;
+            
+            toolEl.onclick = () => selectTool(tool.id);
+            
+            return toolEl;
         }
-        
-        function handleDragEnd(e) {
-            e.currentTarget.classList.remove('dragging');
+
+        // Select Tool
+        function selectTool(toolId) {
+            selectedToolId = toolId;
+            
+            document.querySelectorAll('.tool-item').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            document.querySelector(`[data-tool-id="${toolId}"]`).classList.add('selected');
         }
-        
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.currentTarget.style.background = 'rgba(44, 85, 48, 0.1)';
-        }
-        
-        function handleDrop(e) {
-            e.preventDefault();
-            e.currentTarget.style.background = '';
-            
-            if (!draggedTool) return;
-            
-            const journey = e.currentTarget.dataset.journey;
-            const phase = parseInt(e.currentTarget.dataset.phase);
-            const session = parseInt(e.currentTarget.dataset.session);
-            
-            addToolToSession(journey, phase, session, draggedTool.toolId);
-            draggedTool = null;
-        }
-        
-        // Add tool to session
-        function addToolToSession(journeyType, phaseIndex, sessionIndex, toolId) {
-            // Initialize structure if needed
-            if (!journeyDesign[journeyType].phases[phaseIndex]) {
-                journeyDesign[journeyType].phases[phaseIndex] = { sessions: [] };
-            }
-            if (!journeyDesign[journeyType].phases[phaseIndex].sessions[sessionIndex]) {
-                journeyDesign[journeyType].phases[phaseIndex].sessions[sessionIndex] = { tools: [] };
-            }
-            
-            const tools = journeyDesign[journeyType].phases[phaseIndex].sessions[sessionIndex].tools;
-            
-            // Check if tool already exists
-            if (tools.find(t => t.toolId === toolId)) {
-                showNotification('هذه الأداة موجودة بالفعل في هذه الجلسة', 'error');
+
+        // Add Selected Tool
+        function addSelectedTool() {
+            if (!selectedToolId) {
+                showNotification('الرجاء اختيار أداة أولاً', 'warning');
                 return;
             }
             
-            // Add tool
-            tools.push({
-                toolId: toolId,
-                customization: {}
-            });
+            const tool = availableTools.find(t => t.id === selectedToolId);
+            if (!tool) return;
             
-            // Update UI
-            updateSessionTools(journeyType, phaseIndex, sessionIndex);
-            showNotification('تم إضافة الأداة بنجاح', 'success');
-        }
-        
-        // Update session tools display
-        function updateSessionTools(journeyType, phaseIndex, sessionIndex) {
-            const container = document.getElementById(`tools-${journeyType}-${phaseIndex}-${sessionIndex}`);
-            const tools = journeyDesign[journeyType].phases[phaseIndex].sessions[sessionIndex].tools;
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === currentPhase);
             
-            if (tools.length === 0) {
-                const session = journeyTemplates[journeyType].phases[phaseIndex].sessions[sessionIndex];
-                container.innerHTML = `
-                    <div class="empty-state" style="padding: 2rem;">
-                        <p style="color: #999;">لم يتم إضافة أدوات بعد</p>
-                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">
-                            الأدوات المقترحة: ${session.suggestedTools.map(type => 
-                                toolTypeInfo[type].name
-                            ).join('، ')}
-                        </p>
-                    </div>
-                `;
-            } else {
-                let html = '';
-                tools.forEach(toolData => {
-                    html += generateToolItem(toolData, journeyType, phaseIndex, sessionIndex);
-                });
-                container.innerHTML = html;
-            }
-        }
-        
-        // Remove tool
-        function removeTool(journeyType, phaseIndex, sessionIndex, toolId) {
-            if (!confirm('هل أنت متأكد من إزالة هذه الأداة؟')) return;
+            if (!phase) return;
             
-            const tools = journeyDesign[journeyType].phases[phaseIndex].sessions[sessionIndex].tools;
-            const index = tools.findIndex(t => t.toolId === toolId);
-            
-            if (index > -1) {
-                tools.splice(index, 1);
-                updateSessionTools(journeyType, phaseIndex, sessionIndex);
-                showNotification('تم إزالة الأداة', 'success');
-            }
-        }
-        
-        // Customize tool
-        function customizeTool(journeyType, phaseIndex, sessionIndex, toolId) {
-            currentTool = { journeyType, phaseIndex, sessionIndex, toolId };
-            
-            const tool = allTools.find(t => t.id === toolId);
-            const savedCustomization = journeyDesign[journeyType].phases[phaseIndex].sessions[sessionIndex].tools
-                .find(t => t.toolId === toolId)?.customization || {};
-            
-            // Populate form
-            document.getElementById('toolName').value = tool.basicInfo.name;
-            document.getElementById('toolTiming').value = savedCustomization.timing || 'flexible';
-            document.getElementById('toolFrequency').value = savedCustomization.frequency || tool.settings.frequency;
-            document.getElementById('toolDuration').value = savedCustomization.duration || tool.settings.defaultDuration || 15;
-            document.getElementById('toolInstructions').value = savedCustomization.instructions || '';
-            document.getElementById('reminderMessage').value = savedCustomization.reminderMessage || '';
-            
-            openModal();
-        }
-        
-        // Save customization
-        function saveCustomization() {
-            if (!currentTool) return;
-            
-            const customization = {
-                timing: document.getElementById('toolTiming').value,
-                frequency: document.getElementById('toolFrequency').value,
-                duration: parseInt(document.getElementById('toolDuration').value),
-                instructions: document.getElementById('toolInstructions').value,
-                reminderMessage: document.getElementById('reminderMessage').value
+            const toolComponent = {
+                type: 'tool',
+                toolId: tool.id,
+                title: tool.basicInfo.name,
+                description: tool.basicInfo.description,
+                duration: tool.settings.defaultDuration,
+                frequency: tool.settings.frequency
             };
             
-            const tools = journeyDesign[currentTool.journeyType].phases[currentTool.phaseIndex]
-                .sessions[currentTool.sessionIndex].tools;
-            const tool = tools.find(t => t.toolId === currentTool.toolId);
+            if (currentSession) {
+                // Add to session
+                const session = phase.sessions.find(s => s.id === currentSession.sessionId);
+                if (session) {
+                    if (!session.components) session.components = [];
+                    session.components.push(toolComponent);
+                }
+            } else {
+                // Add to phase
+                if (!phase.components) phase.components = [];
+                phase.components.push(toolComponent);
+            }
             
-            if (tool) {
-                tool.customization = customization;
-                updateSessionTools(currentTool.journeyType, currentTool.phaseIndex, currentTool.sessionIndex);
-                showNotification('تم حفظ التخصيص', 'success');
-                closeModal();
+            closeModal('toolsModal');
+            showPhaseDetails(currentPhase);
+            saveDesign();
+            showNotification('تم إضافة الأداة بنجاح', 'success');
+        }
+
+        // Show Component Modal
+        function showComponentModal(type, parentId) {
+            currentPhase = parentId;
+            
+            const modal = document.getElementById('componentModal');
+            const form = document.getElementById('componentForm');
+            const typeSelect = document.getElementById('componentType');
+            const titleEl = document.getElementById('componentModalTitle');
+            
+            // Reset form
+            form.reset();
+            typeSelect.value = type;
+            
+            // Update title
+            const titles = {
+                message: 'إضافة رسالة',
+                exercise: 'إضافة تمرين',
+                homework: 'إضافة واجب',
+                document: 'إضافة مستند'
+            };
+            titleEl.textContent = titles[type] || 'إضافة مكون';
+            
+            updateComponentForm();
+            modal.classList.add('show');
+            
+            // Close menu
+            document.querySelectorAll('.add-component-menu').forEach(m => {
+                m.classList.remove('show');
+            });
+        }
+
+        // Update Component Form
+        function updateComponentForm() {
+            const type = document.getElementById('componentType').value;
+            const timingGroup = document.getElementById('timingGroup');
+            
+            if (type === 'message') {
+                timingGroup.style.display = 'block';
+            } else {
+                timingGroup.style.display = 'none';
             }
         }
-        
-        // Modal functions
-        function openModal() {
-            document.getElementById('customizationModal').style.display = 'block';
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Component form submission
+            document.getElementById('componentForm').onsubmit = (e) => {
+                e.preventDefault();
+                
+                const type = document.getElementById('componentType').value;
+                const title = document.getElementById('componentTitle').value;
+                const content = document.getElementById('componentContent').value;
+                const timing = document.getElementById('componentTiming').value;
+                
+                const component = {
+                    type: type,
+                    title: title,
+                    content: content
+                };
+                
+                if (type === 'message') {
+                    component.timing = timing;
+                }
+                
+                // Add to current phase or session
+                const design = journeyDesigns[selectedJourney];
+                const phase = design.phases.find(p => p.id === currentPhase);
+                
+                if (!phase) return;
+                
+                if (currentSession) {
+                    // Add to session
+                    const session = phase.sessions.find(s => s.id === currentSession.sessionId);
+                    if (session) {
+                        if (!session.components) session.components = [];
+                        session.components.push(component);
+                    }
+                } else {
+                    // Add to phase
+                    if (!phase.components) phase.components = [];
+                    phase.components.push(component);
+                }
+                
+                closeModal('componentModal');
+                showPhaseDetails(currentPhase);
+                saveDesign();
+                showNotification('تم إضافة المكون بنجاح', 'success');
+            };
+            
+            // Click outside to close modals
+            window.onclick = (e) => {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('show');
+                }
+                
+                // Close add component menus
+                if (!e.target.closest('.add-component-menu') && !e.target.closest('.btn')) {
+                    document.querySelectorAll('.add-component-menu').forEach(m => {
+                        m.classList.remove('show');
+                    });
+                }
+            };
         }
-        
-        function closeModal() {
-            document.getElementById('customizationModal').style.display = 'none';
-            currentTool = null;
+
+        // Update Phase Name
+        function updatePhaseName(phaseId) {
+            const newName = document.getElementById('phaseName').value;
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === phaseId);
+            
+            if (phase && newName) {
+                phase.name = newName;
+                renderTimeline(design);
+                saveDesign();
+            }
         }
-        
-        function closeSuccessModal() {
-            document.getElementById('successModal').style.display = 'none';
+
+        // Update Phase Description
+        function updatePhaseDesc(phaseId) {
+            const newDesc = document.getElementById('phaseDesc').value;
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === phaseId);
+            
+            if (phase) {
+                phase.description = newDesc;
+                saveDesign();
+            }
         }
-        
-        // Save design
+
+        // Delete Component
+        function deleteComponent(parentId, index) {
+            if (!confirm('هل أنت متأكد من حذف هذا المكون؟')) return;
+            
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === parentId);
+            
+            if (!phase) return;
+            
+            if (currentSession) {
+                // Delete from session
+                const session = phase.sessions.find(s => s.id === currentSession.sessionId);
+                if (session && session.components) {
+                    session.components.splice(index, 1);
+                }
+            } else {
+                // Delete from phase
+                if (phase.components) {
+                    phase.components.splice(index, 1);
+                }
+            }
+            
+            showPhaseDetails(parentId);
+            saveDesign();
+        }
+
+        // Edit Component
+        function editComponent(parentId, index) {
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === parentId);
+            
+            if (!phase) return;
+            
+            let component;
+            if (currentSession) {
+                const session = phase.sessions.find(s => s.id === currentSession.sessionId);
+                if (session && session.components) {
+                    component = session.components[index];
+                }
+            } else {
+                if (phase.components) {
+                    component = phase.components[index];
+                }
+            }
+            
+            if (!component) return;
+            
+            // Simple edit for now
+            const newTitle = prompt('عنوان المكون:', component.title);
+            if (newTitle) {
+                component.title = newTitle;
+                showPhaseDetails(parentId);
+                saveDesign();
+            }
+        }
+
+        // Drag and Drop Functions
+        let draggedElement = null;
+        let draggedType = null;
+        let draggedData = null;
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            draggedType = e.target.classList.contains('session-item') ? 'session' : 'component';
+            
+            if (draggedType === 'session') {
+                draggedData = {
+                    phaseId: currentPhase,
+                    sessionIndex: parseInt(e.target.dataset.sessionIndex)
+                };
+            } else {
+                draggedData = {
+                    parentId: currentPhase,
+                    componentIndex: parseInt(e.target.dataset.componentIndex)
+                };
+            }
+            
+            e.target.style.opacity = '0.5';
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            return false;
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            if (!draggedElement || !e.target.closest('.session-item, .component-item')) {
+                return false;
+            }
+            
+            const targetElement = e.target.closest('.session-item, .component-item');
+            
+            if (draggedElement !== targetElement) {
+                if (draggedType === 'session' && targetElement.classList.contains('session-item')) {
+                    reorderSessions(draggedData, parseInt(targetElement.dataset.sessionIndex));
+                } else if (draggedType === 'component' && targetElement.classList.contains('component-item')) {
+                    reorderComponents(draggedData, parseInt(targetElement.dataset.componentIndex));
+                }
+            }
+            
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            e.target.style.opacity = '';
+            draggedElement = null;
+            draggedType = null;
+            draggedData = null;
+        }
+
+        // Reorder Sessions
+        function reorderSessions(dragData, targetIndex) {
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === dragData.phaseId);
+            
+            if (!phase || !phase.sessions) return;
+            
+            const fromIndex = dragData.sessionIndex;
+            if (fromIndex === targetIndex) return;
+            
+            const session = phase.sessions.splice(fromIndex, 1)[0];
+            phase.sessions.splice(targetIndex, 0, session);
+            
+            showPhaseDetails(dragData.phaseId);
+            saveDesign();
+        }
+
+        // Reorder Components
+        function reorderComponents(dragData, targetIndex) {
+            const design = journeyDesigns[selectedJourney];
+            const phase = design.phases.find(p => p.id === dragData.parentId);
+            
+            if (!phase) return;
+            
+            let components;
+            if (currentSession) {
+                const session = phase.sessions.find(s => s.id === currentSession.sessionId);
+                if (session) {
+                    components = session.components;
+                }
+            } else {
+                components = phase.components;
+            }
+            
+            if (!components) return;
+            
+            const fromIndex = dragData.componentIndex;
+            if (fromIndex === targetIndex) return;
+            
+            const component = components.splice(fromIndex, 1)[0];
+            components.splice(targetIndex, 0, component);
+            
+            showPhaseDetails(dragData.parentId);
+            saveDesign();
+        }
+
+        // Save Design
         async function saveDesign() {
             if (!selectedJourney) return;
             
-            showLoading(true);
-            
             try {
-                // Save the design to Firestore
                 await db.collection('journeyDesigns').doc(selectedJourney).set({
                     journeyType: selectedJourney,
-                    design: journeyDesign[selectedJourney],
+                    design: journeyDesigns[selectedJourney],
                     lastModified: firebase.firestore.FieldValue.serverTimestamp(),
                     modifiedBy: auth.currentUser?.uid || 'admin'
                 });
                 
-                showLoading(false);
-                document.getElementById('successModal').style.display = 'block';
-                
+                console.log('Design saved successfully');
             } catch (error) {
                 console.error('Error saving design:', error);
-                showLoading(false);
                 showNotification('خطأ في حفظ التصميم', 'error');
             }
         }
-        
-        // Load saved designs
-        async function loadSavedDesigns() {
+
+        // Save All Designs
+        async function saveAllDesigns() {
+            showLoading(true);
+            
             try {
-                const snapshot = await db.collection('journeyDesigns').get();
+                const batch = db.batch();
                 
-                snapshot.forEach(doc => {
-                    if (journeyDesign[doc.id]) {
-                        journeyDesign[doc.id] = doc.data().design;
-                    }
+                Object.keys(journeyDesigns).forEach(journeyType => {
+                    const docRef = db.collection('journeyDesigns').doc(journeyType);
+                    batch.set(docRef, {
+                        journeyType: journeyType,
+                        design: journeyDesigns[journeyType],
+                        lastModified: firebase.firestore.FieldValue.serverTimestamp(),
+                        modifiedBy: auth.currentUser?.uid || 'admin'
+                    });
                 });
                 
+                await batch.commit();
+                showNotification('تم حفظ جميع التصميمات بنجاح', 'success');
             } catch (error) {
-                console.error('Error loading saved designs:', error);
+                console.error('Error saving all designs:', error);
+                showNotification('خطأ في حفظ التصميمات', 'error');
+            } finally {
+                showLoading(false);
             }
         }
-        
-        // Reset design
-        function resetDesign(journeyType) {
-            if (!confirm('هل أنت متأكد من إعادة تعيين التصميم؟ سيتم حذف جميع الأدوات المضافة.')) return;
-            
-            journeyDesign[journeyType] = { phases: [] };
-            loadJourneyContent(journeyType);
-            showNotification('تم إعادة تعيين التصميم', 'success');
+
+        // Load Templates
+        function loadTemplates() {
+            showNotification('قوالب جاهزة قيد التطوير', 'info');
         }
-        
-        // Preview design
-        function previewDesign() {
-            // TODO: Implement preview functionality
-            showNotification('ميزة المعاينة قيد التطوير', 'info');
+
+        // Close Modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
         }
-        
-        // Helper functions
-        function getFrequencyName(frequency) {
-            const names = {
-                'daily': 'يومياً',
-                'every2days': 'كل يومين',
-                'weekly': 'أسبوعياً',
-                'asneeded': 'حسب الحاجة'
-            };
-            return names[frequency] || frequency;
-        }
-        
-        function getTimingName(timing) {
-            const names = {
-                'morning': 'صباحاً',
-                'afternoon': 'ظهراً',
-                'evening': 'مساءً',
-                'flexible': 'مرن'
-            };
-            return names[timing] || timing;
-        }
-        
+
+        // Show Loading
         function showLoading(show) {
-            document.querySelector('.loading-overlay').style.display = show ? 'flex' : 'none';
+            const overlay = document.getElementById('loadingOverlay');
+            if (show) {
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
         }
-        
+
+        // Show Notification
         function showNotification(message, type = 'success') {
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
-            
-            const icon = {
-                success: '✓',
-                error: '✗',
-                info: 'ℹ'
-            };
-            
             notification.innerHTML = `
-                <span>${icon[type] || icon.info}</span>
                 <span>${message}</span>
             `;
             
             document.body.appendChild(notification);
             
+            // Remove after 3 seconds
             setTimeout(() => {
                 notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300);
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
             }, 3000);
+            
+            // Click to dismiss
+            notification.onclick = () => {
+                notification.remove();
+            };
         }
-        
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
+
+        // Logout
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                sessionStorage.clear();
+                window.location.href = 'admin-dashboard.html';
             }
         }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                showLoading(false);
+            }, 500);
+        });
     </script>
 </body>
 </html>
